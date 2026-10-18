@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-title" content="時間練習">
+<meta name="apple-mobile-web-app-title" content="英文練習">
 <title>Wonder 3 時間練習</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -62,6 +62,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .mode h3{font-size:22px}
 .mode .dots{margin:6px 0 0}
 .mode .dot{width:20px;height:20px}
+.big.sp{background:var(--ones);color:var(--surface);box-shadow:0 5px 0 rgba(0,0,0,.28)}
+.big.sp:active{box-shadow:0 2px 0 rgba(0,0,0,.28)}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;background:var(--ones);color:var(--surface);font-size:16px;vertical-align:middle;margin-right:4px}
+.sylbox{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.syl{min-width:72px;height:16px;border-radius:8px;background:var(--surface-2);border:2px solid var(--line)}
+.bigword{font-family:var(--display);font-size:clamp(56px,12vw,84px);font-weight:600;line-height:1}
 .tile.chunk{font-size:28px;padding:0 16px;min-width:64px}
 .chunk-sep{color:var(--muted);margin:0 2px}
 .s{color:var(--accent-ink);background:var(--accent);border-radius:8px;padding:0 4px}
@@ -175,6 +181,14 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
           </div>
           <button class="big alt" id="start-kb">開始打字</button>
         </div>
+        <div class="mode">
+          <div class="mode-info">
+            <h3><span class="badge">10/18</span> 特殊練習</h3>
+            <p class="muted small" id="sp-status"></p>
+            <div class="dots" id="sp-dots" aria-label="特殊練習進度"></div>
+          </div>
+          <button class="big sp" id="start-sp">開始練習</button>
+        </div>
       </div>
     </div>
   </section>
@@ -256,6 +270,26 @@ const MIX = [
 const KB_MIX = [ ['type',6], ['typeTime',4] ];
 const MAX_REVIEW = 3; // 每回最多放幾題舊錯題
 
+/* 特殊練習：之後要換新字，改這裡就好
+   syl = 音節；chunks = 拼字方塊的正確拆法；extra = 干擾方塊（取自孩子的拼錯方式）；
+   wrong = 選擇題的錯誤拼法；tip = 答錯時的說明 */
+const SP = {
+  title: '10/18 特殊練習',
+  words: [
+    {w:'watch', zh:'看；手錶', syl:['watch'], chunks:['w','a','tch'], extra:['sh','e','ch','o'],
+     wrong:['wshe','wach','whach'], tip:'watch 只有 1 個音節。結尾的 /tʃ/ 寫成 tch，不是 sh；a 跟在 w 後面，念起來像 o。'},
+    {w:'movie', zh:'電影', syl:['mo','vie'], chunks:['mo','vie'], extra:['mon','ve','moo','vy'],
+     wrong:['monve','moovy','muvie'], tip:'mo · vie 有 2 個音節。mo 的 o 念 /u/，後面沒有 n；結尾的 /i/ 寫成 ie。'},
+    {w:'listen', zh:'聽', syl:['lis','ten'], chunks:['lis','ten'], extra:['list','en','sen','liss'],
+     wrong:['list','lisen','lissen'], tip:'lis · ten 有 2 個音節。t 不發音但要寫出來，而且後面還有 en，不能停在 list。'},
+    {w:'music', zh:'音樂', syl:['mu','sic'], chunks:['mu','sic'], extra:['mou','sk','sick','moo'],
+     wrong:['mousk','musik','mousic'], tip:'mu · sic 有 2 個音節。mu 的 u 念 /ju/，不是 ou；結尾的 /k/ 寫成 c，所以是 sic。'},
+    {w:'phone', zh:'電話', syl:['phone'], chunks:['ph','o','ne'], extra:['f','a','n','oa'],
+     wrong:['phan','fone','phon'], tip:'phone 只有 1 個音節。/f/ 寫成 ph；o 念長音 /o/，靠最後的 e 幫忙（o_e），e 不發音但要寫。'}
+  ],
+  mix: [['spBuild',5], ['spPick',3], ['spCount',2]]
+};
+
 /* ===================== Words ===================== */
 const ONES = ['','one','two','three','four','five','six','seven','eight','nine'];
 const TEENS = ['ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
@@ -315,8 +349,10 @@ const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${d.getM
 let settings = store.get('wt3_settings', {keyboard:false, advanced:false, slow:true});
 let errors = store.get('wt3_errors', []);
 let day = store.get('wt3_day', null);
-if(!day || day.date!==todayKey()) day = {date:todayKey(), results:[], kb:[]};
+const newDay = () => ({date:todayKey(), results:[], kb:[], sp:[]});
+if(!day || day.date!==todayKey()) day = newDay();
 if(!day.kb) day.kb=[];
+if(!day.sp) day.sp=[];
 const saveDay = () => store.set('wt3_day', day);
 const saveErrors = () => store.set('wt3_errors', errors);
 
@@ -336,6 +372,11 @@ function speak(text){
     u.lang='en-US'; if(voice) u.voice=voice; u.rate = settings.slow ? 0.75 : 0.95;
     speechSynthesis.speak(u);
   }catch(e){}
+}
+
+function speakSlow(text){
+  if(!('speechSynthesis' in window)) return;
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; if(voice) u.voice=voice; u.rate=0.45; speechSynthesis.speak(u); }catch(e){}
 }
 
 /* ===================== Helpers ===================== */
@@ -409,7 +450,26 @@ const GEN = {
   type: () => ({n: rand(numberPool())}),
   typeTime: () => ({h: randInt(1,12), m: rand([0,30]), v: rand(['clock','digital'])})
 };
-const TYPE_LABEL = {spell:'拼拼看', listen:'聽聽看', timeMcq:'選選看', clock:'看時鐘', reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？', type:'打出單字', typeTime:'打出時間'};
+const TYPE_LABEL = {spell:'拼拼看', listen:'聽聽看', timeMcq:'選選看', clock:'看時鐘', reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？', type:'打出單字', typeTime:'打出時間',
+  spBuild:'特殊・拼拼看', spPick:'特殊・選對拼法', spCount:'特殊・數音節'};
+
+function buildSpecial(n){
+  const idx=SP.words.map((_,i)=>i);
+  const list=[];
+  SP.mix.forEach(([t,c])=>{
+    const pool = t==='spBuild' ? idx : shuffle(idx);
+    for(let k=0;k<c;k++) list.push({type:t, params:{i:pool[k%pool.length]}});
+  });
+  const types=SP.mix.map(m=>m[0]);
+  const review = errors.filter(e=>!e.fixed && types.includes(e.type)).sort((a,b)=>b.count-a.count).slice(0,MAX_REVIEW);
+  review.forEach(r=>{
+    if(list.some(q=>q.type===r.type && q.params.i===r.params.i)) return;
+    const idx2=list.findIndex(q=>q.type===r.type && !q.review);
+    if(idx2>=0) list[idx2]={type:r.type, params:r.params, review:true};
+  });
+  return shuffle(list).slice(0,n);
+}
+function sylHTML(w){ return w.syl.map(s=>`<span class="t">${s}</span>`).join('<span class="chunk-sep"> · </span>'); }
 
 function buildSet(mix, n){
   let list=[];
@@ -426,12 +486,12 @@ function buildSet(mix, n){
 
 /* ===================== Quiz engine ===================== */
 let session=null;
-const R = () => session && session.mode==='kb' ? day.kb : day.results;
+const R = () => !session ? day.results : session.mode==='kb' ? day.kb : session.mode==='sp' ? day.sp : day.results;
 function startSession(mode){
-  if(day.date!==todayKey()) day={date:todayKey(), results:[], kb:[]};
+  if(day.date!==todayKey()) day=newDay();
   session = {mode, qs:[], i:0};
   if(R().length>=DAILY_COUNT){ R().length=0; saveDay(); }
-  session.qs = buildSet(mode==='kb'?KB_MIX:MIX, DAILY_COUNT - R().length);
+  session.qs = mode==='sp' ? buildSpecial(DAILY_COUNT - R().length) : buildSet(mode==='kb'?KB_MIX:MIX, DAILY_COUNT - R().length);
   show('quiz'); renderQ();
 }
 function qIndex(){ return R().length; }
@@ -484,6 +544,9 @@ function promptText(q){
     case 'forto': return FORTO[p.i].s;
     case 'type': return `打出 ${p.n}`;
     case 'typeTime': return `打出時間 ${digital(p.h,p.m)}`;
+    case 'spBuild': return `用方塊拼出 ${SP.words[p.i].w}（${SP.words[p.i].zh}）`;
+    case 'spPick': return `選出 ${SP.words[p.i].zh} 的正確拼法`;
+    case 'spCount': return `${SP.words[p.i].w} 有幾個音節`;
   }
 }
 
@@ -701,6 +764,78 @@ const RENDER = {
     });
   },
 
+  spBuild(q, body){
+    const W=SP.words[q.params.i];
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'sentence'},esc(W.zh)));
+    const box=el('div',{class:'sylbox','aria-label':`${W.syl.length} 個音節`});
+    W.syl.forEach(()=>box.appendChild(el('span',{class:'syl'})));
+    pr.appendChild(box);
+    pr.appendChild(el('div',{class:'zh'},`聽聽看，這個字有 ${W.syl.length} 個音節。用方塊拼出來`));
+    const row0=el('div',{class:'row',style:'justify-content:center'});
+    row0.append(speakBtn(W.w));
+    const slow=el('button',{class:'speak',type:'button'},SPEAKER+'慢慢念'); slow.onclick=()=>speakSlow(W.w);
+    row0.append(slow); pr.appendChild(row0);
+    body.appendChild(pr);
+    const tiles=shuffle([...new Set([...W.chunks,...W.extra])]);
+    const slots=el('div',{class:'slots','aria-label':'你的答案'});
+    const tileBox=el('div',{class:'tiles'});
+    const picked=[];
+    const draw=()=>{
+      slots.innerHTML='';
+      if(!picked.length) slots.appendChild(el('span',{class:'placeholder'},'點下面的方塊，組成單字'));
+      picked.forEach((ti,pi)=>{ const b=el('button',{class:'tile chunk',type:'button','aria-label':'移除 '+tiles[ti]},esc(tiles[ti])); b.onclick=()=>{picked.splice(pi,1);draw();}; slots.appendChild(b); });
+      [...tileBox.children].forEach((b,i)=>b.disabled=picked.includes(i));
+    };
+    tiles.forEach((t,i)=>{ const b=el('button',{class:'tile chunk',type:'button'},esc(t)); b.onclick=()=>{picked.push(i);draw();}; tileBox.appendChild(b); });
+    body.append(slots,tileBox);
+    const row=el('div',{class:'row',style:'justify-content:center'});
+    const clr=el('button',{class:'ghost',type:'button'},'清除'); clr.onclick=()=>{picked.length=0;draw();};
+    const ok=el('button',{class:'big',type:'button'},'確認');
+    ok.onclick=()=>{ const g=picked.map(i=>tiles[i]).join('');
+      finish(q, g===W.w, g, `${esc(W.w)} <span class="muted small">（${sylHTML(W)}）</span>`, W.w, W.tip); };
+    row.append(clr,ok); body.appendChild(row);
+    draw();
+  },
+
+  spPick(q, body){
+    const W=SP.words[q.params.i];
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'sentence'},esc(W.zh)));
+    pr.appendChild(el('div',{class:'zh'},'聽發音，選出正確的拼法'));
+    pr.appendChild(speakBtn(W.w,'再聽一次'));
+    body.appendChild(pr);
+    const grid=el('div',{class:'options'});
+    shuffle([W.w,...W.wrong]).forEach(t=>{
+      const b=el('button',{class:'opt',type:'button'},esc(t));
+      b.onclick=()=>{ const ok=t===W.w; b.classList.add(ok?'right':'wrong');
+        if(!ok) [...grid.children].find(c=>c.textContent===W.w).classList.add('right');
+        finish(q, ok, t, `${esc(W.w)} <span class="muted small">（${sylHTML(W)}）</span>`, W.w, W.tip); };
+      grid.appendChild(b);
+    });
+    body.appendChild(grid);
+    setTimeout(()=>speak(W.w),250);
+  },
+
+  spCount(q, body){
+    const W=SP.words[q.params.i], n=W.syl.length;
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'bigword'},esc(W.w)));
+    pr.appendChild(el('div',{class:'zh'},`${esc(W.zh)}・邊念邊拍手，這個字有幾個音節？`));
+    pr.appendChild(speakBtn(W.w));
+    body.appendChild(pr);
+    const grid=el('div',{class:'options'});
+    ['1','2','3'].forEach(t=>{
+      const b=el('button',{class:'opt',type:'button'},`${t} 個`);
+      b.onclick=()=>{ const ok=+t===n; b.classList.add(ok?'right':'wrong');
+        if(!ok) [...grid.children][n-1].classList.add('right');
+        finish(q, ok, `${t} 個`, `${sylHTML(W)} <span class="muted small">（${n} 個音節）</span>`, W.w,
+          n===1 ? `${W.w} 只拍 1 下。` : `拍拍手：${W.syl.join('（拍）')}（拍），共 ${n} 下。`); };
+      grid.appendChild(b);
+    });
+    body.appendChild(grid);
+  },
+
   forto(q, body){
     const it=FORTO[q.params.i];
     const pr=el('div',{class:'prompt'});
@@ -748,7 +883,7 @@ function dots(target, arr){
   for(let i=0;i<DAILY_COUNT;i++){ const r=arr[i]; target.appendChild(el('span',{class:'dot'+(r===true?' ok':r===false?' no':'')})); }
 }
 function renderHome(){
-  if(day.date!==todayKey()){ day={date:todayKey(), results:[], kb:[]}; saveDay(); }
+  if(day.date!==todayKey()){ day=newDay(); saveDay(); }
   const status=(arr, idS, idB, idD, first, desc)=>{
     const done=arr.length, right=arr.filter(Boolean).length;
     $(idS).textContent = done===0 ? `${desc}，今天 ${DAILY_COUNT} 題` :
@@ -758,6 +893,7 @@ function renderHome(){
   };
   status(day.results,'home-status','start','home-dots','開始練習','點選作答');
   status(day.kb,'kb-status','start-kb','kb-dots','開始打字','用鍵盤拼單字、打時間');
+  status(day.sp,'sp-status','start-sp','sp-dots','開始練習','watch・movie・listen・music・phone');
   const d=new Date(); const hh=d.getHours()%12||12, mm=d.getMinutes()>=30?30:0;
   $('home-clock').innerHTML=clockSVG(hh,mm);
   const wl=$('wordlist'); wl.innerHTML='';
@@ -802,6 +938,7 @@ $('nav-errors').onclick=()=>show('errors');
 $('nav-settings').onclick=()=>show('settings');
 $('start').onclick=()=>startSession('daily');
 $('start-kb').onclick=()=>startSession('kb');
+$('start-sp').onclick=()=>startSession('sp');
 $('r-home').onclick=()=>show('home');
 $('r-errors').onclick=()=>show('errors');
 $('e-clear').onclick=askClear;
@@ -810,7 +947,7 @@ $('s-rate').checked=settings.slow;
 $('s-advanced').onchange=e=>{settings.advanced=e.target.checked;store.set('wt3_settings',settings);};
 $('s-rate').onchange=e=>{settings.slow=e.target.checked;store.set('wt3_settings',settings);};
 $('s-test').onclick=()=>speak("What time is it? It's twelve thirty.");
-$('s-reset-day').onclick=()=>{ day={date:todayKey(),results:[],kb:[]}; saveDay(); show('home'); };
+$('s-reset-day').onclick=()=>{ day=newDay(); saveDay(); show('home'); };
 show('home');
 </script>
 </body>
