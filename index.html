@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-title" content="時間練習">
+<title>Wonder 3 時間練習</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+/* Layout: one centered "classroom clock" card column; big touch targets for iPad; tens = teal, ones = coral */
+:root{
+  --bg:#e8f1f7; --surface:#ffffff; --surface-2:#f2f7fb; --ink:#1d2b3a; --muted:#5b6b7c; --line:#cdd9e3;
+  --accent:#f5b62e; --accent-ink:#3a2a00; --tens:#11857a; --ones:#d9573b;
+  --good:#1f8a4c; --good-bg:#e1f4e8; --bad:#c23b2a; --bad-bg:#fbe6e2;
+  --display:"Arial Rounded MT Bold","Avenir Next","Trebuchet MS",sans-serif;
+  --body:"Avenir Next","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13202c; --surface:#1c2c3b; --surface-2:#233647; --ink:#eaf2f8; --muted:#a3b4c4; --line:#34495c;
+  --accent:#f5b62e; --accent-ink:#2a1e00; --tens:#4cc7b9; --ones:#ff8a6e;
+  --good:#5fd08f; --good-bg:#183b29; --bad:#ff7d6b; --bad-bg:#43211d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13202c; --surface:#1c2c3b; --surface-2:#233647; --ink:#eaf2f8; --muted:#a3b4c4; --line:#34495c;
+  --accent:#f5b62e; --accent-ink:#2a1e00; --tens:#4cc7b9; --ones:#ff8a6e;
+  --good:#5fd08f; --good-bg:#183b29; --bad:#ff7d6b; --bad-bg:#43211d; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:16px 40px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);font-weight:600;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(28px,5vw,40px)}
+h2{font-size:26px}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.nav{display:flex;gap:8px}
+.navbtn{padding:10px 16px;border-radius:999px;background:var(--surface);border:2px solid var(--line);font-weight:700;font-size:16px;min-height:48px}
+.navbtn[aria-current="true"]{border-color:var(--ink)}
+.card{background:var(--surface);border-radius:24px;padding:24px;border:2px solid var(--line)}
+.muted{color:var(--muted)}
+.small{font-size:15px}
+
+/* home */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
+@media (max-width:560px){.hero{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.dots{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.dot{width:26px;height:26px;border-radius:50%;border:3px solid var(--line);background:var(--surface-2)}
+.dot.ok{background:var(--good);border-color:var(--good)}
+.dot.no{background:var(--bad);border-color:var(--bad)}
+.big{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:64px;padding:0 32px;border-radius:20px;
+  background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-weight:600;font-size:24px;box-shadow:0 5px 0 #c98f12}
+.big:active{transform:translateY(3px);box-shadow:0 2px 0 #c98f12}
+.big[disabled]{opacity:.45;box-shadow:none}
+.big.alt{background:var(--tens);color:var(--surface);box-shadow:0 5px 0 rgba(0,0,0,.28)}
+.big.alt:active{box-shadow:0 2px 0 rgba(0,0,0,.28)}
+.mode{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 0;border-top:1px solid var(--line);text-align:left}
+.mode:first-of-type{margin-top:8px}
+.mode-info{min-width:0}
+.mode h3{font-size:22px}
+.mode .dots{margin:6px 0 0}
+.mode .dot{width:20px;height:20px}
+.tile.chunk{font-size:28px;padding:0 16px;min-width:64px}
+.chunk-sep{color:var(--muted);margin:0 2px}
+.s{color:var(--accent-ink);background:var(--accent);border-radius:8px;padding:0 4px}
+.ghost{min-height:56px;padding:0 22px;border-radius:16px;border:2px solid var(--line);background:var(--surface);font-weight:700}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.wordlist{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{padding:6px 12px;border-radius:12px;background:var(--surface-2);font-size:17px}
+
+/* quiz */
+.qhead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.progress{flex:1;height:14px;border-radius:7px;background:var(--surface-2);overflow:hidden;border:2px solid var(--line)}
+.progress>i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.qtype{font-size:15px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.prompt{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:8px 0 4px}
+.number{font-family:var(--display);font-size:clamp(80px,18vw,120px);line-height:1;font-weight:700;font-variant-numeric:tabular-nums}
+.digital{font-family:var(--display);font-size:44px;font-weight:600;padding:4px 20px;border-radius:14px;background:var(--surface-2);font-variant-numeric:tabular-nums}
+.sentence{font-family:var(--display);font-size:clamp(26px,5vw,34px);font-weight:500}
+.blank{display:inline-block;min-width:110px;border-bottom:4px solid var(--ink);margin:0 6px}
+.zh{font-size:17px;color:var(--muted)}
+.speak{display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 20px;border-radius:999px;background:var(--surface-2);border:2px solid var(--line);font-weight:700}
+.speak svg{width:24px;height:24px}
+
+.slots{min-height:72px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:10px;border-radius:18px;border:3px dashed var(--line);background:var(--surface-2)}
+.slots.sentence-slots{gap:10px}
+.tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.tile{min-width:56px;height:60px;padding:0 10px;border-radius:14px;background:var(--surface);border:3px solid var(--ink);
+  font-family:var(--body);font-size:30px;font-weight:700;box-shadow:0 4px 0 var(--ink)}
+.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
+.tile[disabled]{opacity:.2;box-shadow:none}
+.tile.word{font-size:24px;font-family:var(--display);font-weight:500;padding:0 16px}
+.slots .tile{box-shadow:none;border-color:var(--accent);background:var(--surface)}
+.placeholder{align-self:center;color:var(--muted);font-size:16px}
+.textin{width:100%;min-height:68px;font-size:32px;text-align:center;border-radius:16px;border:3px solid var(--ink);background:var(--surface);color:var(--ink);font-family:var(--body);font-weight:700}
+
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:520px){.options{grid-template-columns:1fr}}
+.opt{min-height:68px;padding:10px 16px;border-radius:18px;background:var(--surface);border:3px solid var(--line);font-family:var(--display);font-size:24px;font-weight:500;text-align:center}
+.opt:active{border-color:var(--ink)}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt[disabled]{cursor:default}
+
+.feedback{border-radius:20px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.feedback.ok{background:var(--good-bg);color:var(--ink);border:3px solid var(--good)}
+.feedback.no{background:var(--bad-bg);color:var(--ink);border:3px solid var(--bad)}
+.feedback h3{font-size:26px}
+.fb-answer{font-family:var(--display);font-size:30px;font-weight:600}
+.t{color:var(--tens)} .o{color:var(--ones)} .h{color:var(--muted)}
+
+/* clock */
+.clock{width:min(240px,60vw);height:auto}
+.clock .face{fill:var(--surface);stroke:var(--ink);stroke-width:6}
+.clock .num{fill:var(--ink);font-family:var(--display);font-size:22px;font-weight:600}
+.clock .tick{stroke:var(--muted);stroke-width:2}
+.clock .hour{stroke:var(--ink);stroke-width:9;stroke-linecap:round}
+.clock .min{stroke:var(--ones);stroke-width:6;stroke-linecap:round}
+.clock .pin{fill:var(--ink)}
+
+/* errors */
+table{width:100%;border-collapse:collapse;font-size:16px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:14px;color:var(--muted);letter-spacing:.04em}
+.tablewrap{overflow-x:auto}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:700}
+.pill.open{background:var(--bad-bg);color:var(--bad)}
+.pill.fixed{background:var(--good-bg);color:var(--good)}
+.stats{display:flex;flex-wrap:wrap;gap:10px}
+.stat{padding:10px 14px;border-radius:14px;background:var(--surface-2);font-size:15px}
+.stat b{font-family:var(--display);font-size:22px;margin-left:6px;font-variant-numeric:tabular-nums}
+
+/* settings */
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.toggle input{width:30px;height:30px;accent-color:var(--tens);flex:none}
+.confirm{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px;border-radius:14px;background:var(--bad-bg)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.pop{animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(.96)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Wonder 3 時間練習</h1>
+    <nav class="nav">
+      <button class="navbtn" id="nav-home" aria-current="true">練習</button>
+      <button class="navbtn" id="nav-errors">錯題</button>
+      <button class="navbtn" id="nav-settings">設定</button>
+    </nav>
+  </header>
+
+  <!-- HOME -->
+  <section id="home" class="card">
+    <div class="hero">
+      <svg class="clock" id="home-clock" viewBox="0 0 240 240" aria-hidden="true"></svg>
+      <div>
+        <h2>What time is it?</h2>
+        <div class="mode">
+          <div class="mode-info">
+            <h3>每日練習</h3>
+            <p class="muted small" id="home-status"></p>
+            <div class="dots" id="home-dots" aria-label="每日練習進度"></div>
+          </div>
+          <button class="big" id="start">開始練習</button>
+        </div>
+        <div class="mode">
+          <div class="mode-info">
+            <h3>鍵盤打字</h3>
+            <p class="muted small" id="kb-status"></p>
+            <div class="dots" id="kb-dots" aria-label="鍵盤打字進度"></div>
+          </div>
+          <button class="big alt" id="start-kb">開始打字</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="home-words" class="card">
+    <h3>這一課的單字</h3>
+    <div class="wordlist" id="wordlist"></div>
+    <p class="small muted" style="margin:12px 0 0">句型：What time is it? / It's twelve o'clock. / It's twelve thirty. ・ a.m. / p.m. ・ Time for lunch. / Time to go to bed.</p>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="card" hidden>
+    <div class="qhead">
+      <span class="qtype" id="q-type"></span>
+      <div class="progress" aria-hidden="true"><i id="q-bar"></i></div>
+      <span class="small muted" id="q-count"></span>
+    </div>
+    <div id="q-body" style="display:flex;flex-direction:column;gap:18px;margin-top:16px"></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="card" hidden>
+    <h2 id="r-title"></h2>
+    <p class="muted" id="r-sub"></p>
+    <div class="dots" id="r-dots"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="big" id="r-home">回首頁</button>
+      <button class="ghost" id="r-errors">看錯題</button>
+    </div>
+  </section>
+
+  <!-- ERRORS -->
+  <section id="errors" class="card" hidden>
+    <h2>錯題紀錄</h2>
+    <p class="small muted">答錯的題目會在之後幾天的練習中再出現；再答對就標記為「已訂正」。紀錄存在這台 iPad 上。</p>
+    <div class="stats" id="e-stats"></div>
+    <div class="tablewrap" style="margin-top:16px">
+      <table>
+        <thead><tr><th>題目</th><th>孩子的答案</th><th>正確答案</th><th>錯幾次</th><th>狀態</th></tr></thead>
+        <tbody id="e-body"></tbody>
+      </table>
+    </div>
+    <p class="muted" id="e-empty" hidden>目前沒有錯題。</p>
+    <div style="margin-top:16px" id="e-clear-zone">
+      <button class="ghost" id="e-clear">清除所有紀錄</button>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="card" hidden>
+    <h2>家長設定</h2>
+    <label class="toggle" for="s-advanced">
+      <span><b>進階：55～95 數字</b><br><span class="small muted">拼字、聽音、打字題加入 fifty-five、sixty …… ninety-five</span></span>
+      <input type="checkbox" id="s-advanced">
+    </label>
+    <label class="toggle" for="s-rate">
+      <span><b>放慢朗讀速度</b><br><span class="small muted">英文發音講慢一點</span></span>
+      <input type="checkbox" id="s-rate" checked>
+    </label>
+    <div class="row" style="margin-top:16px">
+      <button class="ghost" id="s-test">試聽發音</button>
+      <button class="ghost" id="s-reset-day">重設今天的進度</button>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ===================== Config (extend here) ===================== */
+const DAILY_COUNT = 10;
+const LEVELS = {
+  basic:    { from: 15, to: 50, step: 5 },          // fifteen … fifty (含 thirty-five 等)
+  advanced: { from: 55, to: 95, step: 5 }           // fifty-five … ninety-five
+};
+const CORE_WORDS = [15, 20, 25, 30, 40, 50];       // 課本本課字彙
+// 每日題型配置（總數 = DAILY_COUNT）
+const MIX = [
+  ['spell',3], ['listen',1], ['timeMcq',1], ['clock',1], ['reorder',2], ['ampm',1], ['forto',1]
+];
+// 鍵盤打字練習的題型配置
+const KB_MIX = [ ['type',6], ['typeTime',4] ];
+const MAX_REVIEW = 3; // 每回最多放幾題舊錯題
+
+/* ===================== Words ===================== */
+const ONES = ['','one','two','three','four','five','six','seven','eight','nine'];
+const TEENS = ['ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const TENS = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+function numWord(n){
+  if(n<10) return ONES[n];
+  if(n<20) return TEENS[n-10];
+  const t=Math.floor(n/10), o=n%10;
+  return o ? TENS[t]+'-'+ONES[o] : TENS[t];
+}
+function numParts(n){ // for color coding
+  if(n>=20 && n%10) return [TENS[Math.floor(n/10)], ONES[n%10]];
+  return [numWord(n), ''];
+}
+// 字塊拆法：fif-teen、for-ty、twen-ty-five
+const TEN_PRE = {2:'twen',3:'thir',4:'for',5:'fif',6:'six',7:'seven',8:'eigh',9:'nine'};
+const TEEN_PRE = {13:'thir',14:'four',15:'fif',16:'six',17:'seven',18:'eigh',19:'nine'};
+const CONFUSE = {fif:'five',five:'fif',for:'four',four:'for',thir:'three',twen:'two',eigh:'eight'}; // 容易搞混的字塊
+const SIB = {fif:'for',for:'fif',thir:'twen',twen:'thir',six:'seven',seven:'six',eigh:'nine',nine:'eigh',four:'for'};
+function numChunks(n){
+  if(n>=13 && n<20) return [TEEN_PRE[n],'teen'];
+  if(n<13) return [numWord(n)];
+  const t=Math.floor(n/10), o=n%10, c=[TEN_PRE[t],'ty'];
+  if(o) c.push('-',ONES[o]);
+  return c;
+}
+function chunkHTML(n){
+  return numChunks(n).map((c,i)=> c==='-' ? '<span class="h">-</span>'
+    : (c==='ty'||c==='teen') ? `<span class="s">${c}</span>`
+    : i===0 ? `<span class="t">${c}</span>` : `<span class="o">${c}</span>`).join('<span class="chunk-sep">·</span>');
+}
+function spellNote(n,g){
+  const w=numWord(n);
+  if(g===w) return '';
+  if(w.includes('-') && g===w.replace('-','')) return '少了連字號「-」：十位和個位中間要加 -。';
+  if(w.includes('-') && g===w.replace('-',' ')) return '中間要用連字號「-」，不是空格。';
+  if(!w.includes('-') && g.includes('-')) return `${w} 是一個字，不用加連字號。`;
+  const pre=numChunks(n)[0], bad=CONFUSE[pre];
+  if(bad && g.startsWith(bad)) return `前半是 ${pre}，不是 ${bad}。`;
+  if(w.includes('ty') && g.includes('teen')) return '-teen 是 13～19 用的；20、30、40…… 要用 -ty。';
+  if(w.includes('teen') && g.includes('ty')) return `${n} 要用 -teen；-ty 是 20、30、40…… 用的。`;
+  return '';
+}
+function normalize(s){
+  return s.toLowerCase().replace(/[’‘`´]/g,"'").replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
+}
+const HOURS = ['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'];
+const timeWord = (h,m) => m===30 ? `${HOURS[h]} thirty` : `${HOURS[h]} o'clock`;
+const digital = (h,m) => `${h}:${m===30?'30':'00'}`;
+
+/* ===================== Storage (safe) ===================== */
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
+const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; };
+let settings = store.get('wt3_settings', {keyboard:false, advanced:false, slow:true});
+let errors = store.get('wt3_errors', []);
+let day = store.get('wt3_day', null);
+if(!day || day.date!==todayKey()) day = {date:todayKey(), results:[], kb:[]};
+if(!day.kb) day.kb=[];
+const saveDay = () => store.set('wt3_day', day);
+const saveErrors = () => store.set('wt3_errors', errors);
+
+/* ===================== Speech ===================== */
+let voice=null;
+function pickVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]US/i.test(v.lang));
+  voice = vs.find(v=>/Samantha/i.test(v.name)) || vs.find(v=>/Google US/i.test(v.name)) || vs[0] || null;
+}
+if('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text.replace(/-/g,' '));
+    u.lang='en-US'; if(voice) u.voice=voice; u.rate = settings.slow ? 0.75 : 0.95;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ===================== Helpers ===================== */
+const $ = id => document.getElementById(id);
+const rand = a => a[Math.floor(Math.random()*a.length)];
+const randInt = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function el(tag, attrs={}, html=''){ const e=document.createElement(tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(html) e.innerHTML=html; return e; }
+function numberPool(){
+  const pool=[]; const add=L=>{for(let n=L.from;n<=L.to;n+=L.step) pool.push(n);};
+  add(LEVELS.basic); if(settings.advanced) add(LEVELS.advanced);
+  return pool;
+}
+function coloredNum(n){
+  const [a,b]=numParts(n);
+  return b ? `<span class="t">${a}</span><span class="h">-</span><span class="o">${b}</span>` : `<span class="t">${a}</span>`;
+}
+const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+function speakBtn(text,label='聽發音'){ const b=el('button',{class:'speak',type:'button'},SPEAKER+label); b.onclick=()=>speak(text); return b; }
+
+function clockSVG(h,m){
+  let s='<circle class="face" cx="120" cy="120" r="110"/>';
+  for(let i=0;i<60;i++){ if(i%5===0) continue; const a=i*6*Math.PI/180; s+=`<line class="tick" x1="${120+100*Math.sin(a)}" y1="${120-100*Math.cos(a)}" x2="${120+95*Math.sin(a)}" y2="${120-95*Math.cos(a)}"/>`; }
+  for(let i=1;i<=12;i++){ const a=i*30*Math.PI/180; s+=`<text class="num" x="${120+82*Math.sin(a)}" y="${120-82*Math.cos(a)+8}" text-anchor="middle">${i}</text>`; }
+  const ha=((h%12)+m/60)*30*Math.PI/180, ma=m*6*Math.PI/180;
+  s+=`<line class="hour" x1="120" y1="120" x2="${120+50*Math.sin(ha)}" y2="${120-50*Math.cos(ha)}"/>`;
+  s+=`<line class="min" x1="120" y1="120" x2="${120+76*Math.sin(ma)}" y2="${120-76*Math.cos(ma)}"/>`;
+  s+='<circle class="pin" cx="120" cy="120" r="8"/>';
+  return s;
+}
+
+/* ===================== Question banks ===================== */
+const AMPM = [
+  {s:'I get up at 6:30 ___.', zh:'我早上 6:30 起床。', a:'a.m.'},
+  {s:'I eat breakfast at 7:00 ___.', zh:'我 7:00 吃早餐。', a:'a.m.'},
+  {s:'I go to school at 7:30 ___.', zh:'我 7:30 去上學。', a:'a.m.'},
+  {s:'I do my homework at 4:30 ___.', zh:'我下午 4:30 寫功課。', a:'p.m.'},
+  {s:'I eat dinner at 6:30 ___.', zh:'我 6:30 吃晚餐。', a:'p.m.'},
+  {s:'I go to bed at 9:00 ___.', zh:'我 9:00 上床睡覺。', a:'p.m.'}
+];
+const FORTO = [
+  {s:'Time ___ lunch.', zh:'吃午餐的時間到了。', a:'for'},
+  {s:'Time ___ dinner.', zh:'吃晚餐的時間到了。', a:'for'},
+  {s:'Time ___ bed.', zh:'睡覺的時間到了。', a:'for'},
+  {s:'Time ___ go to bed.', zh:'該去睡覺了。', a:'to'},
+  {s:'Time ___ go to school.', zh:'該去上學了。', a:'to'},
+  {s:'Time ___ get up.', zh:'該起床了。', a:'to'}
+];
+function reorderSentence(){
+  const h=randInt(1,12), m=rand([0,30]);
+  return rand([
+    'What time is it?',
+    `It's ${timeWord(h,m)}.`,
+    `It's ${timeWord(h,m)} in Taipei.`,
+    `It's ${timeWord(h,m)} in Taipei.`,
+    'Time for lunch.',
+    'Time to go to bed.'
+  ]);
+}
+
+/* generate params per type */
+const GEN = {
+  spell: () => ({n: rand(numberPool())}),
+  listen: () => ({n: rand(numberPool())}),
+  timeMcq: () => ({h: randInt(1,12), m: rand([0,30])}),
+  clock: () => ({h: randInt(1,12), m: rand([0,30])}),
+  reorder: () => ({s: reorderSentence()}),
+  ampm: () => ({i: randInt(0,AMPM.length-1)}),
+  forto: () => ({i: randInt(0,FORTO.length-1)}),
+  type: () => ({n: rand(numberPool())}),
+  typeTime: () => ({h: randInt(1,12), m: rand([0,30]), v: rand(['clock','digital'])})
+};
+const TYPE_LABEL = {spell:'拼拼看', listen:'聽聽看', timeMcq:'選選看', clock:'看時鐘', reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？', type:'打出單字', typeTime:'打出時間'};
+
+function buildSet(mix, n){
+  let list=[];
+  mix.forEach(([t,c])=>{ for(let i=0;i<c;i++) list.push({type:t, params:GEN[t]()}); });
+  // 放入舊錯題（同模式的題型、尚未訂正、錯最多次的優先），取代同題型的新題
+  const types=mix.map(m=>m[0]);
+  const review = errors.filter(e=>!e.fixed && types.includes(e.type)).sort((a,b)=>b.count-a.count).slice(0,MAX_REVIEW);
+  review.forEach(r=>{
+    const idx=list.findIndex(q=>q.type===r.type && !q.review);
+    if(idx>=0) list[idx]={type:r.type, params:r.params, review:true};
+  });
+  return shuffle(list).slice(0,n);
+}
+
+/* ===================== Quiz engine ===================== */
+let session=null;
+const R = () => session && session.mode==='kb' ? day.kb : day.results;
+function startSession(mode){
+  if(day.date!==todayKey()) day={date:todayKey(), results:[], kb:[]};
+  session = {mode, qs:[], i:0};
+  if(R().length>=DAILY_COUNT){ R().length=0; saveDay(); }
+  session.qs = buildSet(mode==='kb'?KB_MIX:MIX, DAILY_COUNT - R().length);
+  show('quiz'); renderQ();
+}
+function qIndex(){ return R().length; }
+
+function renderQ(){
+  const q=session.qs[session.i];
+  $('q-type').textContent = TYPE_LABEL[q.type] + (q.review?'・複習':'');
+  $('q-count').textContent = `${qIndex()+1} / ${DAILY_COUNT}`;
+  $('q-bar').style.width = (qIndex()/DAILY_COUNT*100)+'%';
+  const body=$('q-body'); body.innerHTML=''; body.classList.remove('pop'); void body.offsetWidth; body.classList.add('pop');
+  RENDER[q.type](q, body);
+}
+
+function finish(q, ok, given, answerHTML, answerText, note){
+  const body=$('q-body');
+  body.querySelectorAll('button:not(.speak), input').forEach(b=>b.disabled=true);
+  R().push(ok); saveDay();
+  logResult(q, ok, given, answerText);
+  const fb=el('div',{class:'feedback '+(ok?'ok':'no'),role:'status'});
+  fb.innerHTML = ok
+    ? `<h3>答對了！</h3><div class="fb-answer">${answerHTML}</div>`
+    : `<h3>再想想看</h3><div class="small">正確答案：</div><div class="fb-answer">${answerHTML}</div>${note?`<div>${note}</div>`:''}`;
+  const next=el('button',{class:'big',type:'button'}, qIndex()>=DAILY_COUNT?'看結果':'下一題');
+  next.onclick=()=>{ session.i++; if(qIndex()>=DAILY_COUNT || session.i>=session.qs.length) showResult(); else renderQ(); };
+  fb.appendChild(next);
+  body.appendChild(fb);
+  speak(answerText);
+  next.focus({preventScroll:true});
+  fb.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function logResult(q, ok, given, answerText){
+  const key=q.type+'|'+JSON.stringify(q.params);
+  let e=errors.find(x=>x.key===key);
+  if(!ok){
+    if(!e){ e={key,type:q.type,params:q.params,prompt:promptText(q),answer:answerText,given:'',count:0,fixed:false}; errors.unshift(e); }
+    e.count++; e.given=given||'（沒有作答）'; e.fixed=false; e.last=todayKey();
+  } else if(e){ e.fixed=true; e.last=todayKey(); }
+  saveErrors();
+}
+function promptText(q){
+  const p=q.params;
+  switch(q.type){
+    case 'spell': return `拼出 ${p.n}`;
+    case 'listen': return `聽音選 ${p.n}`;
+    case 'timeMcq': return `${digital(p.h,p.m)}  It's ____.`;
+    case 'clock': return `時鐘 ${digital(p.h,p.m)}`;
+    case 'reorder': return `排句子：${p.s}`;
+    case 'ampm': return AMPM[p.i].s;
+    case 'forto': return FORTO[p.i].s;
+    case 'type': return `打出 ${p.n}`;
+    case 'typeTime': return `打出時間 ${digital(p.h,p.m)}`;
+  }
+}
+
+/* ---------- renderers ---------- */
+const RENDER = {
+  spell(q, body){
+    const n=q.params.n, word=numWord(n);
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'number'},String(n)));
+    pr.appendChild(el('div',{class:'zh'},'把這個數字的英文拼出來'));
+    pr.appendChild(speakBtn(word));
+    body.appendChild(pr);
+    const check=(given)=>{
+      const g=normalize(given);
+      finish(q, g===word, given||'', chunkHTML(n), word, spellNote(n,g));
+    };
+    // 字塊方塊：正確字塊 + ty / teen / - 一定出現 + 容易搞混的字塊（five、four、two…）
+    const correct=numChunks(n);
+    const set=new Set(correct);
+    ['ty','teen','-','five'].forEach(x=>set.add(x));
+    correct.forEach(c=>{ if(CONFUSE[c]) set.add(CONFUSE[c]); });
+    if(SIB[correct[0]]) set.add(SIB[correct[0]]);
+    const tiles=shuffle([...set]);
+    const slots=el('div',{class:'slots','aria-label':'你的答案'});
+    const tileBox=el('div',{class:'tiles'});
+    const picked=[]; // indices
+    const draw=()=>{
+      slots.innerHTML='';
+      if(!picked.length) slots.appendChild(el('span',{class:'placeholder'},'點下面的字塊，組成單字'));
+      picked.forEach((ti,pi)=>{
+        const b=el('button',{class:'tile chunk',type:'button','aria-label':'移除 '+tiles[ti]},esc(tiles[ti]));
+        b.onclick=()=>{ picked.splice(pi,1); draw(); };
+        slots.appendChild(b);
+      });
+      [...tileBox.children].forEach((b,i)=>b.disabled=picked.includes(i));
+    };
+    tiles.forEach((t,i)=>{
+      const b=el('button',{class:'tile chunk',type:'button'},esc(t));
+      b.onclick=()=>{ picked.push(i); draw(); };
+      tileBox.appendChild(b);
+    });
+    body.appendChild(slots); body.appendChild(tileBox);
+    const row=el('div',{class:'row',style:'justify-content:center'});
+    const clr=el('button',{class:'ghost',type:'button'},'清除');
+    clr.onclick=()=>{ picked.length=0; draw(); };
+    const ok=el('button',{class:'big',type:'button'},'確認');
+    ok.onclick=()=>check(picked.map(i=>tiles[i]).join(''));
+    row.append(clr,ok); body.appendChild(row);
+    draw();
+  },
+
+  listen(q, body){
+    const n=q.params.n, word=numWord(n);
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'zh'},'聽發音，選出正確的單字'));
+    const sb=speakBtn(word,'再聽一次'); pr.appendChild(sb);
+    body.appendChild(pr);
+    // distractors: same tens or same ones, plus teen/ty confusion
+    const pool=numberPool().filter(x=>x!==n);
+    const near=pool.filter(x=>Math.floor(x/10)===Math.floor(n/10) || x%10===n%10);
+    let ds=shuffle(near).slice(0,2);
+    if(n===15 && !ds.includes(50)) ds[0]=50; if(n===50) ds[0]=15;
+    ds=[...new Set(ds)]; while(ds.length<3){ const c=rand(pool); if(!ds.includes(c)) ds.push(c); }
+    const opts=shuffle([n,...ds]);
+    const grid=el('div',{class:'options'});
+    opts.forEach(x=>{
+      const b=el('button',{class:'opt',type:'button'},numWord(x));
+      b.onclick=()=>{ const ok=x===n; b.classList.add(ok?'right':'wrong'); if(!ok) [...grid.children].find(c=>c.textContent===word).classList.add('right');
+        finish(q, ok, numWord(x), coloredNum(n)+` <span class="muted">(${n})</span>`, word, ''); };
+      grid.appendChild(b);
+    });
+    body.appendChild(grid);
+    setTimeout(()=>speak(word),250);
+  },
+
+  timeMcq(q, body){
+    const {h,m}=q.params, H=HOURS[h];
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'digital'},digital(h,m)));
+    pr.appendChild(el('div',{class:'sentence'},`It's<span class="blank"></span>.`));
+    body.appendChild(pr);
+    const correct=timeWord(h,m);
+    const opts = m===30 ? [
+      [correct,''],
+      [`${H} thirty o'clock`,'o\'clock 只用在整點，半點不加 o\'clock。'],
+      [`${H}-thirty`,'說時間時，小時和分鐘中間不加連字號。'],
+      [`thirty o'clock`,'少了小時。先說幾點，再說 thirty。']
+    ] : [
+      [correct,''],
+      [`${H} o'clocks`,'o\'clock 後面不加 s。'],
+      [`o'clock ${H}`,'o\'clock 要放在數字後面。'],
+      [`${H} thirty`,'這是整點，指針沒有指到 30 分。']
+    ];
+    const grid=el('div',{class:'options'});
+    shuffle(opts).forEach(([t,why])=>{
+      const b=el('button',{class:'opt',type:'button'},esc(t));
+      b.onclick=()=>{ const ok=t===correct; b.classList.add(ok?'right':'wrong');
+        if(!ok) [...grid.children].find(c=>c.textContent===correct).classList.add('right');
+        finish(q, ok, t, `It's ${esc(correct)}.`, `It's ${correct}.`, why); };
+      grid.appendChild(b);
+    });
+    body.appendChild(grid);
+  },
+
+  clock(q, body){
+    const {h,m}=q.params;
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'sentence'},'What time is it?'));
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 240 240'); svg.setAttribute('class','clock'); svg.setAttribute('role','img'); svg.setAttribute('aria-label','時鐘');
+    svg.innerHTML=clockSVG(h,m); pr.appendChild(svg);
+    pr.appendChild(speakBtn('What time is it?'));
+    body.appendChild(pr);
+    const correct=`It's ${timeWord(h,m)}.`;
+    let swapH = m===30 ? 6 : 12; if(swapH===h) swapH = h%12+1;
+    const cands=[correct, `It's ${timeWord(h, m===30?0:30)}.`, `It's ${timeWord(swapH,m)}.`, `It's ${timeWord(h%12+1,m)}.`];
+    const opts=shuffle([...new Set(cands)]).slice(0,4);
+    if(!opts.includes(correct)) opts[0]=correct;
+    const notes={}; notes[`It's ${timeWord(h, m===30?0:30)}.`]= m===30?'長針指著 6，是 30 分（thirty）。':'長針指著 12，是整點（o\'clock）。';
+    notes[`It's ${timeWord(swapH,m)}.`]='短針才是「幾點」，長針是「幾分」。';
+    notes[`It's ${timeWord(h%12+1,m)}.`]= m===30?'半點時短針在兩個數字中間，要看它剛走過的那個數字。':'看短針指的數字。';
+    const grid=el('div',{class:'options'});
+    shuffle(opts).forEach(t=>{
+      const b=el('button',{class:'opt',type:'button'},esc(t));
+      b.onclick=()=>{ const ok=t===correct; b.classList.add(ok?'right':'wrong');
+        if(!ok) [...grid.children].find(c=>c.textContent===correct).classList.add('right');
+        finish(q, ok, t, esc(correct)+` <span class="muted">(${digital(h,m)})</span>`, correct, notes[t]||''); };
+      grid.appendChild(b);
+    });
+    body.appendChild(grid);
+  },
+
+  reorder(q, body){
+    const s=q.params.s, words=s.split(' ');
+    let order=shuffle(words.map((w,i)=>i)); let guard=0;
+    while(order.map(i=>words[i]).join(' ')===s && guard++<10) order=shuffle(order);
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'zh'},'把字卡排成正確的句子（句首大寫、句尾有標點）'));
+    body.appendChild(pr);
+    const slots=el('div',{class:'slots sentence-slots'});
+    const box=el('div',{class:'tiles'});
+    const picked=[];
+    const draw=()=>{
+      slots.innerHTML='';
+      if(!picked.length) slots.appendChild(el('span',{class:'placeholder'},'依序點下面的字卡'));
+      picked.forEach((ci,pi)=>{ const b=el('button',{class:'tile word',type:'button'},esc(words[order[ci]])); b.onclick=()=>{picked.splice(pi,1);draw();}; slots.appendChild(b); });
+      [...box.children].forEach((b,i)=>b.disabled=picked.includes(i));
+    };
+    order.forEach((wi,ci)=>{ const b=el('button',{class:'tile word',type:'button'},esc(words[wi])); b.onclick=()=>{picked.push(ci);draw();}; box.appendChild(b); });
+    body.append(slots,box);
+    const row=el('div',{class:'row',style:'justify-content:center'});
+    const clr=el('button',{class:'ghost',type:'button'},'清除'); clr.onclick=()=>{picked.length=0;draw();};
+    const ok=el('button',{class:'big',type:'button'},'確認');
+    ok.onclick=()=>{ const g=picked.map(ci=>words[order[ci]]).join(' ');
+      finish(q, g===s, g, esc(s), s, g && picked.length<words.length ? '還有字卡沒有排進去。' : ''); };
+    row.append(clr,ok); body.appendChild(row);
+    draw();
+  },
+
+  ampm(q, body){
+    const it=AMPM[q.params.i];
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'sentence'},esc(it.s).replace('___','<span class="blank"></span>')));
+    pr.appendChild(el('div',{class:'zh'},it.zh));
+    pr.appendChild(speakBtn(it.s.replace('___','')));
+    body.appendChild(pr);
+    const grid=el('div',{class:'options'});
+    ['a.m.','p.m.'].forEach(t=>{
+      const b=el('button',{class:'opt',type:'button'},t);
+      b.onclick=()=>{ const ok=t===it.a; b.classList.add(ok?'right':'wrong');
+        if(!ok) [...grid.children].find(c=>c.textContent===it.a).classList.add('right');
+        finish(q, ok, t, esc(it.s.replace('___',it.a)), it.s.replace('___',it.a), 'a.m. 是半夜 12 點到中午 12 點之前（早上）；p.m. 是中午 12 點以後（下午、晚上）。'); };
+      grid.appendChild(b);
+    });
+    body.appendChild(grid);
+  },
+
+  type(q, body){
+    const n=q.params.n, word=numWord(n);
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'number'},String(n)));
+    pr.appendChild(el('div',{class:'zh'},'用鍵盤打出這個數字的英文'));
+    pr.appendChild(speakBtn(word));
+    body.appendChild(pr);
+    typingUI(body, given=>{
+      const g=normalize(given);
+      finish(q, g===word, given, chunkHTML(n), word, spellNote(n,g));
+    });
+  },
+
+  typeTime(q, body){
+    const {h,m,v}=q.params, ans=timeWord(h,m);
+    const pr=el('div',{class:'prompt'});
+    if(v==='clock'){
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox','0 0 240 240'); svg.setAttribute('class','clock'); svg.setAttribute('role','img'); svg.setAttribute('aria-label','時鐘');
+      svg.innerHTML=clockSVG(h,m); pr.appendChild(svg);
+    } else pr.appendChild(el('div',{class:'digital'},digital(h,m)));
+    pr.appendChild(el('div',{class:'sentence'},`It's<span class="blank"></span>.`));
+    pr.appendChild(el('div',{class:'zh'},'打出空格裡的英文（不用打 It\'s 和句點）'));
+    body.appendChild(pr);
+    typingUI(body, given=>{
+      const g=normalize(given).replace(/^it'?s\s+/,'').replace(/\.$/,'');
+      let note='';
+      if(g!==ans){
+        if(m===30 && g.endsWith("o'clock")) note="o'clock 只用在整點，半點不加 o'clock。";
+        else if(g.includes('-')) note='說時間時，小時和分鐘中間不加連字號。';
+        else if(m===0 && g===HOURS[h]) note="整點要加 o'clock。";
+        else if(g.includes('oclock') || g.includes('o clock')) note="o'clock 中間有一撇「'」。";
+        else if(g.includes("o'clocks")) note="o'clock 後面不加 s。";
+        else if(m===0 && g.includes('thirty')) note='這是整點，長針指著 12。';
+        else if(m===30 && !g.includes('thirty')) note='長針指著 6，是 30 分（thirty）。';
+      }
+      finish(q, g===ans, given, `It's ${esc(ans)}.`, `It's ${ans}.`, note);
+    });
+  },
+
+  forto(q, body){
+    const it=FORTO[q.params.i];
+    const pr=el('div',{class:'prompt'});
+    pr.appendChild(el('div',{class:'sentence'},esc(it.s).replace('___','<span class="blank"></span>')));
+    pr.appendChild(el('div',{class:'zh'},it.zh));
+    body.appendChild(pr);
+    const grid=el('div',{class:'options'});
+    ['for','to'].forEach(t=>{
+      const b=el('button',{class:'opt',type:'button'},t);
+      b.onclick=()=>{ const ok=t===it.a; b.classList.add(ok?'right':'wrong');
+        if(!ok) [...grid.children].find(c=>c.textContent===it.a).classList.add('right');
+        finish(q, ok, t, esc(it.s.replace('___',it.a)), it.s.replace('___',it.a), 'Time for ＋ 東西（lunch、dinner、bed）；Time to ＋ 動作（go to bed、get up）。'); };
+      grid.appendChild(b);
+    });
+    body.appendChild(grid);
+  }
+};
+
+function typingUI(body, onCheck){
+  const inp=el('input',{class:'textin',type:'text',id:'type-input',autocomplete:'off',autocorrect:'off',autocapitalize:'off',spellcheck:'false','aria-label':'輸入英文'});
+  body.appendChild(inp);
+  const row=el('div',{class:'row',style:'justify-content:center'});
+  const ok=el('button',{class:'big',type:'button'},'確認');
+  const go=()=>{ if(ok.disabled) return; onCheck(inp.value); };
+  ok.onclick=go;
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); go(); } });
+  row.appendChild(ok); body.appendChild(row);
+  setTimeout(()=>inp.focus(),50);
+}
+
+/* ===================== Screens ===================== */
+const SCREENS=['home','home-words','quiz','result','errors','settings'];
+function show(name){
+  SCREENS.forEach(s=>$(s).hidden=true);
+  if(name==='home'){ $('home').hidden=false; $('home-words').hidden=false; renderHome(); }
+  else $(name).hidden=false;
+  $('nav-home').setAttribute('aria-current', String(name==='home'||name==='quiz'||name==='result'));
+  $('nav-errors').setAttribute('aria-current', String(name==='errors'));
+  $('nav-settings').setAttribute('aria-current', String(name==='settings'));
+  if(name==='errors') renderErrors();
+  window.scrollTo(0,0);
+}
+function dots(target, arr){
+  target.innerHTML='';
+  for(let i=0;i<DAILY_COUNT;i++){ const r=arr[i]; target.appendChild(el('span',{class:'dot'+(r===true?' ok':r===false?' no':'')})); }
+}
+function renderHome(){
+  if(day.date!==todayKey()){ day={date:todayKey(), results:[], kb:[]}; saveDay(); }
+  const status=(arr, idS, idB, idD, first, desc)=>{
+    const done=arr.length, right=arr.filter(Boolean).length;
+    $(idS).textContent = done===0 ? `${desc}，今天 ${DAILY_COUNT} 題` :
+      done<DAILY_COUNT ? `今天做了 ${done} 題，還有 ${DAILY_COUNT-done} 題` : `今天完成了！答對 ${right} / ${DAILY_COUNT} 題`;
+    $(idB).textContent = done===0 ? first : done<DAILY_COUNT ? '繼續' : '再練一回';
+    dots($(idD), arr);
+  };
+  status(day.results,'home-status','start','home-dots','開始練習','點選作答');
+  status(day.kb,'kb-status','start-kb','kb-dots','開始打字','用鍵盤拼單字、打時間');
+  const d=new Date(); const hh=d.getHours()%12||12, mm=d.getMinutes()>=30?30:0;
+  $('home-clock').innerHTML=clockSVG(hh,mm);
+  const wl=$('wordlist'); wl.innerHTML='';
+  CORE_WORDS.forEach(n=>{ const c=el('button',{class:'chip',type:'button'},`<b>${n}</b> ${coloredNum(n)}`); c.onclick=()=>speak(numWord(n)); wl.appendChild(c); });
+}
+function showResult(){
+  const right=R().filter(Boolean).length;
+  $('r-title').textContent = right===DAILY_COUNT ? '全部答對！' : right>=7 ? '很棒！' : '完成今天的練習了';
+  $('r-sub').textContent = `答對 ${right} / ${DAILY_COUNT} 題。` + (right<DAILY_COUNT ? '答錯的題目明天會再出現。' : '');
+  dots($('r-dots'), R());
+  show('result');
+}
+function renderErrors(){
+  const tb=$('e-body'); tb.innerHTML='';
+  $('e-empty').hidden = errors.length>0;
+  const stats=$('e-stats'); stats.innerHTML='';
+  const open=errors.filter(e=>!e.fixed);
+  const byType={}; open.forEach(e=>byType[e.type]=(byType[e.type]||0)+1);
+  stats.appendChild(el('div',{class:'stat'},`待訂正<b>${open.length}</b>`));
+  stats.appendChild(el('div',{class:'stat'},`已訂正<b>${errors.length-open.length}</b>`));
+  Object.keys(byType).forEach(t=>stats.appendChild(el('div',{class:'stat'},`${TYPE_LABEL[t]}<b>${byType[t]}</b>`)));
+  errors.slice().sort((a,b)=>(a.fixed-b.fixed)||(b.count-a.count)).forEach(e=>{
+    const tr=el('tr');
+    tr.innerHTML=`<td>${esc(e.prompt)}</td><td>${esc(e.given)}</td><td><b>${esc(e.answer)}</b></td><td>${e.count}</td><td><span class="pill ${e.fixed?'fixed':'open'}">${e.fixed?'已訂正':'待訂正'}</span></td>`;
+    tb.appendChild(tr);
+  });
+  $('e-clear-zone').hidden = errors.length===0;
+}
+function askClear(){
+  const z=$('e-clear-zone'); z.innerHTML='';
+  const box=el('div',{class:'confirm'},'<span>確定要清除所有錯題紀錄嗎？</span>');
+  const yes=el('button',{class:'ghost',type:'button'},'清除'); const no=el('button',{class:'ghost',type:'button'},'取消');
+  yes.onclick=()=>{ errors=[]; saveErrors(); resetClearZone(); renderErrors(); };
+  no.onclick=resetClearZone;
+  box.append(yes,no); z.appendChild(box);
+}
+function resetClearZone(){ const z=$('e-clear-zone'); z.innerHTML=''; const b=el('button',{class:'ghost',type:'button',id:'e-clear'},'清除所有紀錄'); b.onclick=askClear; z.appendChild(b); }
+
+/* ===================== Wire up ===================== */
+$('nav-home').onclick=()=>show('home');
+$('nav-errors').onclick=()=>show('errors');
+$('nav-settings').onclick=()=>show('settings');
+$('start').onclick=()=>startSession('daily');
+$('start-kb').onclick=()=>startSession('kb');
+$('r-home').onclick=()=>show('home');
+$('r-errors').onclick=()=>show('errors');
+$('e-clear').onclick=askClear;
+$('s-advanced').checked=settings.advanced;
+$('s-rate').checked=settings.slow;
+$('s-advanced').onchange=e=>{settings.advanced=e.target.checked;store.set('wt3_settings',settings);};
+$('s-rate').onchange=e=>{settings.slow=e.target.checked;store.set('wt3_settings',settings);};
+$('s-test').onclick=()=>speak("What time is it? It's twelve thirty.");
+$('s-reset-day').onclick=()=>{ day={date:todayKey(),results:[],kb:[]}; saveDay(); show('home'); };
+show('home');
+</script>
+</body>
+</html>
