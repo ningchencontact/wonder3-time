@@ -8,22 +8,22 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-/* Layout: one centered "classroom clock" card column; big touch targets for iPad; tens = teal, ones = coral */
+/* Layout: one centered "classroom clock" card column; big touch targets for iPad; tens = teal, ones = coral; mistakes use a soft amber, never red */
 :root{
   --bg:#e8f1f7; --surface:#ffffff; --surface-2:#f2f7fb; --ink:#1d2b3a; --muted:#5b6b7c; --line:#cdd9e3;
   --accent:#f5b62e; --accent-ink:#3a2a00; --tens:#11857a; --ones:#d9573b;
-  --good:#1f8a4c; --good-bg:#e1f4e8; --bad:#c23b2a; --bad-bg:#fbe6e2;
+  --good:#1f8a4c; --good-bg:#e1f4e8; --soft:#a8650a; --soft-bg:#fff4dc; --hint:#2f6db3; --hint-bg:#e6f0fb;
   --display:"Arial Rounded MT Bold","Avenir Next","Trebuchet MS",sans-serif;
   --body:"Avenir Next","Helvetica Neue",Arial,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#13202c; --surface:#1c2c3b; --surface-2:#233647; --ink:#eaf2f8; --muted:#a3b4c4; --line:#34495c;
   --accent:#f5b62e; --accent-ink:#2a1e00; --tens:#4cc7b9; --ones:#ff8a6e;
-  --good:#5fd08f; --good-bg:#183b29; --bad:#ff7d6b; --bad-bg:#43211d; color-scheme:dark}}
+  --good:#5fd08f; --good-bg:#183b29; --soft:#f2b35c; --soft-bg:#3b2e17; --hint:#8cbcf2; --hint-bg:#1d3149; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#13202c; --surface:#1c2c3b; --surface-2:#233647; --ink:#eaf2f8; --muted:#a3b4c4; --line:#34495c;
   --accent:#f5b62e; --accent-ink:#2a1e00; --tens:#4cc7b9; --ones:#ff8a6e;
-  --good:#5fd08f; --good-bg:#183b29; --bad:#ff7d6b; --bad-bg:#43211d; color-scheme:dark}
+  --good:#5fd08f; --good-bg:#183b29; --soft:#f2b35c; --soft-bg:#3b2e17; --hint:#8cbcf2; --hint-bg:#1d3149; color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5;
@@ -44,36 +44,33 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .small{font-size:15px}
 
 /* home */
-.hero{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
-@media (max-width:560px){.hero{grid-template-columns:1fr;justify-items:center;text-align:center}}
-.dots{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.dot{width:26px;height:26px;border-radius:50%;border:3px solid var(--line);background:var(--surface-2)}
-.dot.ok{background:var(--good);border-color:var(--good)}
-.dot.no{background:var(--bad);border-color:var(--bad)}
-.big{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:64px;padding:0 32px;border-radius:20px;
-  background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-weight:600;font-size:24px;box-shadow:0 5px 0 #c98f12}
-.big:active{transform:translateY(3px);box-shadow:0 2px 0 #c98f12}
-.big[disabled]{opacity:.45;box-shadow:none}
-.big.alt{background:var(--tens);color:var(--surface);box-shadow:0 5px 0 rgba(0,0,0,.28)}
-.big.alt:active{box-shadow:0 2px 0 rgba(0,0,0,.28)}
-.mode{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 0;border-top:1px solid var(--line);text-align:left}
-.mode:first-of-type{margin-top:8px}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start}
+@media (max-width:600px){.hero{grid-template-columns:1fr;justify-items:center}}
+.modes{width:100%;min-width:0}
+.mode{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 0;border-top:1px solid var(--line)}
+.mode:first-child{border-top:0;padding-top:4px}
 .mode-info{min-width:0}
 .mode h3{font-size:22px}
-.mode .dots{margin:6px 0 0}
-.mode .dot{width:20px;height:20px}
-.big.sp{background:var(--ones);color:var(--surface);box-shadow:0 5px 0 rgba(0,0,0,.28)}
-.big.sp:active{box-shadow:0 2px 0 rgba(0,0,0,.28)}
-.badge{display:inline-block;padding:2px 10px;border-radius:10px;background:var(--ones);color:var(--surface);font-size:16px;vertical-align:middle;margin-right:4px}
-.sylbox{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.syl{min-width:72px;height:16px;border-radius:8px;background:var(--surface-2);border:2px solid var(--line)}
-.bigword{font-family:var(--display);font-size:clamp(56px,12vw,84px);font-weight:600;line-height:1}
-.tile.chunk{font-size:28px;padding:0 16px;min-width:64px}
-.chunk-sep{color:var(--muted);margin:0 2px}
-.s{color:var(--accent-ink);background:var(--accent);border-radius:8px;padding:0 4px}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:15px;vertical-align:middle;margin-right:4px;color:var(--surface)}
+.dots{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 0}
+.dot{width:22px;height:22px;border-radius:50%;border:3px solid var(--line);background:var(--surface-2)}
+.dot.ok{background:var(--good);border-color:var(--good)}
+.dot.fix{background:var(--good-bg);border-color:var(--good)}
+.dot.no{background:var(--soft);border-color:var(--soft)}
+.big{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:60px;padding:0 28px;border-radius:20px;
+  background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-weight:600;font-size:22px;box-shadow:0 5px 0 rgba(0,0,0,.22)}
+.big:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.22)}
+.big[disabled]{opacity:.45;box-shadow:none}
+.big.teal{background:var(--tens);color:var(--surface)}
+.big.coral{background:var(--ones);color:var(--surface)}
+.big.blue{background:var(--hint);color:var(--surface)}
 .ghost{min-height:56px;padding:0 22px;border-radius:16px;border:2px solid var(--line);background:var(--surface);font-weight:700}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.wordlist{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.center{justify-content:center}
+.pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px}
+.pair{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;border-radius:12px;background:var(--surface-2);font-size:17px}
+.pair button{text-align:left}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .chip{padding:6px 12px;border-radius:12px;background:var(--surface-2);font-size:17px}
 
 /* quiz */
@@ -81,41 +78,62 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .progress{flex:1;height:14px;border-radius:7px;background:var(--surface-2);overflow:hidden;border:2px solid var(--line)}
 .progress>i{display:block;height:100%;background:var(--accent);transition:width .3s}
 .qtype{font-size:15px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.stars{color:var(--accent);font-size:22px;letter-spacing:2px;min-width:1ch}
+.qbody{display:flex;flex-direction:column;gap:18px;margin-top:16px}
 .prompt{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:8px 0 4px}
 .number{font-family:var(--display);font-size:clamp(80px,18vw,120px);line-height:1;font-weight:700;font-variant-numeric:tabular-nums}
 .digital{font-family:var(--display);font-size:44px;font-weight:600;padding:4px 20px;border-radius:14px;background:var(--surface-2);font-variant-numeric:tabular-nums}
 .sentence{font-family:var(--display);font-size:clamp(26px,5vw,34px);font-weight:500}
+.given{color:var(--muted)}
 .blank{display:inline-block;min-width:110px;border-bottom:4px solid var(--ink);margin:0 6px}
 .zh{font-size:17px;color:var(--muted)}
 .speak{display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 20px;border-radius:999px;background:var(--surface-2);border:2px solid var(--line);font-weight:700}
 .speak svg{width:24px;height:24px}
+.bigword{font-family:var(--display);font-size:clamp(56px,12vw,84px);font-weight:600;line-height:1}
 
-.slots{min-height:72px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:10px;border-radius:18px;border:3px dashed var(--line);background:var(--surface-2)}
-.slots.sentence-slots{gap:10px}
+.slots{min-height:72px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:10px;border-radius:18px;border:3px dashed var(--line);background:var(--surface-2)}
 .tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
-.tile{min-width:56px;height:60px;padding:0 10px;border-radius:14px;background:var(--surface);border:3px solid var(--ink);
-  font-family:var(--body);font-size:30px;font-weight:700;box-shadow:0 4px 0 var(--ink)}
+.tile{min-width:56px;height:60px;padding:0 14px;border-radius:14px;background:var(--surface);border:3px solid var(--ink);
+  font-family:var(--body);font-size:28px;font-weight:700;box-shadow:0 4px 0 var(--ink)}
 .tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
 .tile[disabled]{opacity:.2;box-shadow:none}
-.tile.word{font-size:24px;font-family:var(--display);font-weight:500;padding:0 16px}
+.tile.word{font-size:24px;font-family:var(--display);font-weight:500}
 .slots .tile{box-shadow:none;border-color:var(--accent);background:var(--surface)}
 .placeholder{align-self:center;color:var(--muted);font-size:16px}
 .textin{width:100%;min-height:68px;font-size:32px;text-align:center;border-radius:16px;border:3px solid var(--ink);background:var(--surface);color:var(--ink);font-family:var(--body);font-weight:700}
 
 .options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-@media (max-width:520px){.options{grid-template-columns:1fr}}
-.opt{min-height:68px;padding:10px 16px;border-radius:18px;background:var(--surface);border:3px solid var(--line);font-family:var(--display);font-size:24px;font-weight:500;text-align:center}
+.options.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:560px){.options,.options.three{grid-template-columns:1fr}}
+.opt{min-height:72px;padding:10px 16px;border-radius:18px;background:var(--surface);border:3px solid var(--line);font-family:var(--display);font-size:26px;font-weight:500;text-align:center}
+.opt.huge{font-size:48px;font-weight:700;min-height:96px}
 .opt:active{border-color:var(--ink)}
 .opt.right{border-color:var(--good);background:var(--good-bg)}
-.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt.wrong{border-color:var(--soft);background:var(--soft-bg)}
 .opt[disabled]{cursor:default}
 
+/* find-the-mistake sentence */
+.findline{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:2px;font-family:var(--display);font-size:clamp(30px,6vw,40px)}
+.tok{padding:6px 10px;border-radius:12px;border:3px dashed var(--line);background:var(--surface);min-height:64px}
+.tok.tight{padding:6px 6px;min-width:36px}
+.tok.gap{margin-left:14px}
+.tok.right{border:3px solid var(--good);background:var(--good-bg)}
+.tok.wrong{border:3px solid var(--soft);background:var(--soft-bg)}
+
+.hintcard{border-radius:18px;padding:14px 18px;background:var(--hint-bg);border:3px solid var(--hint);display:flex;flex-direction:column;gap:8px}
+.hintcard b{color:var(--hint);font-family:var(--display);font-size:22px}
+.nudge{border-radius:18px;padding:16px;background:var(--hint-bg);color:var(--ink);text-align:center;font-family:var(--display);font-size:24px;border:3px solid var(--hint)}
 .feedback{border-radius:20px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
-.feedback.ok{background:var(--good-bg);color:var(--ink);border:3px solid var(--good)}
-.feedback.no{background:var(--bad-bg);color:var(--ink);border:3px solid var(--bad)}
+.feedback.ok{background:var(--good-bg);border:3px solid var(--good)}
+.feedback.no{background:var(--soft-bg);border:3px solid var(--soft)}
 .feedback h3{font-size:26px}
 .fb-answer{font-family:var(--display);font-size:30px;font-weight:600}
+.starline{font-family:var(--display);font-size:22px;color:var(--accent-ink);background:var(--accent);border-radius:12px;padding:6px 12px;align-self:flex-start}
 .t{color:var(--tens)} .o{color:var(--ones)} .h{color:var(--muted)}
+.s{color:var(--accent-ink);background:var(--accent);border-radius:8px;padding:0 4px}
+.sep{color:var(--muted);margin:0 2px}
+.sylbox{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.syl{min-width:72px;height:16px;border-radius:8px;background:var(--surface-2);border:2px solid var(--line)}
 
 /* clock */
 .clock{width:min(240px,60vw);height:auto}
@@ -131,20 +149,19 @@ table{width:100%;border-collapse:collapse;font-size:16px}
 th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:14px;color:var(--muted);letter-spacing:.04em}
 .tablewrap{overflow-x:auto}
-.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:700}
-.pill.open{background:var(--bad-bg);color:var(--bad)}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap}
+.pill.open{background:var(--soft-bg);color:var(--soft)}
 .pill.fixed{background:var(--good-bg);color:var(--good)}
 .stats{display:flex;flex-wrap:wrap;gap:10px}
 .stat{padding:10px 14px;border-radius:14px;background:var(--surface-2);font-size:15px}
 .stat b{font-family:var(--display);font-size:22px;margin-left:6px;font-variant-numeric:tabular-nums}
 
-/* settings */
 .toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
 .toggle input{width:30px;height:30px;accent-color:var(--tens);flex:none}
-.confirm{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px;border-radius:14px;background:var(--bad-bg)}
+.confirm{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px;border-radius:14px;background:var(--soft-bg)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 .pop{animation:pop .35s ease}
-@keyframes pop{0%{transform:scale(.96)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes pop{0%{transform:scale(.97)}60%{transform:scale(1.01)}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -163,39 +180,47 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
   <section id="home" class="card">
     <div class="hero">
       <svg class="clock" id="home-clock" viewBox="0 0 240 240" aria-hidden="true"></svg>
-      <div>
-        <h2>What time is it?</h2>
+      <div class="modes">
+        <div class="mode">
+          <div class="mode-info">
+            <h3><span class="badge" style="background:var(--hint)">先做</span>teen / ty 暖身</h3>
+            <p class="muted small" id="tt-status"></p>
+            <div class="dots" id="tt-dots"></div>
+          </div>
+          <button class="big blue" id="start-tt">開始</button>
+        </div>
         <div class="mode">
           <div class="mode-info">
             <h3>每日練習</h3>
-            <p class="muted small" id="home-status"></p>
-            <div class="dots" id="home-dots" aria-label="每日練習進度"></div>
+            <p class="muted small" id="daily-status"></p>
+            <div class="dots" id="daily-dots"></div>
           </div>
-          <button class="big" id="start">開始練習</button>
+          <button class="big" id="start-daily">開始</button>
         </div>
         <div class="mode">
           <div class="mode-info">
             <h3>鍵盤打字</h3>
             <p class="muted small" id="kb-status"></p>
-            <div class="dots" id="kb-dots" aria-label="鍵盤打字進度"></div>
+            <div class="dots" id="kb-dots"></div>
           </div>
-          <button class="big alt" id="start-kb">開始打字</button>
+          <button class="big teal" id="start-kb">開始</button>
         </div>
         <div class="mode">
           <div class="mode-info">
-            <h3><span class="badge">10/18</span> 特殊練習</h3>
+            <h3><span class="badge" style="background:var(--ones)">10/18</span>特殊練習</h3>
             <p class="muted small" id="sp-status"></p>
-            <div class="dots" id="sp-dots" aria-label="特殊練習進度"></div>
+            <div class="dots" id="sp-dots"></div>
           </div>
-          <button class="big sp" id="start-sp">開始練習</button>
+          <button class="big coral" id="start-sp">開始</button>
         </div>
       </div>
     </div>
   </section>
   <section id="home-words" class="card">
-    <h3>這一課的單字</h3>
-    <div class="wordlist" id="wordlist"></div>
-    <p class="small muted" style="margin:12px 0 0">句型：What time is it? / It's twelve o'clock. / It's twelve thirty. ・ a.m. / p.m. ・ Time for lunch. / Time to go to bed.</p>
+    <h3>teen 和 ty 比一比</h3>
+    <p class="small muted" style="margin:4px 0 0">1 開頭（13～19）用 <span class="s">teen</span>，尾巴念得長：thir-TEEN。0 結尾（20、30、40、50）用 <span class="s">ty</span>，短短的：THIR-ty。點一下可以聽。</p>
+    <div class="pairs" id="pairs"></div>
+    <p class="small muted" style="margin:14px 0 0">時間：It's six o'clock.（整點）・It's six twenty.（小時和分鐘中間不加 -）・It's five thirty-five.（thirty-five 本身才有 -）</p>
   </section>
 
   <!-- QUIZ -->
@@ -203,9 +228,10 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
     <div class="qhead">
       <span class="qtype" id="q-type"></span>
       <div class="progress" aria-hidden="true"><i id="q-bar"></i></div>
+      <span class="stars" id="q-stars" aria-label="星星"></span>
       <span class="small muted" id="q-count"></span>
     </div>
-    <div id="q-body" style="display:flex;flex-direction:column;gap:18px;margin-top:16px"></div>
+    <div id="q-body" class="qbody"></div>
   </section>
 
   <!-- RESULT -->
@@ -213,34 +239,32 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
     <h2 id="r-title"></h2>
     <p class="muted" id="r-sub"></p>
     <div class="dots" id="r-dots"></div>
-    <div class="row" style="margin-top:12px">
+    <div class="row" style="margin-top:16px">
       <button class="big" id="r-home">回首頁</button>
-      <button class="ghost" id="r-errors">看錯題</button>
+      <button class="ghost" id="r-again">再練一回</button>
     </div>
   </section>
 
   <!-- ERRORS -->
   <section id="errors" class="card" hidden>
     <h2>錯題紀錄</h2>
-    <p class="small muted">答錯的題目會在之後幾天的練習中再出現；再答對就標記為「已訂正」。紀錄存在這台 iPad 上。</p>
+    <p class="small muted">第一次答錯的題目都會記下來，之後會再出現。答對就標成「已訂正」。紀錄存在這台 iPad 上。</p>
     <div class="stats" id="e-stats"></div>
     <div class="tablewrap" style="margin-top:16px">
       <table>
-        <thead><tr><th>題目</th><th>孩子的答案</th><th>正確答案</th><th>錯幾次</th><th>狀態</th></tr></thead>
+        <thead><tr><th>題目</th><th>孩子第一次的答案</th><th>正確答案</th><th>錯幾次</th><th>狀態</th></tr></thead>
         <tbody id="e-body"></tbody>
       </table>
     </div>
     <p class="muted" id="e-empty" hidden>目前沒有錯題。</p>
-    <div style="margin-top:16px" id="e-clear-zone">
-      <button class="ghost" id="e-clear">清除所有紀錄</button>
-    </div>
+    <div style="margin-top:16px" id="e-clear-zone"></div>
   </section>
 
   <!-- SETTINGS -->
   <section id="settings" class="card" hidden>
     <h2>家長設定</h2>
     <label class="toggle" for="s-advanced">
-      <span><b>進階：55～95 數字</b><br><span class="small muted">拼字、聽音、打字題加入 fifty-five、sixty …… ninety-five</span></span>
+      <span><b>進階數字</b><br><span class="small muted">加入 16～19、60～90 的 teen / ty，以及 55～95 的拼字</span></span>
       <input type="checkbox" id="s-advanced">
     </label>
     <label class="toggle" for="s-rate">
@@ -255,60 +279,64 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
 </div>
 
 <script>
-/* ===================== Config (extend here) ===================== */
-const DAILY_COUNT = 10;
-const LEVELS = {
-  basic:    { from: 15, to: 50, step: 5 },          // fifteen … fifty (含 thirty-five 等)
-  advanced: { from: 55, to: 95, step: 5 }           // fifty-five … ninety-five
-};
-const CORE_WORDS = [15, 20, 25, 30, 40, 50];       // 課本本課字彙
-// 每日題型配置（總數 = DAILY_COUNT）
-const MIX = [
-  ['spell',3], ['listen',1], ['timeMcq',1], ['clock',1], ['reorder',2], ['ampm',1], ['forto',1]
-];
-// 鍵盤打字練習的題型配置
-const KB_MIX = [ ['type',6], ['typeTime',4] ];
-const MAX_REVIEW = 3; // 每回最多放幾題舊錯題
+/* ===================== 設定（之後要擴充改這裡） ===================== */
+const ROUND = 5;          // 每回題數
+const TOO_FAST = 1000;    // 少於這個毫秒數就按，視為亂按
+const MAX_REVIEW = 2;     // 每回最多放幾題舊錯題
 
-/* 特殊練習：之後要換新字，改這裡就好
-   syl = 音節；chunks = 拼字方塊的正確拆法；extra = 干擾方塊（取自孩子的拼錯方式）；
-   wrong = 選擇題的錯誤拼法；tip = 答錯時的說明 */
+// 每種練習的題型：[可抽的題型, 題數]
+const MODES = {
+  tt:    {name:'teen / ty 暖身', groups:[[['ttSort'],1], [['ttPrefix'],1], [['ttListen'],2], [['ttDictate'],1]]},
+  daily: {name:'每日練習',       groups:[[['tBlank'],1], [['tFind'],1], [['tWhole','clock'],1], [['spell','listen'],1], [['tBlocks','timeMcq','reorder','ampm','forto'],1]]},
+  kb:    {name:'鍵盤打字',       groups:[[['type'],3], [['typeTime'],2]]},
+  sp:    {name:'10/18 特殊練習', groups:[[['spBuild'],3], [['spPick'],1], [['spCount'],1]]}
+};
+const BASIC_NUMS = [13,14,15,20,25,30,35,40,45,50];
+const ADV_NUMS   = [55,60,65,70,75,80,85,90,95];
+const TT_BASIC   = [13,14,15,30,40,50];
+const TT_ADV     = [16,17,18,19,60,70,80,90];
+const MINUTES_NZ = [10,15,20,25,30,35,40,45,50,55];
+
+// 字頭變化題：正確 vs 常見錯誤
+const TT_PREFIX = [
+  {n:13, a:'thirteen', b:'threeteen', base:'three', tip:'three 要變成 thir：thirteen、thirty。'},
+  {n:30, a:'thirty',   b:'threety',   base:'three', tip:'three 要變成 thir：thirteen、thirty。'},
+  {n:14, a:'fourteen', b:'forteen',   base:'four',  tip:'fourteen 保留 u；只有 forty 要拿掉 u。'},
+  {n:40, a:'forty',    b:'fourty',    base:'four',  tip:'forty 要拿掉 u：four → forty。fourteen 才保留 u。'},
+  {n:15, a:'fifteen',  b:'fiveteen',  base:'five',  tip:'five 要變成 fif：fifteen、fifty。'},
+  {n:50, a:'fifty',    b:'fivety',    base:'five',  tip:'five 要變成 fif：fifteen、fifty。'}
+];
+
+/* 10/18 特殊練習：之後要換新字，改這裡就好 */
 const SP = {
-  title: '10/18 特殊練習',
   words: [
     {w:'watch', zh:'看；手錶', syl:['watch'], chunks:['w','a','tch'], extra:['sh','e','ch','o'],
-     wrong:['wshe','wach','whach'], tip:'watch 只有 1 個音節。結尾的 /tʃ/ 寫成 tch，不是 sh；a 跟在 w 後面，念起來像 o。'},
+     wrong:['wshe','wach'], tip:'watch 只有 1 個音節。結尾的 /tʃ/ 寫成 tch，不是 sh；a 跟在 w 後面，念起來像 o。'},
     {w:'movie', zh:'電影', syl:['mo','vie'], chunks:['mo','vie'], extra:['mon','ve','moo','vy'],
-     wrong:['monve','moovy','muvie'], tip:'mo · vie 有 2 個音節。mo 的 o 念 /u/，後面沒有 n；結尾的 /i/ 寫成 ie。'},
+     wrong:['monve','moovy'], tip:'mo · vie 有 2 個音節。mo 的 o 念 /u/，後面沒有 n；結尾的 /i/ 寫成 ie。'},
     {w:'listen', zh:'聽', syl:['lis','ten'], chunks:['lis','ten'], extra:['list','en','sen','liss'],
-     wrong:['list','lisen','lissen'], tip:'lis · ten 有 2 個音節。t 不發音但要寫出來，而且後面還有 en，不能停在 list。'},
+     wrong:['list','lisen'], tip:'lis · ten 有 2 個音節。t 不發音但要寫出來，而且後面還有 en，不能停在 list。'},
     {w:'music', zh:'音樂', syl:['mu','sic'], chunks:['mu','sic'], extra:['mou','sk','sick','moo'],
-     wrong:['mousk','musik','mousic'], tip:'mu · sic 有 2 個音節。mu 的 u 念 /ju/，不是 ou；結尾的 /k/ 寫成 c，所以是 sic。'},
+     wrong:['mousk','musik'], tip:'mu · sic 有 2 個音節。mu 的 u 念 /ju/，不是 ou；結尾的 /k/ 寫成 c，所以是 sic。'},
     {w:'phone', zh:'電話', syl:['phone'], chunks:['ph','o','ne'], extra:['f','a','n','oa'],
-     wrong:['phan','fone','phon'], tip:'phone 只有 1 個音節。/f/ 寫成 ph；o 念長音 /o/，靠最後的 e 幫忙（o_e），e 不發音但要寫。'}
-  ],
-  mix: [['spBuild',5], ['spPick',3], ['spCount',2]]
+     wrong:['phan','fone'], tip:'phone 只有 1 個音節。/f/ 寫成 ph；o 念長音 /o/，靠最後的 e 幫忙（o_e），e 不發音但要寫。'}
+  ]
 };
 
-/* ===================== Words ===================== */
+/* ===================== 數字與時間的英文 ===================== */
 const ONES = ['','one','two','three','four','five','six','seven','eight','nine'];
 const TEENS = ['ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
 const TENS = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+const HOURS = ['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'];
 function numWord(n){
   if(n<10) return ONES[n];
   if(n<20) return TEENS[n-10];
   const t=Math.floor(n/10), o=n%10;
   return o ? TENS[t]+'-'+ONES[o] : TENS[t];
 }
-function numParts(n){ // for color coding
-  if(n>=20 && n%10) return [TENS[Math.floor(n/10)], ONES[n%10]];
-  return [numWord(n), ''];
-}
-// 字塊拆法：fif-teen、for-ty、twen-ty-five
 const TEN_PRE = {2:'twen',3:'thir',4:'for',5:'fif',6:'six',7:'seven',8:'eigh',9:'nine'};
 const TEEN_PRE = {13:'thir',14:'four',15:'fif',16:'six',17:'seven',18:'eigh',19:'nine'};
-const CONFUSE = {fif:'five',five:'fif',for:'four',four:'for',thir:'three',twen:'two',eigh:'eight'}; // 容易搞混的字塊
-const SIB = {fif:'for',for:'fif',thir:'twen',twen:'thir',six:'seven',seven:'six',eigh:'nine',nine:'eigh',four:'for'};
+const CONFUSE = {fif:'five',five:'fif',for:'four',four:'for',thir:'three',three:'thir',twen:'two',eigh:'eight'};
 function numChunks(n){
   if(n>=13 && n<20) return [TEEN_PRE[n],'teen'];
   if(n<13) return [numWord(n)];
@@ -319,44 +347,50 @@ function numChunks(n){
 function chunkHTML(n){
   return numChunks(n).map((c,i)=> c==='-' ? '<span class="h">-</span>'
     : (c==='ty'||c==='teen') ? `<span class="s">${c}</span>`
-    : i===0 ? `<span class="t">${c}</span>` : `<span class="o">${c}</span>`).join('<span class="chunk-sep">·</span>');
+    : i===0 ? `<span class="t">${c}</span>` : `<span class="o">${c}</span>`).join('<span class="sep">·</span>');
 }
+function pairOf(n){
+  if(n>=13 && n<=19) return [n,(n-10)*10];
+  if(n%10===0 && n>=30 && n<=90) return [n/10+10, n];
+  return null;
+}
+const isTeen = n => n>=13 && n<=19;
+const STRESS = 'teen 的尾巴念得長，重音在後面：thir-<b>TEEN</b>；ty 短短的，重音在前面：<b>THIR</b>-ty。';
+const RULE = '1 開頭（13～19）用 <span class="s">teen</span>；0 結尾（20、30、40、50）用 <span class="s">ty</span>。';
 function spellNote(n,g){
   const w=numWord(n);
   if(g===w) return '';
-  if(w.includes('-') && g===w.replace('-','')) return '少了連字號「-」：十位和個位中間要加 -。';
+  if(w.includes('-') && g===w.replace('-','')) return '少了連字號「-」：十位和個位中間要加 -，例如 thirty-five。';
   if(w.includes('-') && g===w.replace('-',' ')) return '中間要用連字號「-」，不是空格。';
   if(!w.includes('-') && g.includes('-')) return `${w} 是一個字，不用加連字號。`;
-  const pre=numChunks(n)[0], bad=CONFUSE[pre];
-  if(bad && g.startsWith(bad)) return `前半是 ${pre}，不是 ${bad}。`;
-  if(w.includes('ty') && g.includes('teen')) return '-teen 是 13～19 用的；20、30、40…… 要用 -ty。';
-  if(w.includes('teen') && g.includes('ty')) return `${n} 要用 -teen；-ty 是 20、30、40…… 用的。`;
+  if(g.startsWith('fourty')) return 'forty 要拿掉 u：four → forty。';
+  if(g.startsWith('forteen')) return 'fourteen 要保留 u；只有 forty 拿掉 u。';
+  if(g.startsWith('fivet')) return 'five 要變成 fif：fifteen、fifty。';
+  if(g.startsWith('threet')) return 'three 要變成 thir：thirteen、thirty。';
+  if(w.includes('ty') && g.includes('teen')) return `${n} 是 0 結尾，要用 ty。teen 是給 1 開頭的 13～19 用的。`;
+  if(w.includes('teen') && g.includes('ty')) return `${n} 是 1 開頭，要用 teen。ty 是給 0 結尾的 20、30、40…… 用的。`;
   return '';
 }
-function normalize(s){
-  return s.toLowerCase().replace(/[’‘`´]/g,"'").replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
-}
-const HOURS = ['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'];
-const timeWord = (h,m) => m===30 ? `${HOURS[h]} thirty` : `${HOURS[h]} o'clock`;
-const digital = (h,m) => `${h}:${m===30?'30':'00'}`;
+const normalize = s => s.toLowerCase().replace(/[’‘`´]/g,"'").replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
+const timeWord = (h,m) => m===0 ? `${HOURS[h]} o'clock` : `${HOURS[h]} ${numWord(m)}`;
+const digital = (h,m) => `${h}:${String(m).padStart(2,'0')}`;
 
-/* ===================== Storage (safe) ===================== */
+/* ===================== 儲存 ===================== */
 const store = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
 const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; };
-let settings = store.get('wt3_settings', {keyboard:false, advanced:false, slow:true});
+let settings = Object.assign({advanced:false, slow:true}, store.get('wt3_settings', {}));
 let errors = store.get('wt3_errors', []);
-let day = store.get('wt3_day', null);
-const newDay = () => ({date:todayKey(), results:[], kb:[], sp:[]});
+const newDay = () => ({date:todayKey(), tt:[], daily:[], kb:[], sp:[]});
+let day = store.get('wt3_day2', null);
 if(!day || day.date!==todayKey()) day = newDay();
-if(!day.kb) day.kb=[];
-if(!day.sp) day.sp=[];
-const saveDay = () => store.set('wt3_day', day);
+Object.keys(MODES).forEach(m=>{ if(!Array.isArray(day[m])) day[m]=[]; });
+const saveDay = () => store.set('wt3_day2', day);
 const saveErrors = () => store.set('wt3_errors', errors);
 
-/* ===================== Speech ===================== */
+/* ===================== 發音 ===================== */
 let voice=null;
 function pickVoice(){
   if(!('speechSynthesis' in window)) return;
@@ -364,40 +398,39 @@ function pickVoice(){
   voice = vs.find(v=>/Samantha/i.test(v.name)) || vs.find(v=>/Google US/i.test(v.name)) || vs[0] || null;
 }
 if('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
-function speak(text){
+function utter(text, rate){
+  const u=new SpeechSynthesisUtterance(text.replace(/-/g,' '));
+  u.lang='en-US'; if(voice) u.voice=voice; u.rate = rate || (settings.slow ? 0.75 : 0.95);
+  return u;
+}
+function speak(text, rate){
   if(!('speechSynthesis' in window)) return;
-  try{
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text.replace(/-/g,' '));
-    u.lang='en-US'; if(voice) u.voice=voice; u.rate = settings.slow ? 0.75 : 0.95;
-    speechSynthesis.speak(u);
-  }catch(e){}
+  try{ speechSynthesis.cancel(); speechSynthesis.speak(utter(text, rate)); }catch(e){}
+}
+function speakSeq(list){
+  if(!('speechSynthesis' in window)) return;
+  try{ speechSynthesis.cancel(); list.forEach(t=>speechSynthesis.speak(utter(t))); }catch(e){}
 }
 
-function speakSlow(text){
-  if(!('speechSynthesis' in window)) return;
-  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; if(voice) u.voice=voice; u.rate=0.45; speechSynthesis.speak(u); }catch(e){}
-}
-
-/* ===================== Helpers ===================== */
+/* ===================== 小工具 ===================== */
 const $ = id => document.getElementById(id);
 const rand = a => a[Math.floor(Math.random()*a.length)];
 const randInt = (a,b) => a+Math.floor(Math.random()*(b-a+1));
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function el(tag, attrs={}, html=''){ const e=document.createElement(tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(html) e.innerHTML=html; return e; }
-function numberPool(){
-  const pool=[]; const add=L=>{for(let n=L.from;n<=L.to;n+=L.step) pool.push(n);};
-  add(LEVELS.basic); if(settings.advanced) add(LEVELS.advanced);
-  return pool;
-}
-function coloredNum(n){
-  const [a,b]=numParts(n);
-  return b ? `<span class="t">${a}</span><span class="h">-</span><span class="o">${b}</span>` : `<span class="t">${a}</span>`;
-}
+const numberPool = () => settings.advanced ? BASIC_NUMS.concat(ADV_NUMS) : BASIC_NUMS;
+const ttPool = () => settings.advanced ? TT_BASIC.concat(TT_ADV) : TT_BASIC;
+const randNZ = () => rand(MINUTES_NZ);
+const randMinute = () => Math.random()<0.3 ? 0 : randNZ();
 const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 function speakBtn(text,label='聽發音'){ const b=el('button',{class:'speak',type:'button'},SPEAKER+label); b.onclick=()=>speak(text); return b; }
-
+function slowBtn(text){ const b=el('button',{class:'speak',type:'button'},SPEAKER+'慢慢念'); b.onclick=()=>speak(text,0.45); return b; }
+function compareBtn(n){
+  const p=pairOf(n); if(!p) return null;
+  const b=el('button',{class:'speak',type:'button'},SPEAKER+`比一比 ${p[0]} 和 ${p[1]}`);
+  b.onclick=()=>speakSeq([numWord(p[0]), numWord(p[1])]); return b;
+}
 function clockSVG(h,m){
   let s='<circle class="face" cx="120" cy="120" r="110"/>';
   for(let i=0;i<60;i++){ if(i%5===0) continue; const a=i*6*Math.PI/180; s+=`<line class="tick" x1="${120+100*Math.sin(a)}" y1="${120-100*Math.cos(a)}" x2="${120+95*Math.sin(a)}" y2="${120-95*Math.cos(a)}"/>`; }
@@ -408,12 +441,17 @@ function clockSVG(h,m){
   s+='<circle class="pin" cx="120" cy="120" r="8"/>';
   return s;
 }
+function clockEl(h,m){
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 240 240'); svg.setAttribute('class','clock'); svg.setAttribute('role','img'); svg.setAttribute('aria-label','時鐘');
+  svg.innerHTML=clockSVG(h,m); return svg;
+}
 
-/* ===================== Question banks ===================== */
+/* ===================== 題庫 ===================== */
 const AMPM = [
   {s:'I get up at 6:30 ___.', zh:'我早上 6:30 起床。', a:'a.m.'},
   {s:'I eat breakfast at 7:00 ___.', zh:'我 7:00 吃早餐。', a:'a.m.'},
-  {s:'I go to school at 7:30 ___.', zh:'我 7:30 去上學。', a:'a.m.'},
+  {s:'I go to school at 7:20 ___.', zh:'我 7:20 去上學。', a:'a.m.'},
   {s:'I do my homework at 4:30 ___.', zh:'我下午 4:30 寫功課。', a:'p.m.'},
   {s:'I eat dinner at 6:30 ___.', zh:'我 6:30 吃晚餐。', a:'p.m.'},
   {s:'I go to bed at 9:00 ___.', zh:'我 9:00 上床睡覺。', a:'p.m.'}
@@ -426,453 +464,501 @@ const FORTO = [
   {s:'Time ___ go to school.', zh:'該去上學了。', a:'to'},
   {s:'Time ___ get up.', zh:'該起床了。', a:'to'}
 ];
-function reorderSentence(){
-  const h=randInt(1,12), m=rand([0,30]);
-  return rand([
-    'What time is it?',
-    `It's ${timeWord(h,m)}.`,
-    `It's ${timeWord(h,m)} in Taipei.`,
-    `It's ${timeWord(h,m)} in Taipei.`,
-    'Time for lunch.',
-    'Time to go to bed.'
-  ]);
-}
+const BAD_SPELL = {forty:'fourty', fifty:'fivety', fifteen:'fiveteen', 'forty-five':'fourty-five', 'fifty-five':'fivety-five'};
 
-/* generate params per type */
 const GEN = {
-  spell: () => ({n: rand(numberPool())}),
-  listen: () => ({n: rand(numberPool())}),
-  timeMcq: () => ({h: randInt(1,12), m: rand([0,30])}),
-  clock: () => ({h: randInt(1,12), m: rand([0,30])}),
-  reorder: () => ({s: reorderSentence()}),
-  ampm: () => ({i: randInt(0,AMPM.length-1)}),
-  forto: () => ({i: randInt(0,FORTO.length-1)}),
-  type: () => ({n: rand(numberPool())}),
-  typeTime: () => ({h: randInt(1,12), m: rand([0,30]), v: rand(['clock','digital'])})
+  ttSort:   () => ({n: rand(ttPool())}),
+  ttPrefix: () => ({k: randInt(0,TT_PREFIX.length-1)}),
+  ttListen: () => ({n: rand(ttPool())}),
+  ttDictate:() => ({n: rand(ttPool())}),
+  spell:    () => ({n: rand(numberPool())}),
+  listen:   () => ({n: rand(numberPool())}),
+  type:     () => ({n: rand(numberPool())}),
+  timeMcq:  () => ({h: randInt(1,12), m: randMinute()}),
+  clock:    () => ({h: randInt(1,12), m: randMinute()}),
+  tWhole:   () => ({h: randInt(1,12), m: Math.random()<0.5 ? 0 : randNZ()}),
+  tBlank:   () => { const v=rand(['oclock','hyphen','full']); return {h: randInt(1,12), m: v==='oclock'?0:randNZ(), v, dm: randNZ()}; },
+  tFind:    () => { const v=rand(['hyphen','oclock','spell']); return {h: randInt(1,12), m: v==='spell'?rand([15,40,45,50,55]):randNZ(), v}; },
+  tBlocks:  () => ({h: randInt(1,12), m: randNZ()}),
+  typeTime: () => ({h: randInt(1,12), m: randMinute(), v: rand(['clock','digital'])}),
+  reorder:  () => {
+    const h=randInt(1,12), m=randMinute();
+    return {s: rand(['What time is it?', `It's ${timeWord(h,m)}.`, `It's ${timeWord(h,m)} in Taipei.`, `It's ${timeWord(h,m)} in Taipei.`, 'Time for lunch.', 'Time to go to bed.'])};
+  },
+  ampm:     () => ({i: randInt(0,AMPM.length-1)}),
+  forto:    () => ({i: randInt(0,FORTO.length-1)}),
+  spBuild:  () => ({i: randInt(0,SP.words.length-1)}),
+  spPick:   () => ({i: randInt(0,SP.words.length-1)}),
+  spCount:  () => ({i: randInt(0,SP.words.length-1)})
 };
-const TYPE_LABEL = {spell:'拼拼看', listen:'聽聽看', timeMcq:'選選看', clock:'看時鐘', reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？', type:'打出單字', typeTime:'打出時間',
-  spBuild:'特殊・拼拼看', spPick:'特殊・選對拼法', spCount:'特殊・數音節'};
+const TYPE_LABEL = {
+  ttSort:'teen 還是 ty？', ttPrefix:'字頭怎麼變', ttListen:'聽一聽', ttDictate:'聽寫',
+  spell:'拼拼看', listen:'聽聽看', type:'打出單字',
+  timeMcq:'選選看', clock:'看時鐘', tWhole:'是整點嗎？', tBlank:'看空格前後', tFind:'找錯', tBlocks:'時間積木', typeTime:'打出時間',
+  reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？',
+  spBuild:'特殊・拼拼看', spPick:'特殊・選對拼法', spCount:'特殊・數音節'
+};
+const keyOf = q => q.type+'|'+JSON.stringify(q.params);
 
-function buildSpecial(n){
-  const idx=SP.words.map((_,i)=>i);
-  const list=[];
-  SP.mix.forEach(([t,c])=>{
-    const pool = t==='spBuild' ? idx : shuffle(idx);
-    for(let k=0;k<c;k++) list.push({type:t, params:{i:pool[k%pool.length]}});
+function buildRound(mode, n){
+  const groups=MODES[mode].groups, list=[], keys=new Set();
+  groups.forEach(([types,c])=>{
+    for(let k=0;k<c;k++){
+      let q; for(let t=0;t<12;t++){ const ty=rand(types); q={type:ty, params:GEN[ty]()}; if(!keys.has(keyOf(q))) break; }
+      keys.add(keyOf(q)); list.push(q);
+    }
   });
-  const types=SP.mix.map(m=>m[0]);
-  const review = errors.filter(e=>!e.fixed && types.includes(e.type)).sort((a,b)=>b.count-a.count).slice(0,MAX_REVIEW);
-  review.forEach(r=>{
-    if(list.some(q=>q.type===r.type && q.params.i===r.params.i)) return;
-    const idx2=list.findIndex(q=>q.type===r.type && !q.review);
-    if(idx2>=0) list[idx2]={type:r.type, params:r.params, review:true};
-  });
-  return shuffle(list).slice(0,n);
-}
-function sylHTML(w){ return w.syl.map(s=>`<span class="t">${s}</span>`).join('<span class="chunk-sep"> · </span>'); }
-
-function buildSet(mix, n){
-  let list=[];
-  mix.forEach(([t,c])=>{ for(let i=0;i<c;i++) list.push({type:t, params:GEN[t]()}); });
-  // 放入舊錯題（同模式的題型、尚未訂正、錯最多次的優先），取代同題型的新題
-  const types=mix.map(m=>m[0]);
-  const review = errors.filter(e=>!e.fixed && types.includes(e.type)).sort((a,b)=>b.count-a.count).slice(0,MAX_REVIEW);
-  review.forEach(r=>{
-    const idx=list.findIndex(q=>q.type===r.type && !q.review);
-    if(idx>=0) list[idx]={type:r.type, params:r.params, review:true};
-  });
+  const allTypes=groups.flatMap(g=>g[0]);
+  errors.filter(e=>!e.fixed && allTypes.includes(e.type) && GEN[e.type])
+    .sort((a,b)=>b.count-a.count).slice(0,MAX_REVIEW)
+    .forEach(r=>{
+      if(keys.has(r.key)) return;
+      const g=groups.findIndex(g=>g[0].includes(r.type));
+      const idx=list.findIndex(q=>!q.review && groups[g][0].includes(q.type));
+      if(idx>=0){ list[idx]={type:r.type, params:r.params, review:true}; keys.add(r.key); }
+    });
   return shuffle(list).slice(0,n);
 }
 
-/* ===================== Quiz engine ===================== */
-let session=null;
-const R = () => !session ? day.results : session.mode==='kb' ? day.kb : session.mode==='sp' ? day.sp : day.results;
+/* ===================== 答題流程 ===================== */
+let session=null, qStart=0;
+const R = () => day[session ? session.mode : 'daily'];
+const cur = () => session.qs[session.i];
+
 function startSession(mode){
-  if(day.date!==todayKey()) day=newDay();
-  session = {mode, qs:[], i:0};
-  if(R().length>=DAILY_COUNT){ R().length=0; saveDay(); }
-  session.qs = mode==='sp' ? buildSpecial(DAILY_COUNT - R().length) : buildSet(mode==='kb'?KB_MIX:MIX, DAILY_COUNT - R().length);
+  if(day.date!==todayKey()){ day=newDay(); }
+  if(day[mode].length>=ROUND){ day[mode]=[]; }
+  saveDay();
+  session={mode, qs: buildRound(mode, ROUND - day[mode].length), i:0, streak:0, stars:0};
   show('quiz'); renderQ();
 }
-function qIndex(){ return R().length; }
 
 function renderQ(){
-  const q=session.qs[session.i];
+  const q=cur();
   $('q-type').textContent = TYPE_LABEL[q.type] + (q.review?'・複習':'');
-  $('q-count').textContent = `${qIndex()+1} / ${DAILY_COUNT}`;
-  $('q-bar').style.width = (qIndex()/DAILY_COUNT*100)+'%';
+  $('q-count').textContent = `${R().length+1} / ${ROUND}`;
+  $('q-bar').style.width = (R().length/ROUND*100)+'%';
+  $('q-stars').textContent = '★'.repeat(session.stars);
   const body=$('q-body'); body.innerHTML=''; body.classList.remove('pop'); void body.offsetWidth; body.classList.add('pop');
+  if(q.tries===1) body.appendChild(hintCard(q));
   RENDER[q.type](q, body);
+  qStart=Date.now();
 }
 
-function finish(q, ok, given, answerHTML, answerText, note){
+function hintCard(q){
+  const card=el('div',{class:'hintcard',role:'status'},`<b>再試一次</b><div>${hintFor(q)}</div>`);
+  const n=q.params && q.params.n;
+  if(n && ['ttListen','ttDictate','listen'].includes(q.type)){
+    const row=el('div',{class:'row'});
+    row.appendChild(speakBtn(numWord(n),'再聽一次'));
+    const c=compareBtn(n); if(c) row.appendChild(c);
+    card.appendChild(row);
+  }
+  return card;
+}
+
+function hintFor(q){
+  const p=q.params||{};
+  switch(q.type){
+    case 'ttSort': return `先看數字：${RULE}`;
+    case 'ttPrefix': return TT_PREFIX[p.k].tip;
+    case 'ttListen': case 'ttDictate': case 'listen': return `仔細聽尾巴。${STRESS}`;
+    case 'spell': case 'type': return `先看數字：${RULE}${p.n%10 && p.n>20 ? '個位不是 0 的（例如 35），要用 - 連起來：thirty-five。' : ''}`;
+    case 'tWhole': case 'clock': case 'timeMcq': case 'typeTime': case 'tBlocks':
+      return '先看長針：指著 12 是整點，說 o\'clock；指著別的數字就說分鐘（數字 × 5，例如指著 4 是 twenty）。小時和分鐘中間不加 -。';
+    case 'tBlank':
+      return p.v==='oclock' ? '空格後面已經有 o\'clock 了，空格裡只要填小時。'
+           : p.v==='hyphen' ? '小時和分鐘是兩個字，中間空一格，不加 -。'
+           : '題目問 What time is it?，要用完整的句子回答：It\'s ＋ 時間 ＋ 句點。';
+    case 'tFind': return '一塊一塊檢查：小時和分鐘中間有沒有 -？o\'clock 是不是只用在整點？數字拼對了嗎？';
+    case 'reorder': return '大寫開頭的字放第一個，有句點或問號的放最後。';
+    case 'ampm': return 'a.m. 是早上（中午以前），p.m. 是下午和晚上。';
+    case 'forto': return '後面接東西（lunch、bed）用 for；接動作（go to bed、get up）用 to。';
+    case 'spBuild': case 'spPick': return '按「慢慢念」，一個音節一個音節聽，再一塊一塊拼。';
+    case 'spCount': return '邊念邊拍手，拍幾下就是幾個音節。';
+  }
+  return '慢慢來，再看一次題目。';
+}
+
+// 所有題型作答都經過這裡：太快→提醒；第一次錯→提示再試；其他→結束這題
+function answer(q, ok, given, aHTML, aText, note, opts={}){
+  if(!opts.typed && Date.now()-qStart < TOO_FAST){
+    const body=$('q-body');
+    body.querySelectorAll('button, input').forEach(b=>b.disabled=true);
+    body.prepend(el('div',{class:'nudge',role:'status'},'先看清楚再按喔，這題不算分。'));
+    setTimeout(renderQ, 1400);
+    return 'fast';
+  }
+  if(!ok && !q.tries){ q.tries=1; q.firstGiven=given; renderQ(); return 'retry'; }
+  finish(q, ok, given, aHTML, aText, note);
+  return 'done';
+}
+
+function finish(q, ok, given, aHTML, aText, note){
   const body=$('q-body');
   body.querySelectorAll('button:not(.speak), input').forEach(b=>b.disabled=true);
-  R().push(ok); saveDay();
-  logResult(q, ok, given, answerText);
-  const fb=el('div',{class:'feedback '+(ok?'ok':'no'),role:'status'});
-  fb.innerHTML = ok
-    ? `<h3>答對了！</h3><div class="fb-answer">${answerHTML}</div>`
-    : `<h3>再想想看</h3><div class="small">正確答案：</div><div class="fb-answer">${answerHTML}</div>${note?`<div>${note}</div>`:''}`;
-  const next=el('button',{class:'big',type:'button'}, qIndex()>=DAILY_COUNT?'看結果':'下一題');
-  next.onclick=()=>{ session.i++; if(qIndex()>=DAILY_COUNT || session.i>=session.qs.length) showResult(); else renderQ(); };
+  const res = ok ? (q.tries ? 'fix' : 'ok') : 'no';
+  R().push(res); saveDay();
+  logResult(q, res, given, aText);
+  let star=false;
+  if(res!=='no'){ session.streak++; if(session.streak%3===0){ session.stars++; star=true; } } else session.streak=0;
+  $('q-stars').textContent = '★'.repeat(session.stars);
+  const fb=el('div',{class:'feedback '+(res==='no'?'no':'ok'),role:'status'});
+  const title = res==='ok' ? '答對了！' : res==='fix' ? '訂正成功！' : '沒關係，看一下正確答案';
+  fb.innerHTML = `<h3>${title}</h3>${res==='ok'?'':'<div class="small">正確答案：</div>'}<div class="fb-answer">${aHTML}</div>${res!=='ok' && note ? `<div>${note}</div>`:''}${star?'<div class="starline">★ 連續答對 3 題，得到一顆星！</div>':''}`;
+  const done = R().length>=ROUND || session.i>=session.qs.length-1;
+  const next=el('button',{class:'big',type:'button'}, done?'看結果':'下一題');
+  next.onclick=()=>{ session.i++; if(done) showResult(); else renderQ(); };
   fb.appendChild(next);
   body.appendChild(fb);
-  speak(answerText);
-  next.focus({preventScroll:true});
+  speak(aText);
   fb.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-function logResult(q, ok, given, answerText){
-  const key=q.type+'|'+JSON.stringify(q.params);
+function logResult(q, res, given, aText){
+  const key=keyOf(q);
   let e=errors.find(x=>x.key===key);
-  if(!ok){
-    if(!e){ e={key,type:q.type,params:q.params,prompt:promptText(q),answer:answerText,given:'',count:0,fixed:false}; errors.unshift(e); }
-    e.count++; e.given=given||'（沒有作答）'; e.fixed=false; e.last=todayKey();
+  if(q.tries || res==='no'){
+    if(!e){ e={key,type:q.type,params:q.params,prompt:promptText(q),answer:aText,given:'',count:0,fixed:false}; errors.unshift(e); }
+    e.count++; e.given=(q.firstGiven ?? given) || '（沒有作答）'; e.fixed = res==='fix'; e.last=todayKey();
   } else if(e){ e.fixed=true; e.last=todayKey(); }
+  if(errors.length>200) errors.length=200;
   saveErrors();
 }
+
 function promptText(q){
   const p=q.params;
   switch(q.type){
+    case 'ttSort': return `${p.n} 是 teen 還是 ty`;
+    case 'ttPrefix': return `${TT_PREFIX[p.k].n} 的拼法`;
+    case 'ttListen': return `聽音分辨 ${pairOf(p.n).join(' / ')}`;
+    case 'ttDictate': return `聽寫 ${p.n}`;
     case 'spell': return `拼出 ${p.n}`;
     case 'listen': return `聽音選 ${p.n}`;
+    case 'type': return `打出 ${p.n}`;
     case 'timeMcq': return `${digital(p.h,p.m)}  It's ____.`;
     case 'clock': return `時鐘 ${digital(p.h,p.m)}`;
+    case 'tWhole': return `時鐘 ${digital(p.h,p.m)}：It's ${HOURS[p.h]} ____.`;
+    case 'tBlank': return p.v==='oclock' ? `${digital(p.h,0)}：It's ____ o'clock.` : p.v==='hyphen' ? `${digital(p.h,p.m)}：It's ____.` : `${digital(p.h,p.m)}：What time is it?`;
+    case 'tFind': return `找錯：${digital(p.h,p.m)}`;
+    case 'tBlocks': return `時間積木 ${digital(p.h,p.m)}`;
+    case 'typeTime': return `打出時間 ${digital(p.h,p.m)}`;
     case 'reorder': return `排句子：${p.s}`;
     case 'ampm': return AMPM[p.i].s;
     case 'forto': return FORTO[p.i].s;
-    case 'type': return `打出 ${p.n}`;
-    case 'typeTime': return `打出時間 ${digital(p.h,p.m)}`;
     case 'spBuild': return `用方塊拼出 ${SP.words[p.i].w}（${SP.words[p.i].zh}）`;
     case 'spPick': return `選出 ${SP.words[p.i].zh} 的正確拼法`;
     case 'spCount': return `${SP.words[p.i].w} 有幾個音節`;
   }
+  return q.type;
 }
 
-/* ---------- renderers ---------- */
-const RENDER = {
-  spell(q, body){
-    const n=q.params.n, word=numWord(n);
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'number'},String(n)));
-    pr.appendChild(el('div',{class:'zh'},'把這個數字的英文拼出來'));
-    pr.appendChild(speakBtn(word));
-    body.appendChild(pr);
-    const check=(given)=>{
-      const g=normalize(given);
-      finish(q, g===word, given||'', chunkHTML(n), word, spellNote(n,g));
-    };
-    // 字塊方塊：正確字塊 + ty / teen / - 一定出現 + 容易搞混的字塊（five、four、two…）
-    const correct=numChunks(n);
-    const set=new Set(correct);
-    ['ty','teen','-','five'].forEach(x=>set.add(x));
-    correct.forEach(c=>{ if(CONFUSE[c]) set.add(CONFUSE[c]); });
-    if(SIB[correct[0]]) set.add(SIB[correct[0]]);
-    const tiles=shuffle([...set]);
-    const slots=el('div',{class:'slots','aria-label':'你的答案'});
-    const tileBox=el('div',{class:'tiles'});
-    const picked=[]; // indices
-    const draw=()=>{
-      slots.innerHTML='';
-      if(!picked.length) slots.appendChild(el('span',{class:'placeholder'},'點下面的字塊，組成單字'));
-      picked.forEach((ti,pi)=>{
-        const b=el('button',{class:'tile chunk',type:'button','aria-label':'移除 '+tiles[ti]},esc(tiles[ti]));
-        b.onclick=()=>{ picked.splice(pi,1); draw(); };
-        slots.appendChild(b);
-      });
-      [...tileBox.children].forEach((b,i)=>b.disabled=picked.includes(i));
-    };
-    tiles.forEach((t,i)=>{
-      const b=el('button',{class:'tile chunk',type:'button'},esc(t));
-      b.onclick=()=>{ picked.push(i); draw(); };
-      tileBox.appendChild(b);
-    });
-    body.appendChild(slots); body.appendChild(tileBox);
-    const row=el('div',{class:'row',style:'justify-content:center'});
-    const clr=el('button',{class:'ghost',type:'button'},'清除');
-    clr.onclick=()=>{ picked.length=0; draw(); };
-    const ok=el('button',{class:'big',type:'button'},'確認');
-    ok.onclick=()=>check(picked.map(i=>tiles[i]).join(''));
-    row.append(clr,ok); body.appendChild(row);
-    draw();
-  },
-
-  listen(q, body){
-    const n=q.params.n, word=numWord(n);
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'zh'},'聽發音，選出正確的單字'));
-    const sb=speakBtn(word,'再聽一次'); pr.appendChild(sb);
-    body.appendChild(pr);
-    // distractors: same tens or same ones, plus teen/ty confusion
-    const pool=numberPool().filter(x=>x!==n);
-    const near=pool.filter(x=>Math.floor(x/10)===Math.floor(n/10) || x%10===n%10);
-    let ds=shuffle(near).slice(0,2);
-    if(n===15 && !ds.includes(50)) ds[0]=50; if(n===50) ds[0]=15;
-    ds=[...new Set(ds)]; while(ds.length<3){ const c=rand(pool); if(!ds.includes(c)) ds.push(c); }
-    const opts=shuffle([n,...ds]);
-    const grid=el('div',{class:'options'});
-    opts.forEach(x=>{
-      const b=el('button',{class:'opt',type:'button'},numWord(x));
-      b.onclick=()=>{ const ok=x===n; b.classList.add(ok?'right':'wrong'); if(!ok) [...grid.children].find(c=>c.textContent===word).classList.add('right');
-        finish(q, ok, numWord(x), coloredNum(n)+` <span class="muted">(${n})</span>`, word, ''); };
-      grid.appendChild(b);
-    });
-    body.appendChild(grid);
-    setTimeout(()=>speak(word),250);
-  },
-
-  timeMcq(q, body){
-    const {h,m}=q.params, H=HOURS[h];
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'digital'},digital(h,m)));
-    pr.appendChild(el('div',{class:'sentence'},`It's<span class="blank"></span>.`));
-    body.appendChild(pr);
-    const correct=timeWord(h,m);
-    const opts = m===30 ? [
-      [correct,''],
-      [`${H} thirty o'clock`,'o\'clock 只用在整點，半點不加 o\'clock。'],
-      [`${H}-thirty`,'說時間時，小時和分鐘中間不加連字號。'],
-      [`thirty o'clock`,'少了小時。先說幾點，再說 thirty。']
-    ] : [
-      [correct,''],
-      [`${H} o'clocks`,'o\'clock 後面不加 s。'],
-      [`o'clock ${H}`,'o\'clock 要放在數字後面。'],
-      [`${H} thirty`,'這是整點，指針沒有指到 30 分。']
-    ];
-    const grid=el('div',{class:'options'});
-    shuffle(opts).forEach(([t,why])=>{
-      const b=el('button',{class:'opt',type:'button'},esc(t));
-      b.onclick=()=>{ const ok=t===correct; b.classList.add(ok?'right':'wrong');
-        if(!ok) [...grid.children].find(c=>c.textContent===correct).classList.add('right');
-        finish(q, ok, t, `It's ${esc(correct)}.`, `It's ${correct}.`, why); };
-      grid.appendChild(b);
-    });
-    body.appendChild(grid);
-  },
-
-  clock(q, body){
-    const {h,m}=q.params;
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'sentence'},'What time is it?'));
-    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.setAttribute('viewBox','0 0 240 240'); svg.setAttribute('class','clock'); svg.setAttribute('role','img'); svg.setAttribute('aria-label','時鐘');
-    svg.innerHTML=clockSVG(h,m); pr.appendChild(svg);
-    pr.appendChild(speakBtn('What time is it?'));
-    body.appendChild(pr);
-    const correct=`It's ${timeWord(h,m)}.`;
-    let swapH = m===30 ? 6 : 12; if(swapH===h) swapH = h%12+1;
-    const cands=[correct, `It's ${timeWord(h, m===30?0:30)}.`, `It's ${timeWord(swapH,m)}.`, `It's ${timeWord(h%12+1,m)}.`];
-    const opts=shuffle([...new Set(cands)]).slice(0,4);
-    if(!opts.includes(correct)) opts[0]=correct;
-    const notes={}; notes[`It's ${timeWord(h, m===30?0:30)}.`]= m===30?'長針指著 6，是 30 分（thirty）。':'長針指著 12，是整點（o\'clock）。';
-    notes[`It's ${timeWord(swapH,m)}.`]='短針才是「幾點」，長針是「幾分」。';
-    notes[`It's ${timeWord(h%12+1,m)}.`]= m===30?'半點時短針在兩個數字中間，要看它剛走過的那個數字。':'看短針指的數字。';
-    const grid=el('div',{class:'options'});
-    shuffle(opts).forEach(t=>{
-      const b=el('button',{class:'opt',type:'button'},esc(t));
-      b.onclick=()=>{ const ok=t===correct; b.classList.add(ok?'right':'wrong');
-        if(!ok) [...grid.children].find(c=>c.textContent===correct).classList.add('right');
-        finish(q, ok, t, esc(correct)+` <span class="muted">(${digital(h,m)})</span>`, correct, notes[t]||''); };
-      grid.appendChild(b);
-    });
-    body.appendChild(grid);
-  },
-
-  reorder(q, body){
-    const s=q.params.s, words=s.split(' ');
-    let order=shuffle(words.map((w,i)=>i)); let guard=0;
-    while(order.map(i=>words[i]).join(' ')===s && guard++<10) order=shuffle(order);
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'zh'},'把字卡排成正確的句子（句首大寫、句尾有標點）'));
-    body.appendChild(pr);
-    const slots=el('div',{class:'slots sentence-slots'});
-    const box=el('div',{class:'tiles'});
-    const picked=[];
-    const draw=()=>{
-      slots.innerHTML='';
-      if(!picked.length) slots.appendChild(el('span',{class:'placeholder'},'依序點下面的字卡'));
-      picked.forEach((ci,pi)=>{ const b=el('button',{class:'tile word',type:'button'},esc(words[order[ci]])); b.onclick=()=>{picked.splice(pi,1);draw();}; slots.appendChild(b); });
-      [...box.children].forEach((b,i)=>b.disabled=picked.includes(i));
-    };
-    order.forEach((wi,ci)=>{ const b=el('button',{class:'tile word',type:'button'},esc(words[wi])); b.onclick=()=>{picked.push(ci);draw();}; box.appendChild(b); });
-    body.append(slots,box);
-    const row=el('div',{class:'row',style:'justify-content:center'});
-    const clr=el('button',{class:'ghost',type:'button'},'清除'); clr.onclick=()=>{picked.length=0;draw();};
-    const ok=el('button',{class:'big',type:'button'},'確認');
-    ok.onclick=()=>{ const g=picked.map(ci=>words[order[ci]]).join(' ');
-      finish(q, g===s, g, esc(s), s, g && picked.length<words.length ? '還有字卡沒有排進去。' : ''); };
-    row.append(clr,ok); body.appendChild(row);
-    draw();
-  },
-
-  ampm(q, body){
-    const it=AMPM[q.params.i];
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'sentence'},esc(it.s).replace('___','<span class="blank"></span>')));
-    pr.appendChild(el('div',{class:'zh'},it.zh));
-    pr.appendChild(speakBtn(it.s.replace('___','')));
-    body.appendChild(pr);
-    const grid=el('div',{class:'options'});
-    ['a.m.','p.m.'].forEach(t=>{
-      const b=el('button',{class:'opt',type:'button'},t);
-      b.onclick=()=>{ const ok=t===it.a; b.classList.add(ok?'right':'wrong');
-        if(!ok) [...grid.children].find(c=>c.textContent===it.a).classList.add('right');
-        finish(q, ok, t, esc(it.s.replace('___',it.a)), it.s.replace('___',it.a), 'a.m. 是半夜 12 點到中午 12 點之前（早上）；p.m. 是中午 12 點以後（下午、晚上）。'); };
-      grid.appendChild(b);
-    });
-    body.appendChild(grid);
-  },
-
-  type(q, body){
-    const n=q.params.n, word=numWord(n);
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'number'},String(n)));
-    pr.appendChild(el('div',{class:'zh'},'用鍵盤打出這個數字的英文'));
-    pr.appendChild(speakBtn(word));
-    body.appendChild(pr);
-    typingUI(body, given=>{
-      const g=normalize(given);
-      finish(q, g===word, given, chunkHTML(n), word, spellNote(n,g));
-    });
-  },
-
-  typeTime(q, body){
-    const {h,m,v}=q.params, ans=timeWord(h,m);
-    const pr=el('div',{class:'prompt'});
-    if(v==='clock'){
-      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-      svg.setAttribute('viewBox','0 0 240 240'); svg.setAttribute('class','clock'); svg.setAttribute('role','img'); svg.setAttribute('aria-label','時鐘');
-      svg.innerHTML=clockSVG(h,m); pr.appendChild(svg);
-    } else pr.appendChild(el('div',{class:'digital'},digital(h,m)));
-    pr.appendChild(el('div',{class:'sentence'},`It's<span class="blank"></span>.`));
-    pr.appendChild(el('div',{class:'zh'},'打出空格裡的英文（不用打 It\'s 和句點）'));
-    body.appendChild(pr);
-    typingUI(body, given=>{
-      const g=normalize(given).replace(/^it'?s\s+/,'').replace(/\.$/,'');
-      let note='';
-      if(g!==ans){
-        if(m===30 && g.endsWith("o'clock")) note="o'clock 只用在整點，半點不加 o'clock。";
-        else if(g.includes('-')) note='說時間時，小時和分鐘中間不加連字號。';
-        else if(m===0 && g===HOURS[h]) note="整點要加 o'clock。";
-        else if(g.includes('oclock') || g.includes('o clock')) note="o'clock 中間有一撇「'」。";
-        else if(g.includes("o'clocks")) note="o'clock 後面不加 s。";
-        else if(m===0 && g.includes('thirty')) note='這是整點，長針指著 12。';
-        else if(m===30 && !g.includes('thirty')) note='長針指著 6，是 30 分（thirty）。';
+/* ---------- 共用元件 ---------- */
+function mkPrompt(body){ const p=el('div',{class:'prompt'}); body.appendChild(p); return p; }
+// 選擇題：opts = [{label, value, html?}]；onPick(value) 回傳 answer() 的結果
+function mcq(body, opts, correctVal, onPick, cls=''){
+  const grid=el('div',{class:'options'+(opts.length===3?' three':'')});
+  shuffle(opts).forEach(o=>{
+    const b=el('button',{class:'opt '+cls,type:'button'}, o.html || esc(o.label));
+    b.dataset.v=o.value;
+    b.onclick=()=>{
+      const r=onPick(o.value);
+      if(r==='done'){
+        b.classList.add(o.value===correctVal?'right':'wrong');
+        if(o.value!==correctVal) [...grid.children].find(c=>c.dataset.v===correctVal)?.classList.add('right');
       }
-      finish(q, g===ans, given, `It's ${esc(ans)}.`, `It's ${ans}.`, note);
-    });
-  },
-
-  spBuild(q, body){
-    const W=SP.words[q.params.i];
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'sentence'},esc(W.zh)));
-    const box=el('div',{class:'sylbox','aria-label':`${W.syl.length} 個音節`});
-    W.syl.forEach(()=>box.appendChild(el('span',{class:'syl'})));
-    pr.appendChild(box);
-    pr.appendChild(el('div',{class:'zh'},`聽聽看，這個字有 ${W.syl.length} 個音節。用方塊拼出來`));
-    const row0=el('div',{class:'row',style:'justify-content:center'});
-    row0.append(speakBtn(W.w));
-    const slow=el('button',{class:'speak',type:'button'},SPEAKER+'慢慢念'); slow.onclick=()=>speakSlow(W.w);
-    row0.append(slow); pr.appendChild(row0);
-    body.appendChild(pr);
-    const tiles=shuffle([...new Set([...W.chunks,...W.extra])]);
-    const slots=el('div',{class:'slots','aria-label':'你的答案'});
-    const tileBox=el('div',{class:'tiles'});
-    const picked=[];
-    const draw=()=>{
-      slots.innerHTML='';
-      if(!picked.length) slots.appendChild(el('span',{class:'placeholder'},'點下面的方塊，組成單字'));
-      picked.forEach((ti,pi)=>{ const b=el('button',{class:'tile chunk',type:'button','aria-label':'移除 '+tiles[ti]},esc(tiles[ti])); b.onclick=()=>{picked.splice(pi,1);draw();}; slots.appendChild(b); });
-      [...tileBox.children].forEach((b,i)=>b.disabled=picked.includes(i));
     };
-    tiles.forEach((t,i)=>{ const b=el('button',{class:'tile chunk',type:'button'},esc(t)); b.onclick=()=>{picked.push(i);draw();}; tileBox.appendChild(b); });
-    body.append(slots,tileBox);
-    const row=el('div',{class:'row',style:'justify-content:center'});
-    const clr=el('button',{class:'ghost',type:'button'},'清除'); clr.onclick=()=>{picked.length=0;draw();};
-    const ok=el('button',{class:'big',type:'button'},'確認');
-    ok.onclick=()=>{ const g=picked.map(i=>tiles[i]).join('');
-      finish(q, g===W.w, g, `${esc(W.w)} <span class="muted small">（${sylHTML(W)}）</span>`, W.w, W.tip); };
-    row.append(clr,ok); body.appendChild(row);
-    draw();
-  },
-
-  spPick(q, body){
-    const W=SP.words[q.params.i];
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'sentence'},esc(W.zh)));
-    pr.appendChild(el('div',{class:'zh'},'聽發音，選出正確的拼法'));
-    pr.appendChild(speakBtn(W.w,'再聽一次'));
-    body.appendChild(pr);
-    const grid=el('div',{class:'options'});
-    shuffle([W.w,...W.wrong]).forEach(t=>{
-      const b=el('button',{class:'opt',type:'button'},esc(t));
-      b.onclick=()=>{ const ok=t===W.w; b.classList.add(ok?'right':'wrong');
-        if(!ok) [...grid.children].find(c=>c.textContent===W.w).classList.add('right');
-        finish(q, ok, t, `${esc(W.w)} <span class="muted small">（${sylHTML(W)}）</span>`, W.w, W.tip); };
-      grid.appendChild(b);
-    });
-    body.appendChild(grid);
-    setTimeout(()=>speak(W.w),250);
-  },
-
-  spCount(q, body){
-    const W=SP.words[q.params.i], n=W.syl.length;
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'bigword'},esc(W.w)));
-    pr.appendChild(el('div',{class:'zh'},`${esc(W.zh)}・邊念邊拍手，這個字有幾個音節？`));
-    pr.appendChild(speakBtn(W.w));
-    body.appendChild(pr);
-    const grid=el('div',{class:'options'});
-    ['1','2','3'].forEach(t=>{
-      const b=el('button',{class:'opt',type:'button'},`${t} 個`);
-      b.onclick=()=>{ const ok=+t===n; b.classList.add(ok?'right':'wrong');
-        if(!ok) [...grid.children][n-1].classList.add('right');
-        finish(q, ok, `${t} 個`, `${sylHTML(W)} <span class="muted small">（${n} 個音節）</span>`, W.w,
-          n===1 ? `${W.w} 只拍 1 下。` : `拍拍手：${W.syl.join('（拍）')}（拍），共 ${n} 下。`); };
-      grid.appendChild(b);
-    });
-    body.appendChild(grid);
-  },
-
-  forto(q, body){
-    const it=FORTO[q.params.i];
-    const pr=el('div',{class:'prompt'});
-    pr.appendChild(el('div',{class:'sentence'},esc(it.s).replace('___','<span class="blank"></span>')));
-    pr.appendChild(el('div',{class:'zh'},it.zh));
-    body.appendChild(pr);
-    const grid=el('div',{class:'options'});
-    ['for','to'].forEach(t=>{
-      const b=el('button',{class:'opt',type:'button'},t);
-      b.onclick=()=>{ const ok=t===it.a; b.classList.add(ok?'right':'wrong');
-        if(!ok) [...grid.children].find(c=>c.textContent===it.a).classList.add('right');
-        finish(q, ok, t, esc(it.s.replace('___',it.a)), it.s.replace('___',it.a), 'Time for ＋ 東西（lunch、dinner、bed）；Time to ＋ 動作（go to bed、get up）。'); };
-      grid.appendChild(b);
-    });
-    body.appendChild(grid);
-  }
-};
-
+    grid.appendChild(b);
+  });
+  body.appendChild(grid);
+  return grid;
+}
+// 方塊組合題
+function tileBuilder(body, tiles, onSubmit, {cls='tile', placeholder='點下面的方塊'}={}){
+  const slots=el('div',{class:'slots','aria-label':'你的答案'});
+  const box=el('div',{class:'tiles'});
+  const picked=[];
+  const draw=()=>{
+    slots.innerHTML='';
+    if(!picked.length) slots.appendChild(el('span',{class:'placeholder'},placeholder));
+    picked.forEach((ti,pi)=>{ const b=el('button',{class:cls,type:'button','aria-label':'移除 '+tiles[ti]},esc(tiles[ti])); b.onclick=()=>{picked.splice(pi,1);draw();}; slots.appendChild(b); });
+    [...box.children].forEach((b,i)=>b.disabled=picked.includes(i));
+  };
+  tiles.forEach((t,i)=>{ const b=el('button',{class:cls,type:'button'},esc(t)); b.onclick=()=>{picked.push(i);draw();}; box.appendChild(b); });
+  body.append(slots,box);
+  const row=el('div',{class:'row center'});
+  const clr=el('button',{class:'ghost',type:'button'},'清除'); clr.onclick=()=>{picked.length=0;draw();};
+  const ok=el('button',{class:'big',type:'button'},'確認');
+  ok.onclick=()=>{ if(!picked.length) return; onSubmit(picked.map(i=>tiles[i])); };
+  row.append(clr,ok); body.appendChild(row);
+  draw();
+}
 function typingUI(body, onCheck){
   const inp=el('input',{class:'textin',type:'text',id:'type-input',autocomplete:'off',autocorrect:'off',autocapitalize:'off',spellcheck:'false','aria-label':'輸入英文'});
   body.appendChild(inp);
-  const row=el('div',{class:'row',style:'justify-content:center'});
+  const row=el('div',{class:'row center'});
   const ok=el('button',{class:'big',type:'button'},'確認');
-  const go=()=>{ if(ok.disabled) return; onCheck(inp.value); };
+  const go=()=>{ if(ok.disabled || !inp.value.trim()) return; onCheck(inp.value); };
   ok.onclick=go;
   inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); go(); } });
   row.appendChild(ok); body.appendChild(row);
   setTimeout(()=>inp.focus(),50);
 }
+function sentenceHTML(parts){ // parts: string with ___ ；已給的字用灰色
+  return parts.split('___').map(s=>`<span class="given">${esc(s)}</span>`).join('<span class="blank"></span>');
+}
 
-/* ===================== Screens ===================== */
+/* ---------- 各題型 ---------- */
+const RENDER = {
+  /* ===== teen / ty 暖身 ===== */
+  ttSort(q, body){
+    const n=q.params.n, pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'number'},String(n)));
+    pr.appendChild(el('div',{class:'zh'},'這個數字是 teen 還是 ty？'));
+    const correct = isTeen(n) ? 'teen' : 'ty';
+    mcq(body, [{value:'teen',html:'<span class="s">teen</span>'},{value:'ty',html:'<span class="s">ty</span>'}], correct,
+      v=>answer(q, v===correct, v, `${n} = ${chunkHTML(n)}`, numWord(n), RULE), 'huge');
+  },
+  ttPrefix(q, body){
+    const it=TT_PREFIX[q.params.k], pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'number'},String(it.n)));
+    pr.appendChild(el('div',{class:'zh'},`從 ${it.base} 變過來，哪一個拼對了？`));
+    pr.appendChild(speakBtn(it.a));
+    mcq(body, [{value:it.a,label:it.a},{value:it.b,label:it.b}], it.a,
+      v=>answer(q, v===it.a, v, `${it.n} = ${chunkHTML(it.n)}`, it.a, it.tip));
+  },
+  ttListen(q, body){
+    const n=q.params.n, p=pairOf(n), pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'zh'},'聽一聽，是哪一個數字？'));
+    const row=el('div',{class:'row center'}); row.append(speakBtn(numWord(n),'再聽一次'), slowBtn(numWord(n))); pr.appendChild(row);
+    mcq(body, p.map(x=>({value:String(x),label:String(x)})), String(n),
+      v=>answer(q, v===String(n), v, `${n} = ${chunkHTML(n)}`, numWord(n), STRESS), 'huge');
+    setTimeout(()=>speak(numWord(n)),300);
+  },
+  ttDictate(q, body){
+    const n=q.params.n, word=numWord(n), pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'zh'},'聽寫：把聽到的數字拼出來'));
+    const row=el('div',{class:'row center'}); row.append(speakBtn(word,'再聽一次'), slowBtn(word)); pr.appendChild(row);
+    const c=numChunks(n), set=new Set([...c, 'teen','ty']);
+    if(CONFUSE[c[0]]) set.add(CONFUSE[c[0]]);
+    const tiles=shuffle([...set]);
+    tileBuilder(body, tiles, parts=>{
+      const g=parts.join('');
+      answer(q, g===word, g, `${n} = ${chunkHTML(n)}`, word, spellNote(n,g) || STRESS);
+    }, {cls:'tile', placeholder:'點下面的方塊，組成單字'});
+    setTimeout(()=>speak(word),300);
+  },
+
+  /* ===== 數字拼字 ===== */
+  spell(q, body){
+    const n=q.params.n, word=numWord(n), pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'number'},String(n)));
+    pr.appendChild(el('div',{class:'zh'},'用方塊拼出這個數字的英文'));
+    pr.appendChild(speakBtn(word));
+    const c=numChunks(n), set=new Set([...c,'ty','teen','-']);
+    c.forEach(x=>{ if(CONFUSE[x]) set.add(CONFUSE[x]); });
+    tileBuilder(body, shuffle([...set]), parts=>{
+      const g=parts.join('');
+      answer(q, g===word, g, chunkHTML(n), word, spellNote(n,g));
+    }, {placeholder:'點下面的方塊，組成單字'});
+  },
+  listen(q, body){
+    const n=q.params.n, word=numWord(n), pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'zh'},'聽發音，選出正確的單字'));
+    pr.appendChild(speakBtn(word,'再聽一次'));
+    const p=pairOf(n), pool=numberPool().filter(x=>x!==n);
+    const ds=new Set(); if(p) ds.add(p[0]===n?p[1]:p[0]);
+    while(ds.size<2){ ds.add(rand(pool)); }
+    mcq(body, [n,...ds].map(x=>({value:String(x),label:numWord(x)})), String(n),
+      v=>answer(q, v===String(n), numWord(+v), `${chunkHTML(n)} <span class="muted">(${n})</span>`, word, isTeen(n)||n%10===0 ? STRESS : ''));
+    setTimeout(()=>speak(word),300);
+  },
+  type(q, body){
+    const n=q.params.n, word=numWord(n), pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'number'},String(n)));
+    pr.appendChild(el('div',{class:'zh'},'用鍵盤打出這個數字的英文'));
+    pr.appendChild(speakBtn(word));
+    typingUI(body, given=>{ const g=normalize(given); answer(q, g===word, given, chunkHTML(n), word, spellNote(n,g), {typed:true}); });
+  },
+
+  /* ===== 時間 ===== */
+  tWhole(q, body){
+    const {h,m}=q.params, pr=mkPrompt(body);
+    pr.appendChild(clockEl(h,m));
+    pr.appendChild(el('div',{class:'sentence'},sentenceHTML(`It's ${HOURS[h]} ___.`)));
+    pr.appendChild(el('div',{class:'zh'},'看長針：是整點嗎？'));
+    const mw = m===0 ? numWord(randNZ()) : numWord(m);
+    const correct = m===0 ? "o'clock" : numWord(m);
+    mcq(body, [{value:"o'clock",label:"o'clock"},{value:mw,label:mw}], correct,
+      v=>answer(q, v===correct, v, `It's ${esc(timeWord(h,m))}.`, `It's ${timeWord(h,m)}.`,
+        m===0 ? '長針指著 12，是整點，要說 o\'clock。' : `長針指著 ${m/5}，是 ${m} 分（${numWord(m)}）。不是整點，就不說 o'clock。`));
+  },
+  tBlank(q, body){
+    const {h,m,v,dm}=q.params, H=HOURS[h], pr=mkPrompt(body);
+    pr.appendChild(clockEl(h,m));
+    let opts, correct, sent, note, aText;
+    if(v==='oclock'){
+      sent=`It's ___ o'clock.`; correct=H; opts=[H, `${H} ${numWord(dm)}`];
+      note="空格後面已經有 o'clock，空格裡只填小時。"; aText=`It's ${H} o'clock.`;
+    } else if(v==='hyphen'){
+      const M=numWord(m); sent=`It's ___.`; correct=`${H} ${M}`; opts=[correct, `${H}-${M}`];
+      note='小時和分鐘中間空一格，不加 -。'+(M.includes('-')?` ${M} 本身才有 -。`:''); aText=`It's ${correct}.`;
+    } else {
+      const M=numWord(m); sent=''; correct=`It's ${H} ${M}.`; opts=[correct, `${H}-${M}`];
+      pr.appendChild(el('div',{class:'sentence'},'What time is it?'));
+      note='要用完整的句子回答：It\'s ＋ 時間 ＋ 句點；小時和分鐘中間不加 -。'; aText=correct;
+    }
+    if(sent){ pr.appendChild(el('div',{class:'sentence'},sentenceHTML(sent))); pr.appendChild(el('div',{class:'zh'},'灰色的字已經寫好了，空格裡還缺什麼？')); }
+    else pr.appendChild(el('div',{class:'zh'},'選出正確的回答'));
+    mcq(body, opts.map(o=>({value:o,label:o})), correct,
+      val=>answer(q, val===correct, val, esc(aText), aText, note));
+  },
+  tFind(q, body){
+    const {h,m,v}=q.params, H=HOURS[h], M=numWord(m), pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'digital'},digital(h,m)));
+    pr.appendChild(el('div',{class:'zh'},'這句話有一個地方錯了，點出來'));
+    // tokens: [text, spaceBefore]
+    let toks, wrong, fixed, note;
+    if(v==='hyphen'){ toks=[["It's",0],[H,1],['-',0],[M,0],['.',0]]; wrong=2; fixed=`It's ${H} ${M}.`; note='小時和分鐘中間不加 -。'+(M.includes('-')?` ${M} 本身的 - 是對的。`:''); }
+    else if(v==='oclock'){ toks=[["It's",0],[H,1],[M,1],["o'clock",1],['.',0]]; wrong=3; fixed=`It's ${H} ${M}.`; note=`o'clock 只用在整點；${H} ${M} 不是整點，不加 o'clock。`; }
+    else { toks=[["It's",0],[H,1],[BAD_SPELL[M]||M,1],['.',0]]; wrong=2; fixed=`It's ${H} ${M}.`; note=spellNote(m, BAD_SPELL[M]||M) || `${m} 要拼成 ${M}。`; }
+    const line=el('div',{class:'findline'});
+    toks.forEach(([t,sp],i)=>{
+      const b=el('button',{class:'tok'+(t.length<=1?' tight':'')+(sp?' gap':''),type:'button'},esc(t));
+      b.onclick=()=>{
+        const r=answer(q, i===wrong, t, esc(fixed), fixed, note);
+        if(r==='done'){ b.classList.add(i===wrong?'right':'wrong'); if(i!==wrong) line.children[wrong].classList.add('right'); }
+      };
+      line.appendChild(b);
+    });
+    body.appendChild(line);
+  },
+  tBlocks(q, body){
+    const {h,m}=q.params, H=HOURS[h], M=numWord(m), pr=mkPrompt(body);
+    const row=el('div',{class:'row center'}); row.append(clockEl(h,m), el('div',{class:'digital'},digital(h,m))); pr.appendChild(row);
+    pr.appendChild(el('div',{class:'sentence'},sentenceHTML("It's ___.")));
+    pr.appendChild(el('div',{class:'zh'},'用積木組出時間：小時一塊、分鐘一塊'));
+    const tiles=shuffle([H, M, '-', "o'clock", numWord(m/5)].filter((x,i,a)=>a.indexOf(x)===i));
+    tileBuilder(body, tiles, parts=>{
+      const ok = parts.length===2 && parts[0]===H && parts[1]===M;
+      let note='';
+      if(parts.includes('-')) note='小時和分鐘中間不加 -。';
+      else if(parts.includes("o'clock")) note='o\'clock 只用在整點。';
+      else if(parts.includes(numWord(m/5)) && m/5!==m) note=`長針指著 ${m/5}，是 ${m} 分，要說 ${M}。`;
+      else if(parts[0]!==H) note='先說小時，再說分鐘。';
+      answer(q, ok, parts.join(' '), `It's ${esc(H)} ${esc(M)}.`, `It's ${H} ${M}.`, note);
+    }, {cls:'tile word', placeholder:'依序點積木'});
+  },
+  timeMcq(q, body){
+    const {h,m}=q.params, H=HOURS[h], pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'digital'},digital(h,m)));
+    pr.appendChild(el('div',{class:'sentence'},sentenceHTML("It's ___.")));
+    const correct=timeWord(h,m);
+    const opts = m===0
+      ? [[correct,''],[`${H} o'clocks`,"o'clock 後面不加 s。"],[`o'clock ${H}`,"o'clock 要放在數字後面。"]]
+      : [[correct,''],[`${H}-${numWord(m)}`,'小時和分鐘中間不加 -。'],[`${H} ${numWord(m)} o'clock`,"o'clock 只用在整點。"]];
+    const notes=Object.fromEntries(opts);
+    mcq(body, opts.map(([t])=>({value:t,label:t})), correct,
+      v=>answer(q, v===correct, v, `It's ${esc(correct)}.`, `It's ${correct}.`, notes[v]||''));
+  },
+  clock(q, body){
+    const {h,m}=q.params, H=HOURS[h], pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'sentence'},'What time is it?'));
+    pr.appendChild(clockEl(h,m));
+    const correct=`It's ${timeWord(h,m)}.`;
+    const opts = m===0
+      ? [[correct,''],[`It's ${HOURS[h%12+1]} o'clock.`,'短針才是「幾點」，看短針指的數字。'],[`It's ${H} thirty.`,"長針指著 12，是整點，要說 o'clock。"]]
+      : [[correct,''],[`It's ${H} ${numWord(m/5)}.`,`長針指著 ${m/5}，要乘 5，是 ${m} 分（${numWord(m)}）。`],[`It's ${H}-${numWord(m)}.`,'小時和分鐘中間不加 -。']];
+    const uniq=opts.filter((o,i)=>opts.findIndex(x=>x[0]===o[0])===i);
+    const notes=Object.fromEntries(uniq);
+    mcq(body, uniq.map(([t])=>({value:t,label:t})), correct,
+      v=>answer(q, v===correct, v, `${esc(correct)} <span class="muted">(${digital(h,m)})</span>`, correct, notes[v]||''));
+  },
+  typeTime(q, body){
+    const {h,m,v}=q.params, ans=timeWord(h,m), H=HOURS[h], pr=mkPrompt(body);
+    pr.appendChild(v==='clock' ? clockEl(h,m) : el('div',{class:'digital'},digital(h,m)));
+    pr.appendChild(el('div',{class:'sentence'},sentenceHTML("It's ___.")));
+    pr.appendChild(el('div',{class:'zh'},'打出空格裡的英文（不用打 It\'s 和句點）'));
+    typingUI(body, given=>{
+      const g=normalize(given).replace(/^it'?s\s+/,'').replace(/\.$/,'');
+      let note='';
+      if(g!==ans){
+        if(m!==0 && g.endsWith("o'clock")) note="o'clock 只用在整點。";
+        else if(g.startsWith(H+'-')) note='小時和分鐘中間不加 -。';
+        else if(m===0 && g===H) note="整點要加 o'clock。";
+        else if(/o ?clock/.test(g) && !g.includes("o'clock")) note="o'clock 中間有一撇「'」。";
+        else if(m!==0) note=spellNote(m, g.replace(H+' ','')) || `${m} 分要說 ${numWord(m)}。`;
+      }
+      answer(q, g===ans, given, `It's ${esc(ans)}.`, `It's ${ans}.`, note, {typed:true});
+    });
+  },
+  reorder(q, body){
+    const s=q.params.s, words=s.split(' ');
+    let order=shuffle(words.map((w,i)=>i)); let guard=0;
+    while(order.map(i=>words[i]).join(' ')===s && guard++<10) order=shuffle(order);
+    const pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'zh'},'把字卡排成正確的句子（句首大寫、句尾有標點）'));
+    tileBuilder(body, order.map(i=>words[i]), parts=>{
+      const g=parts.join(' ');
+      answer(q, g===s, g, esc(s), s, parts.length<words.length ? '還有字卡沒有排進去。' : '');
+    }, {cls:'tile word', placeholder:'依序點下面的字卡'});
+  },
+  ampm(q, body){
+    const it=AMPM[q.params.i], pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'sentence'},sentenceHTML(it.s)));
+    pr.appendChild(el('div',{class:'zh'},it.zh));
+    const full=it.s.replace('___',it.a);
+    mcq(body, [{value:'a.m.',label:'a.m.'},{value:'p.m.',label:'p.m.'}], it.a,
+      v=>answer(q, v===it.a, v, esc(full), full, 'a.m. 是早上（中午以前）；p.m. 是下午和晚上。'));
+  },
+  forto(q, body){
+    const it=FORTO[q.params.i], pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'sentence'},sentenceHTML(it.s)));
+    pr.appendChild(el('div',{class:'zh'},it.zh));
+    const full=it.s.replace('___',it.a);
+    mcq(body, [{value:'for',label:'for'},{value:'to',label:'to'}], it.a,
+      v=>answer(q, v===it.a, v, esc(full), full, 'Time for ＋ 東西（lunch、dinner、bed）；Time to ＋ 動作（go to bed、get up）。'));
+  },
+
+  /* ===== 10/18 特殊練習 ===== */
+  spBuild(q, body){
+    const W=SP.words[q.params.i], pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'sentence'},esc(W.zh)));
+    const box=el('div',{class:'sylbox'}); W.syl.forEach(()=>box.appendChild(el('span',{class:'syl'}))); pr.appendChild(box);
+    pr.appendChild(el('div',{class:'zh'},`這個字有 ${W.syl.length} 個音節。聽一聽，用方塊拼出來`));
+    const row=el('div',{class:'row center'}); row.append(speakBtn(W.w), slowBtn(W.w)); pr.appendChild(row);
+    tileBuilder(body, shuffle([...new Set([...W.chunks,...W.extra])]), parts=>{
+      const g=parts.join('');
+      answer(q, g===W.w, g, `${esc(W.w)} <span class="muted small">（${W.syl.join(' · ')}）</span>`, W.w, W.tip);
+    }, {placeholder:'點下面的方塊，組成單字'});
+  },
+  spPick(q, body){
+    const W=SP.words[q.params.i], pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'sentence'},esc(W.zh)));
+    pr.appendChild(el('div',{class:'zh'},'聽發音，選出正確的拼法'));
+    pr.appendChild(speakBtn(W.w,'再聽一次'));
+    mcq(body, [W.w,...W.wrong].map(t=>({value:t,label:t})), W.w,
+      v=>answer(q, v===W.w, v, `${esc(W.w)} <span class="muted small">（${W.syl.join(' · ')}）</span>`, W.w, W.tip));
+    setTimeout(()=>speak(W.w),300);
+  },
+  spCount(q, body){
+    const W=SP.words[q.params.i], n=W.syl.length, pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'bigword'},esc(W.w)));
+    pr.appendChild(el('div',{class:'zh'},`${esc(W.zh)}・邊念邊拍手，有幾個音節？`));
+    pr.appendChild(speakBtn(W.w));
+    mcq(body, ['1','2','3'].map(t=>({value:t,label:`${t} 個`})), String(n),
+      v=>answer(q, +v===n, `${v} 個`, `${W.syl.join(' · ')} <span class="muted small">（${n} 個音節）</span>`, W.w,
+        n===1 ? `${W.w} 只拍 1 下。` : `拍拍手：${W.syl.join('（拍）')}（拍），共 ${n} 下。`));
+  }
+};
+
+/* ===================== 畫面 ===================== */
 const SCREENS=['home','home-words','quiz','result','errors','settings'];
 function show(name){
   SCREENS.forEach(s=>$(s).hidden=true);
   if(name==='home'){ $('home').hidden=false; $('home-words').hidden=false; renderHome(); }
   else $(name).hidden=false;
-  $('nav-home').setAttribute('aria-current', String(name==='home'||name==='quiz'||name==='result'));
+  $('nav-home').setAttribute('aria-current', String(['home','quiz','result'].includes(name)));
   $('nav-errors').setAttribute('aria-current', String(name==='errors'));
   $('nav-settings').setAttribute('aria-current', String(name==='settings'));
   if(name==='errors') renderErrors();
@@ -880,30 +966,31 @@ function show(name){
 }
 function dots(target, arr){
   target.innerHTML='';
-  for(let i=0;i<DAILY_COUNT;i++){ const r=arr[i]; target.appendChild(el('span',{class:'dot'+(r===true?' ok':r===false?' no':'')})); }
+  for(let i=0;i<ROUND;i++){ const r=arr[i]; target.appendChild(el('span',{class:'dot'+(r?' '+r:'')})); }
 }
+const MODE_DESC = {tt:'看數字、聽尾巴、聽寫', daily:'時間句型＋數字', kb:'用鍵盤拼單字、打時間', sp:'watch・movie・listen・music・phone'};
 function renderHome(){
   if(day.date!==todayKey()){ day=newDay(); saveDay(); }
-  const status=(arr, idS, idB, idD, first, desc)=>{
-    const done=arr.length, right=arr.filter(Boolean).length;
-    $(idS).textContent = done===0 ? `${desc}，今天 ${DAILY_COUNT} 題` :
-      done<DAILY_COUNT ? `今天做了 ${done} 題，還有 ${DAILY_COUNT-done} 題` : `今天完成了！答對 ${right} / ${DAILY_COUNT} 題`;
-    $(idB).textContent = done===0 ? first : done<DAILY_COUNT ? '繼續' : '再練一回';
-    dots($(idD), arr);
-  };
-  status(day.results,'home-status','start','home-dots','開始練習','點選作答');
-  status(day.kb,'kb-status','start-kb','kb-dots','開始打字','用鍵盤拼單字、打時間');
-  status(day.sp,'sp-status','start-sp','sp-dots','開始練習','watch・movie・listen・music・phone');
-  const d=new Date(); const hh=d.getHours()%12||12, mm=d.getMinutes()>=30?30:0;
-  $('home-clock').innerHTML=clockSVG(hh,mm);
-  const wl=$('wordlist'); wl.innerHTML='';
-  CORE_WORDS.forEach(n=>{ const c=el('button',{class:'chip',type:'button'},`<b>${n}</b> ${coloredNum(n)}`); c.onclick=()=>speak(numWord(n)); wl.appendChild(c); });
+  Object.keys(MODES).forEach(m=>{
+    const arr=day[m], done=arr.length, right=arr.filter(x=>x!=='no').length;
+    $(m+'-status').textContent = done===0 ? `${MODE_DESC[m]}，${ROUND} 題` :
+      done<ROUND ? `做了 ${done} 題，還有 ${ROUND-done} 題` : `完成了！${right} / ${ROUND} 題答對或訂正`;
+    $('start-'+m).textContent = done===0 ? '開始' : done<ROUND ? '繼續' : '再一回';
+    dots($(m+'-dots'), arr);
+  });
+  const d=new Date(); $('home-clock').innerHTML=clockSVG(d.getHours()%12||12, Math.floor(d.getMinutes()/5)*5);
+  const pairs=$('pairs'); pairs.innerHTML='';
+  [[13,30],[14,40],[15,50]].concat(settings.advanced?[[16,60],[17,70],[18,80],[19,90]]:[]).forEach(([a,b])=>{
+    const p=el('div',{class:'pair'});
+    [a,b].forEach(n=>{ const btn=el('button',{type:'button'},`<b>${n}</b> ${chunkHTML(n)}`); btn.onclick=()=>speak(numWord(n)); p.appendChild(btn); });
+    pairs.appendChild(p);
+  });
 }
 function showResult(){
-  const right=R().filter(Boolean).length;
-  $('r-title').textContent = right===DAILY_COUNT ? '全部答對！' : right>=7 ? '很棒！' : '完成今天的練習了';
-  $('r-sub').textContent = `答對 ${right} / ${DAILY_COUNT} 題。` + (right<DAILY_COUNT ? '答錯的題目明天會再出現。' : '');
-  dots($('r-dots'), R());
+  const arr=R(), ok=arr.filter(x=>x==='ok').length, fix=arr.filter(x=>x==='fix').length, no=arr.filter(x=>x==='no').length;
+  $('r-title').textContent = no===0 ? '全部完成，很棒！' : '完成這一回了！';
+  $('r-sub').textContent = `一次答對 ${ok} 題，訂正 ${fix} 題` + (no ? `，還要再練 ${no} 題（之後會再出現）` : '') + (session.stars ? `。得到 ${session.stars} 顆星 ★` : '。');
+  dots($('r-dots'), arr);
   show('result');
 }
 function renderErrors(){
@@ -914,39 +1001,41 @@ function renderErrors(){
   const byType={}; open.forEach(e=>byType[e.type]=(byType[e.type]||0)+1);
   stats.appendChild(el('div',{class:'stat'},`待訂正<b>${open.length}</b>`));
   stats.appendChild(el('div',{class:'stat'},`已訂正<b>${errors.length-open.length}</b>`));
-  Object.keys(byType).forEach(t=>stats.appendChild(el('div',{class:'stat'},`${TYPE_LABEL[t]}<b>${byType[t]}</b>`)));
+  Object.keys(byType).forEach(t=>stats.appendChild(el('div',{class:'stat'},`${TYPE_LABEL[t]||t}<b>${byType[t]}</b>`)));
   errors.slice().sort((a,b)=>(a.fixed-b.fixed)||(b.count-a.count)).forEach(e=>{
     const tr=el('tr');
     tr.innerHTML=`<td>${esc(e.prompt)}</td><td>${esc(e.given)}</td><td><b>${esc(e.answer)}</b></td><td>${e.count}</td><td><span class="pill ${e.fixed?'fixed':'open'}">${e.fixed?'已訂正':'待訂正'}</span></td>`;
     tb.appendChild(tr);
   });
+  resetClearZone();
   $('e-clear-zone').hidden = errors.length===0;
 }
-function askClear(){
+function resetClearZone(){
   const z=$('e-clear-zone'); z.innerHTML='';
-  const box=el('div',{class:'confirm'},'<span>確定要清除所有錯題紀錄嗎？</span>');
-  const yes=el('button',{class:'ghost',type:'button'},'清除'); const no=el('button',{class:'ghost',type:'button'},'取消');
-  yes.onclick=()=>{ errors=[]; saveErrors(); resetClearZone(); renderErrors(); };
-  no.onclick=resetClearZone;
-  box.append(yes,no); z.appendChild(box);
+  const b=el('button',{class:'ghost',type:'button',id:'e-clear'},'清除所有紀錄');
+  b.onclick=()=>{
+    z.innerHTML='';
+    const box=el('div',{class:'confirm'},'<span>確定要清除所有錯題紀錄嗎？</span>');
+    const yes=el('button',{class:'ghost',type:'button'},'清除'); const no=el('button',{class:'ghost',type:'button'},'取消');
+    yes.onclick=()=>{ errors=[]; saveErrors(); renderErrors(); };
+    no.onclick=resetClearZone;
+    box.append(yes,no); z.appendChild(box);
+  };
+  z.appendChild(b);
 }
-function resetClearZone(){ const z=$('e-clear-zone'); z.innerHTML=''; const b=el('button',{class:'ghost',type:'button',id:'e-clear'},'清除所有紀錄'); b.onclick=askClear; z.appendChild(b); }
 
-/* ===================== Wire up ===================== */
+/* ===================== 啟動 ===================== */
 $('nav-home').onclick=()=>show('home');
 $('nav-errors').onclick=()=>show('errors');
 $('nav-settings').onclick=()=>show('settings');
-$('start').onclick=()=>startSession('daily');
-$('start-kb').onclick=()=>startSession('kb');
-$('start-sp').onclick=()=>startSession('sp');
+Object.keys(MODES).forEach(m=>{ $('start-'+m).onclick=()=>startSession(m); });
 $('r-home').onclick=()=>show('home');
-$('r-errors').onclick=()=>show('errors');
-$('e-clear').onclick=askClear;
+$('r-again').onclick=()=>startSession(session.mode);
 $('s-advanced').checked=settings.advanced;
 $('s-rate').checked=settings.slow;
 $('s-advanced').onchange=e=>{settings.advanced=e.target.checked;store.set('wt3_settings',settings);};
 $('s-rate').onchange=e=>{settings.slow=e.target.checked;store.set('wt3_settings',settings);};
-$('s-test').onclick=()=>speak("What time is it? It's twelve thirty.");
+$('s-test').onclick=()=>speakSeq(['thirteen','thirty',"It's two twenty."]);
 $('s-reset-day').onclick=()=>{ day=newDay(); saveDay(); show('home'); };
 show('home');
 </script>
