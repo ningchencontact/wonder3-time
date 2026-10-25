@@ -120,6 +120,15 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .tok.right{border:3px solid var(--good);background:var(--good-bg)}
 .tok.wrong{border:3px solid var(--soft);background:var(--soft-bg)}
 
+/* letter-gap spelling */
+.gapline{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:6px;font-family:var(--body);font-size:32px;font-weight:700}
+.cell{min-width:44px;height:60px;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;padding:0 4px}
+.cell.given{color:var(--ink)}
+.cell.blank{border:3px dashed var(--muted);background:var(--surface-2);cursor:pointer}
+.cell.filled{border:3px solid var(--accent);background:var(--surface)}
+.cell.word{color:var(--muted);font-family:var(--display);font-weight:500}
+.spacer{width:18px}
+.paperbox{border-radius:18px;padding:18px;border:3px dashed var(--line);background:var(--surface-2);text-align:center;color:var(--muted)}
 .hintcard{border-radius:18px;padding:14px 18px;background:var(--hint-bg);border:3px solid var(--hint);display:flex;flex-direction:column;gap:8px}
 .hintcard b{color:var(--hint);font-family:var(--display);font-size:22px}
 .nudge{border-radius:18px;padding:16px;background:var(--hint-bg);color:var(--ink);text-align:center;font-family:var(--display);font-size:24px;border:3px solid var(--hint)}
@@ -199,19 +208,19 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
         </div>
         <div class="mode">
           <div class="mode-info">
-            <h3>鍵盤打字</h3>
-            <p class="muted small" id="kb-status"></p>
-            <div class="dots" id="kb-dots"></div>
+            <h3>挖空拼字</h3>
+            <p class="muted small" id="gap-status"></p>
+            <div class="dots" id="gap-dots"></div>
           </div>
-          <button class="big teal" id="start-kb">開始</button>
+          <button class="big teal" id="start-gap">開始</button>
         </div>
         <div class="mode">
           <div class="mode-info">
-            <h3><span class="badge" style="background:var(--ones)">10/18</span>特殊練習</h3>
-            <p class="muted small" id="sp-status"></p>
-            <div class="dots" id="sp-dots"></div>
+            <h3><span class="badge" style="background:var(--ones)">像考試</span>紙上聽寫</h3>
+            <p class="muted small" id="paper-status"></p>
+            <div class="dots" id="paper-dots"></div>
           </div>
-          <button class="big coral" id="start-sp">開始</button>
+          <button class="big coral" id="start-paper">開始</button>
         </div>
       </div>
     </div>
@@ -288,8 +297,8 @@ const MAX_REVIEW = 2;     // 每回最多放幾題舊錯題
 const MODES = {
   tt:    {name:'teen / ty 暖身', groups:[[['ttSort'],1], [['ttPrefix'],1], [['ttListen'],2], [['ttDictate'],1]]},
   daily: {name:'每日練習',       groups:[[['tBlank'],1], [['tFind'],1], [['tWhole','clock'],1], [['spell','listen'],1], [['tBlocks','timeMcq','reorder','ampm','forto'],1]]},
-  kb:    {name:'鍵盤打字',       groups:[[['type'],3], [['typeTime'],2]]},
-  sp:    {name:'10/18 特殊練習', groups:[[['spBuild'],3], [['spPick'],1], [['spCount'],1]]}
+  gap:   {name:'挖空拼字',       groups:[[['gapNum'],3], [['gapTime'],2]]},
+  paper: {name:'紙上聽寫',       groups:[[['paper'],5]]}
 };
 const BASIC_NUMS = [13,14,15,20,25,30,35,40,45,50];
 const ADV_NUMS   = [55,60,65,70,75,80,85,90,95];
@@ -306,22 +315,6 @@ const TT_PREFIX = [
   {n:15, a:'fifteen',  b:'fiveteen',  base:'five',  tip:'five 要變成 fif：fifteen、fifty。'},
   {n:50, a:'fifty',    b:'fivety',    base:'five',  tip:'five 要變成 fif：fifteen、fifty。'}
 ];
-
-/* 10/18 特殊練習：之後要換新字，改這裡就好 */
-const SP = {
-  words: [
-    {w:'watch', zh:'看；手錶', syl:['watch'], chunks:['w','a','tch'], extra:['sh','e','ch','o'],
-     wrong:['wshe','wach'], tip:'watch 只有 1 個音節。結尾的 /tʃ/ 寫成 tch，不是 sh；a 跟在 w 後面，念起來像 o。'},
-    {w:'movie', zh:'電影', syl:['mo','vie'], chunks:['mo','vie'], extra:['mon','ve','moo','vy'],
-     wrong:['monve','moovy'], tip:'mo · vie 有 2 個音節。mo 的 o 念 /u/，後面沒有 n；結尾的 /i/ 寫成 ie。'},
-    {w:'listen', zh:'聽', syl:['lis','ten'], chunks:['lis','ten'], extra:['list','en','sen','liss'],
-     wrong:['list','lisen'], tip:'lis · ten 有 2 個音節。t 不發音但要寫出來，而且後面還有 en，不能停在 list。'},
-    {w:'music', zh:'音樂', syl:['mu','sic'], chunks:['mu','sic'], extra:['mou','sk','sick','moo'],
-     wrong:['mousk','musik'], tip:'mu · sic 有 2 個音節。mu 的 u 念 /ju/，不是 ou；結尾的 /k/ 寫成 c，所以是 sic。'},
-    {w:'phone', zh:'電話', syl:['phone'], chunks:['ph','o','ne'], extra:['f','a','n','oa'],
-     wrong:['phan','fone'], tip:'phone 只有 1 個音節。/f/ 寫成 ph；o 念長音 /o/，靠最後的 e 幫忙（o_e），e 不發音但要寫。'}
-  ]
-};
 
 /* ===================== 數字與時間的英文 ===================== */
 const ONES = ['','one','two','three','four','five','six','seven','eight','nine'];
@@ -383,7 +376,7 @@ const store = {
 const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; };
 let settings = Object.assign({advanced:false, slow:true}, store.get('wt3_settings', {}));
 let errors = store.get('wt3_errors', []);
-const newDay = () => ({date:todayKey(), tt:[], daily:[], kb:[], sp:[]});
+const newDay = () => ({date:todayKey(), tt:[], daily:[], gap:[], paper:[]});
 let day = store.get('wt3_day2', null);
 if(!day || day.date!==todayKey()) day = newDay();
 Object.keys(MODES).forEach(m=>{ if(!Array.isArray(day[m])) day[m]=[]; });
@@ -473,30 +466,27 @@ const GEN = {
   ttDictate:() => ({n: rand(ttPool())}),
   spell:    () => ({n: rand(numberPool())}),
   listen:   () => ({n: rand(numberPool())}),
-  type:     () => ({n: rand(numberPool())}),
+  gapNum:   () => ({n: rand(numberPool())}),
+  gapTime:  () => ({h: randInt(1,12), m: randMinute()}),
+  paper:    () => Math.random()<0.6 ? {k:'num', n: rand(ttPool().concat([20,25,35,45]))} : {k:'time', h: randInt(1,12), m: randMinute()},
   timeMcq:  () => ({h: randInt(1,12), m: randMinute()}),
   clock:    () => ({h: randInt(1,12), m: randMinute()}),
   tWhole:   () => ({h: randInt(1,12), m: Math.random()<0.5 ? 0 : randNZ()}),
   tBlank:   () => { const v=rand(['oclock','hyphen','full']); return {h: randInt(1,12), m: v==='oclock'?0:randNZ(), v, dm: randNZ()}; },
   tFind:    () => { const v=rand(['hyphen','oclock','spell']); return {h: randInt(1,12), m: v==='spell'?rand([15,40,45,50,55]):randNZ(), v}; },
   tBlocks:  () => ({h: randInt(1,12), m: randNZ()}),
-  typeTime: () => ({h: randInt(1,12), m: randMinute(), v: rand(['clock','digital'])}),
   reorder:  () => {
     const h=randInt(1,12), m=randMinute();
     return {s: rand(['What time is it?', `It's ${timeWord(h,m)}.`, `It's ${timeWord(h,m)} in Taipei.`, `It's ${timeWord(h,m)} in Taipei.`, 'Time for lunch.', 'Time to go to bed.'])};
   },
   ampm:     () => ({i: randInt(0,AMPM.length-1)}),
-  forto:    () => ({i: randInt(0,FORTO.length-1)}),
-  spBuild:  () => ({i: randInt(0,SP.words.length-1)}),
-  spPick:   () => ({i: randInt(0,SP.words.length-1)}),
-  spCount:  () => ({i: randInt(0,SP.words.length-1)})
+  forto:    () => ({i: randInt(0,FORTO.length-1)})
 };
 const TYPE_LABEL = {
   ttSort:'teen 還是 ty？', ttPrefix:'字頭怎麼變', ttListen:'聽一聽', ttDictate:'聽寫',
-  spell:'拼拼看', listen:'聽聽看', type:'打出單字',
-  timeMcq:'選選看', clock:'看時鐘', tWhole:'是整點嗎？', tBlank:'看空格前後', tFind:'找錯', tBlocks:'時間積木', typeTime:'打出時間',
-  reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？',
-  spBuild:'特殊・拼拼看', spPick:'特殊・選對拼法', spCount:'特殊・數音節'
+  spell:'拼拼看', listen:'聽聽看', gapNum:'挖空拼字', gapTime:'挖空拼時間', paper:'紙上聽寫',
+  timeMcq:'選選看', clock:'看時鐘', tWhole:'是整點嗎？', tBlank:'看空格前後', tFind:'找錯', tBlocks:'時間積木',
+  reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？'
 };
 const keyOf = q => q.type+'|'+JSON.stringify(q.params);
 
@@ -563,8 +553,9 @@ function hintFor(q){
     case 'ttSort': return `先看數字：${RULE}`;
     case 'ttPrefix': return TT_PREFIX[p.k].tip;
     case 'ttListen': case 'ttDictate': case 'listen': return `仔細聽尾巴。${STRESS}`;
-    case 'spell': case 'type': return `先看數字：${RULE}${p.n%10 && p.n>20 ? '個位不是 0 的（例如 35），要用 - 連起來：thirty-five。' : ''}`;
-    case 'tWhole': case 'clock': case 'timeMcq': case 'typeTime': case 'tBlocks':
+    case 'spell': case 'gapNum': return `先看數字：${RULE}${p.n%10 && p.n>20 ? '個位不是 0 的（例如 35），要用 - 連起來：thirty-five。' : ''}four 變 fourteen 保留 u，變 forty 要拿掉 u；five 要變成 fif。`;
+    case 'gapTime': return p.m===0 ? "o'clock 中間是一撇「'」，不是 -。" : `小時和分鐘中間空一格。${RULE}`;
+    case 'tWhole': case 'clock': case 'timeMcq': case 'tBlocks':
       return '先看長針：指著 12 是整點，說 o\'clock；指著別的數字就說分鐘（數字 × 5，例如指著 4 是 twenty）。小時和分鐘中間不加 -。';
     case 'tBlank':
       return p.v==='oclock' ? '空格後面已經有 o\'clock 了，空格裡只要填小時。'
@@ -574,8 +565,6 @@ function hintFor(q){
     case 'reorder': return '大寫開頭的字放第一個，有句點或問號的放最後。';
     case 'ampm': return 'a.m. 是早上（中午以前），p.m. 是下午和晚上。';
     case 'forto': return '後面接東西（lunch、bed）用 for；接動作（go to bed、get up）用 to。';
-    case 'spBuild': case 'spPick': return '按「慢慢念」，一個音節一個音節聽，再一塊一塊拼。';
-    case 'spCount': return '邊念邊拍手，拍幾下就是幾個音節。';
   }
   return '慢慢來，再看一次題目。';
 }
@@ -635,20 +624,18 @@ function promptText(q){
     case 'ttDictate': return `聽寫 ${p.n}`;
     case 'spell': return `拼出 ${p.n}`;
     case 'listen': return `聽音選 ${p.n}`;
-    case 'type': return `打出 ${p.n}`;
+    case 'gapNum': return `挖空拼出 ${p.n}`;
+    case 'gapTime': return `挖空拼時間 ${digital(p.h,p.m)}`;
+    case 'paper': return p.k==='num' ? `紙上聽寫 ${p.n}` : `紙上聽寫 ${digital(p.h,p.m)}`;
     case 'timeMcq': return `${digital(p.h,p.m)}  It's ____.`;
     case 'clock': return `時鐘 ${digital(p.h,p.m)}`;
     case 'tWhole': return `時鐘 ${digital(p.h,p.m)}：It's ${HOURS[p.h]} ____.`;
     case 'tBlank': return p.v==='oclock' ? `${digital(p.h,0)}：It's ____ o'clock.` : p.v==='hyphen' ? `${digital(p.h,p.m)}：It's ____.` : `${digital(p.h,p.m)}：What time is it?`;
     case 'tFind': return `找錯：${digital(p.h,p.m)}`;
     case 'tBlocks': return `時間積木 ${digital(p.h,p.m)}`;
-    case 'typeTime': return `打出時間 ${digital(p.h,p.m)}`;
     case 'reorder': return `排句子：${p.s}`;
     case 'ampm': return AMPM[p.i].s;
     case 'forto': return FORTO[p.i].s;
-    case 'spBuild': return `用方塊拼出 ${SP.words[p.i].w}（${SP.words[p.i].zh}）`;
-    case 'spPick': return `選出 ${SP.words[p.i].zh} 的正確拼法`;
-    case 'spCount': return `${SP.words[p.i].w} 有幾個音節`;
   }
   return q.type;
 }
@@ -693,16 +680,56 @@ function tileBuilder(body, tiles, onSubmit, {cls='tile', placeholder='點下面�
   row.append(clr,ok); body.appendChild(row);
   draw();
 }
-function typingUI(body, onCheck){
-  const inp=el('input',{class:'textin',type:'text',id:'type-input',autocomplete:'off',autocorrect:'off',autocapitalize:'off',spellcheck:'false','aria-label':'輸入英文'});
-  body.appendChild(inp);
+// 挖空位置：挑最容易錯的地方（four 的 u、fif/thir 的 i、teen 的 ee、ty 的 y、連字號）
+function numberGaps(n){
+  const word=numWord(n), c=numChunks(n), idx=new Set(), extra=new Set();
+  if(c.length===1){ if(word.length>1) idx.add(randInt(1,word.length-1)); }
+  else{
+    const pre=c[0], suf=c[1], s0=pre.length;
+    let pi=pre.indexOf('u'); if(pi<1) pi=pre.indexOf('i'); if(pi<1) pi=randInt(1,pre.length-1);
+    idx.add(pi);
+    if(suf==='teen'){ idx.add(s0+1); idx.add(s0+2); extra.add('y'); }
+    else { idx.add(s0+1); extra.add('e'); extra.add('n'); }
+    if(pre==='fif') extra.add('v');
+    if(pre==='for') extra.add('u');
+    if(pre==='thir') extra.add('e');
+    if(c.includes('-') && Math.random()<0.5) idx.add(s0+suf.length);
+  }
+  const miss=new Set([...idx].map(i=>word[i]));
+  miss.forEach(ch=>extra.delete(ch));
+  const pool=['u','v','y','e','n','r','i','o'].filter(ch=>!miss.has(ch));
+  while(extra.size<3) extra.add(rand(pool));
+  return {idx:[...idx].sort((a,b)=>a-b), extra:[...extra].slice(0,3)};
+}
+// 挖空作答：點字母卡依序填入空格；點已填的空格可以拿回來
+function gapUI(body, {pre='', target, post='', blanks, extra}, onDone){
+  const line=el('div',{class:'gapline'});
+  if(pre) line.appendChild(el('span',{class:'cell word'},esc(pre)));
+  const cells=[];
+  [...target].forEach((ch,i)=>{
+    if(ch===' '){ line.appendChild(el('span',{class:'spacer'})); return; }
+    if(blanks.includes(i)){ const b=el('button',{class:'cell blank',type:'button','aria-label':'空格'}); cells.push({i,b,card:null}); line.appendChild(b); }
+    else line.appendChild(el('span',{class:'cell given'},esc(ch)));
+  });
+  if(post) line.appendChild(el('span',{class:'cell word'},esc(post)));
+  body.appendChild(line);
+  const cards=shuffle(blanks.map(i=>target[i]).concat(extra));
+  const box=el('div',{class:'tiles'});
+  const cardBtns=cards.map(ch=>{ const b=el('button',{class:'tile',type:'button'},esc(ch)); box.appendChild(b); return b; });
+  body.appendChild(box);
+  const set=(c,k)=>{ c.card=k; c.b.textContent = k===null ? '' : cards[k]; c.b.className='cell '+(k===null?'blank':'filled'); };
+  cardBtns.forEach((b,k)=>b.onclick=()=>{ const c=cells.find(x=>x.card===null); if(!c) return; set(c,k); b.disabled=true; });
+  cells.forEach(c=>c.b.onclick=()=>{ if(c.card===null) return; cardBtns[c.card].disabled=false; set(c,null); });
   const row=el('div',{class:'row center'});
+  const clr=el('button',{class:'ghost',type:'button'},'清除');
+  clr.onclick=()=>cells.forEach(c=>{ if(c.card!==null){ cardBtns[c.card].disabled=false; set(c,null); } });
   const ok=el('button',{class:'big',type:'button'},'確認');
-  const go=()=>{ if(ok.disabled || !inp.value.trim()) return; onCheck(inp.value); };
-  ok.onclick=go;
-  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); go(); } });
-  row.appendChild(ok); body.appendChild(row);
-  setTimeout(()=>inp.focus(),50);
+  ok.onclick=()=>{
+    if(cells.some(c=>c.card===null)) return;
+    const arr=[...target]; cells.forEach(c=>arr[c.i]=cards[c.card]);
+    onDone(arr.join(''));
+  };
+  row.append(clr,ok); body.appendChild(row);
 }
 function sentenceHTML(parts){ // parts: string with ___ ；已給的字用灰色
   return parts.split('___').map(s=>`<span class="given">${esc(s)}</span>`).join('<span class="blank"></span>');
@@ -773,12 +800,65 @@ const RENDER = {
       v=>answer(q, v===String(n), numWord(+v), `${chunkHTML(n)} <span class="muted">(${n})</span>`, word, isTeen(n)||n%10===0 ? STRESS : ''));
     setTimeout(()=>speak(word),300);
   },
-  type(q, body){
+  /* ===== 挖空拼字 ===== */
+  gapNum(q, body){
     const n=q.params.n, word=numWord(n), pr=mkPrompt(body);
     pr.appendChild(el('div',{class:'number'},String(n)));
-    pr.appendChild(el('div',{class:'zh'},'用鍵盤打出這個數字的英文'));
+    pr.appendChild(el('div',{class:'zh'},'補上缺的字母'));
     pr.appendChild(speakBtn(word));
-    typingUI(body, given=>{ const g=normalize(given); answer(q, g===word, given, chunkHTML(n), word, spellNote(n,g), {typed:true}); });
+    const g=numberGaps(n);
+    gapUI(body, {target:word, blanks:g.idx, extra:g.extra}, filled=>
+      answer(q, filled===word, filled, chunkHTML(n), word, spellNote(n,filled)));
+  },
+  gapTime(q, body){
+    const {h,m}=q.params, H=HOURS[h], target=timeWord(h,m), pr=mkPrompt(body);
+    const row=el('div',{class:'row center'}); row.append(clockEl(h,m), el('div',{class:'digital'},digital(h,m))); pr.appendChild(row);
+    pr.appendChild(el('div',{class:'zh'},'補上缺的字母或符號'));
+    pr.appendChild(speakBtn(`It's ${target}.`));
+    let idx, extra;
+    if(m===0){
+      idx=[target.indexOf("'")]; if(H.length>2) idx.unshift(randInt(1,H.length-1));
+      extra=['-', rand(['e','o','u']), rand(['k','c','l'])];
+    } else {
+      const g=numberGaps(m); idx=g.idx.map(i=>i+H.length+1); extra=g.extra;
+    }
+    gapUI(body, {pre:"It's", target, post:'.', blanks:idx, extra}, filled=>{
+      let note='';
+      if(filled!==target){
+        if(m===0 && !filled.includes("'")) note="o'clock 中間是一撇「'」，不是 -。";
+        else if(m!==0) note=spellNote(m, filled.slice(H.length+1)) || `${m} 分要拼成 ${numWord(m)}。`;
+      }
+      answer(q, filled===target, filled, `It's ${esc(target)}.`, `It's ${target}.`, note);
+    });
+  },
+
+  /* ===== 紙上聽寫 ===== */
+  paper(q, body){
+    const p=q.params, isNum=p.k==='num';
+    const text = isNum ? numWord(p.n) : `It's ${timeWord(p.h,p.m)}.`;
+    const aHTML = isNum ? `${p.n} = ${chunkHTML(p.n)}` : esc(text);
+    const note = isNum
+      ? `${RULE} ${STRESS}${p.n%10 && p.n>20 ? ' 個位不是 0 的要用 - 連起來，例如 thirty-five。' : ''}`
+      : "檢查四件事：It's 的 I 大寫、小時和分鐘中間不加 -、整點才寫 o'clock（中間是一撇）、句尾有句點。";
+    const pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'sentence'},isNum ? '聽寫一個數字' : '聽寫一個句子'));
+    pr.appendChild(el('div',{class:'zh'},isNum ? '仔細聽，把英文單字寫在紙上' : "仔細聽，把整個句子寫在紙上（It's 開頭、句點結尾）"));
+    const row=el('div',{class:'row center'}); row.append(speakBtn(text,'再聽一次'), slowBtn(text)); pr.appendChild(row);
+    const box=el('div',{class:'paperbox'},'寫好了再按下面的按鈕');
+    body.appendChild(box);
+    const reveal=el('button',{class:'big',type:'button'},'寫好了，看答案');
+    const rrow=el('div',{class:'row center'}); rrow.appendChild(reveal); body.appendChild(rrow);
+    reveal.onclick=()=>{
+      rrow.remove();
+      box.innerHTML=`<div class="small">正確答案</div><div class="fb-answer" style="color:var(--ink)">${aHTML}</div><div class="small" style="margin-top:6px">跟紙上的比一比，一個字母一個字母看</div>`;
+      const g=el('div',{class:'options'});
+      const yes=el('button',{class:'opt',type:'button'},'寫對了');
+      const no=el('button',{class:'opt',type:'button'},'寫錯了');
+      yes.onclick=()=>{ yes.classList.add('right'); finish(q, true, '紙上寫對', aHTML, text, ''); };
+      no.onclick=()=>{ no.classList.add('wrong'); finish(q, false, '紙上寫錯', aHTML, text, note); };
+      g.append(yes,no); body.appendChild(g);
+    };
+    setTimeout(()=>speak(text),300);
   },
 
   /* ===== 時間 ===== */
@@ -874,24 +954,6 @@ const RENDER = {
     mcq(body, uniq.map(([t])=>({value:t,label:t})), correct,
       v=>answer(q, v===correct, v, `${esc(correct)} <span class="muted">(${digital(h,m)})</span>`, correct, notes[v]||''));
   },
-  typeTime(q, body){
-    const {h,m,v}=q.params, ans=timeWord(h,m), H=HOURS[h], pr=mkPrompt(body);
-    pr.appendChild(v==='clock' ? clockEl(h,m) : el('div',{class:'digital'},digital(h,m)));
-    pr.appendChild(el('div',{class:'sentence'},sentenceHTML("It's ___.")));
-    pr.appendChild(el('div',{class:'zh'},'打出空格裡的英文（不用打 It\'s 和句點）'));
-    typingUI(body, given=>{
-      const g=normalize(given).replace(/^it'?s\s+/,'').replace(/\.$/,'');
-      let note='';
-      if(g!==ans){
-        if(m!==0 && g.endsWith("o'clock")) note="o'clock 只用在整點。";
-        else if(g.startsWith(H+'-')) note='小時和分鐘中間不加 -。';
-        else if(m===0 && g===H) note="整點要加 o'clock。";
-        else if(/o ?clock/.test(g) && !g.includes("o'clock")) note="o'clock 中間有一撇「'」。";
-        else if(m!==0) note=spellNote(m, g.replace(H+' ','')) || `${m} 分要說 ${numWord(m)}。`;
-      }
-      answer(q, g===ans, given, `It's ${esc(ans)}.`, `It's ${ans}.`, note, {typed:true});
-    });
-  },
   reorder(q, body){
     const s=q.params.s, words=s.split(' ');
     let order=shuffle(words.map((w,i)=>i)); let guard=0;
@@ -918,38 +980,8 @@ const RENDER = {
     const full=it.s.replace('___',it.a);
     mcq(body, [{value:'for',label:'for'},{value:'to',label:'to'}], it.a,
       v=>answer(q, v===it.a, v, esc(full), full, 'Time for ＋ 東西（lunch、dinner、bed）；Time to ＋ 動作（go to bed、get up）。'));
-  },
-
-  /* ===== 10/18 特殊練習 ===== */
-  spBuild(q, body){
-    const W=SP.words[q.params.i], pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'sentence'},esc(W.zh)));
-    const box=el('div',{class:'sylbox'}); W.syl.forEach(()=>box.appendChild(el('span',{class:'syl'}))); pr.appendChild(box);
-    pr.appendChild(el('div',{class:'zh'},`這個字有 ${W.syl.length} 個音節。聽一聽，用方塊拼出來`));
-    const row=el('div',{class:'row center'}); row.append(speakBtn(W.w), slowBtn(W.w)); pr.appendChild(row);
-    tileBuilder(body, shuffle([...new Set([...W.chunks,...W.extra])]), parts=>{
-      const g=parts.join('');
-      answer(q, g===W.w, g, `${esc(W.w)} <span class="muted small">（${W.syl.join(' · ')}）</span>`, W.w, W.tip);
-    }, {placeholder:'點下面的方塊，組成單字'});
-  },
-  spPick(q, body){
-    const W=SP.words[q.params.i], pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'sentence'},esc(W.zh)));
-    pr.appendChild(el('div',{class:'zh'},'聽發音，選出正確的拼法'));
-    pr.appendChild(speakBtn(W.w,'再聽一次'));
-    mcq(body, [W.w,...W.wrong].map(t=>({value:t,label:t})), W.w,
-      v=>answer(q, v===W.w, v, `${esc(W.w)} <span class="muted small">（${W.syl.join(' · ')}）</span>`, W.w, W.tip));
-    setTimeout(()=>speak(W.w),300);
-  },
-  spCount(q, body){
-    const W=SP.words[q.params.i], n=W.syl.length, pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'bigword'},esc(W.w)));
-    pr.appendChild(el('div',{class:'zh'},`${esc(W.zh)}・邊念邊拍手，有幾個音節？`));
-    pr.appendChild(speakBtn(W.w));
-    mcq(body, ['1','2','3'].map(t=>({value:t,label:`${t} 個`})), String(n),
-      v=>answer(q, +v===n, `${v} 個`, `${W.syl.join(' · ')} <span class="muted small">（${n} 個音節）</span>`, W.w,
-        n===1 ? `${W.w} 只拍 1 下。` : `拍拍手：${W.syl.join('（拍）')}（拍），共 ${n} 下。`));
   }
+
 };
 
 /* ===================== 畫面 ===================== */
@@ -968,7 +1000,7 @@ function dots(target, arr){
   target.innerHTML='';
   for(let i=0;i<ROUND;i++){ const r=arr[i]; target.appendChild(el('span',{class:'dot'+(r?' '+r:'')})); }
 }
-const MODE_DESC = {tt:'看數字、聽尾巴、聽寫', daily:'時間句型＋數字', kb:'用鍵盤拼單字、打時間', sp:'watch・movie・listen・music・phone'};
+const MODE_DESC = {tt:'看數字、聽尾巴、聽寫', daily:'時間句型＋數字', gap:'補上缺的字母', paper:'聽 iPad 念，寫在紙上'};
 function renderHome(){
   if(day.date!==todayKey()){ day=newDay(); saveDay(); }
   Object.keys(MODES).forEach(m=>{
@@ -1025,6 +1057,8 @@ function resetClearZone(){
 }
 
 /* ===================== 啟動 ===================== */
+// 已經拿掉的練習（鍵盤打字、10/18 特殊練習）不再留在錯題紀錄
+errors = errors.filter(e=>GEN[e.type]); saveErrors();
 $('nav-home').onclick=()=>show('home');
 $('nav-errors').onclick=()=>show('errors');
 $('nav-settings').onclick=()=>show('settings');
