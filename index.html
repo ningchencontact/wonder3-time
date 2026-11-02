@@ -321,7 +321,7 @@ const MAX_REVIEW = 2;     // 每回最多放幾題舊錯題
 // 每種練習的題型：[可抽的題型, 題數]
 const MODES = {
   tt:    {name:'teen / ty 暖身', groups:[[['ttSort'],1], [['ttPrefix'],1], [['ttListen'],2], [['ttDictate'],1]]},
-  daily: {name:'每日練習',       groups:[[['tBlank'],1], [['tFind'],1], [['tWhole','clock'],1], [['spell','listen'],1], [['tBlocks','timeMcq','reorder','ampm','forto'],1]]},
+  daily: {name:'每日練習',       groups:[[['tBlank'],1], [['tFind'],1], [['tWhole','clock'],1], [['spell','listen'],1], [['tAsk','tAsk','tBlocks','timeMcq','reorder','ampm','forto'],1]]},
   weather:{name:'天氣',          groups:[[['wBe'],1], [['wShort'],1], [['wAsk'],1], [['wHow','wPic'],1], [['wGap'],1]]},
   gap:   {name:'挖空拼字',       groups:[[['gapNum'],2], [['wGap'],1], [['gapTime'],2]]},
   paper: {name:'紙上聽寫',       groups:[[['paper'],5]]}
@@ -528,6 +528,8 @@ const WASK = [
 ];
 const ASK = "How's the weather?";
 const ASK_NOTE = "問天氣固定寫成 How's the weather?：H 大寫、How's 有一撇（How is）、句尾是問號。";
+const ASK_T = 'What time is it?';
+const ASK_T_NOTE = "問時間固定寫成 What time is it?：W 大寫、What 後面沒有 's、句尾是問號。（問天氣才用 How's）";
 // 紙上聽寫用的天氣句子與單字
 const WPAPER = ['rainy','cloudy','sunny','windy',"o'clock","It's rainy.","It's cloudy.","How's the weather?","Is it windy? No, it isn't.","The weather is sunny."];
 const PAPER_NOTE = {"o'clock":"o'clock 中間是一撇「'」，不是 -；全部小寫，c-l-o-c-k。"};
@@ -555,12 +557,14 @@ const GEN = {
   gapNum:   () => ({n: rand(numberPool())}),
   gapTime:  () => ({h: randInt(1,12), m: randMinute()}),
   paper:    () => { const r=Math.random();
-    return r<0.38 ? {k:'num', n: rand(ttPool().concat([11,12,20,25,35,45]))}
-         : r<0.56 ? {k:'time', h: randInt(1,12), m: randMinute()}
-         : r<0.72 ? {k:'ask', i: randInt(0,WASK.length-1)}
-         : r<0.82 ? {k:'wx', i: WPAPER.indexOf("o'clock")}
+    return r<0.34 ? {k:'num', n: rand(ttPool().concat([11,12,20,25,35,45]))}
+         : r<0.50 ? {k:'time', h: randInt(1,12), m: randMinute()}
+         : r<0.63 ? {k:'ask', i: randInt(0,WASK.length-1)}
+         : r<0.76 ? {k:'askT', h: randInt(1,12), m: randMinute()}
+         : r<0.84 ? {k:'wx', i: WPAPER.indexOf("o'clock")}
          : {k:'wx', i: randInt(0,WPAPER.length-1)}; },
   wAsk:     () => ({i: randInt(0,WASK.length-1)}),
+  tAsk:     () => ({h: randInt(1,12), m: randMinute()}),
   wBe:      () => ({i: randInt(0,WBE.length-1)}),
   wShort:   () => { const w=rand(['sunny','rainy','cloudy','windy','cold','hot']); const yes=Math.random()<0.4;
     return {w, ask: yes ? w : WX_CONFUSE[w], v: rand(['blank','pick'])}; },
@@ -585,7 +589,7 @@ const TYPE_LABEL = {
   spell:'拼拼看', listen:'聽聽看', gapNum:'挖空拼字', gapTime:'挖空拼時間', paper:'紙上聽寫',
   timeMcq:'選選看', clock:'看時鐘', tWhole:'是整點嗎？', tBlank:'看空格前後', tFind:'找錯', tBlocks:'時間積木',
   reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？',
-  wAsk:'天氣・寫出問句', wBe:'天氣・am 還是 is', wShort:'天氣・Yes 還是 No', wHow:"天氣・How's", wPic:'天氣・看圖選字', wGap:'天氣・挖空拼字'
+  tAsk:'組出問句', wAsk:'天氣・寫出問句', wBe:'天氣・am 還是 is', wShort:'天氣・Yes 還是 No', wHow:"天氣・How's", wPic:'天氣・看圖選字', wGap:'天氣・挖空拼字'
 };
 const keyOf = q => q.type+'|'+JSON.stringify(q.params);
 
@@ -654,6 +658,7 @@ function hintFor(q){
     case 'ttListen': case 'ttDictate': case 'listen': return `仔細聽尾巴。${STRESS}`;
     case 'spell': case 'gapNum': return `先看數字：${RULE}${p.n%10 && p.n>20 ? '個位不是 0 的（例如 35），要用 - 連起來：thirty-five。' : ''}four 變 fourteen 保留 u，變 forty 要拿掉 u；five 要變成 fif。`;
     case 'wAsk': return "後面在回答天氣，所以前面是問天氣的句子：How's ＋ the ＋ weather?";
+    case 'tAsk': return '後面在回答幾點，所以前面是問時間的句子：What ＋ time ＋ is ＋ it?（What 後面沒有 \'s）';
     case 'wBe': return `先看前面是誰：${WBE_NOTE}`;
     case 'wShort': return "先看圖：是不是題目問的天氣？是就說 Yes, it is.；不是就說 No, it isn't.（isn't = is not）。";
     case 'wHow': return p.v==='ans' ? '先看圖片是什麼天氣，再找意思一樣的句子。' : "問天氣固定這樣說：How's the weather?（How's = How is）。";
@@ -731,8 +736,9 @@ function promptText(q){
     case 'listen': return `聽音選 ${p.n}`;
     case 'gapNum': return `挖空拼出 ${p.n}`;
     case 'gapTime': return `挖空拼時間 ${digital(p.h,p.m)}`;
-    case 'paper': return p.k==='num' ? `紙上聽寫 ${p.n}` : p.k==='wx' ? `紙上聽寫 ${WPAPER[p.i]}` : p.k==='ask' ? `紙上寫問句：____. ${WASK[p.i].a}` : `紙上聽寫 ${digital(p.h,p.m)}`;
+    case 'paper': return p.k==='num' ? `紙上聽寫 ${p.n}` : p.k==='wx' ? `紙上聽寫 ${WPAPER[p.i]}` : p.k==='ask' ? `紙上寫問句：____. ${WASK[p.i].a}` : p.k==='askT' ? `紙上寫問句：____ It's ${timeWord(p.h,p.m)}.` : `紙上聽寫 ${digital(p.h,p.m)}`;
     case 'wAsk': return `組出問句：____. ${WASK[p.i].a}`;
+    case 'tAsk': return `組出問句：____ It's ${timeWord(p.h,p.m)}.`;
     case 'wBe': return WBE[p.i].s;
     case 'wShort': return `圖是 ${p.w}：Is it ${p.ask}?`;
     case 'wHow': return p.v==='ans' ? `圖是 ${p.w}：How's the weather?` : WHOW[p.i].s;
@@ -961,6 +967,21 @@ const RENDER = {
       answer(q, g===ASK, g, `${esc(ASK)} <span class="given">${esc(it.a)}</span>`, `${ASK} ${it.a}`, note);
     }, {cls:'tile word', placeholder:'依序點字卡'});
   },
+  tAsk(q, body){
+    const {h,m}=q.params, ans=`It's ${timeWord(h,m)}.`, pr=mkPrompt(body);
+    pr.appendChild(clockEl(h,m));
+    pr.appendChild(el('div',{class:'sentence'},`<span class="blank" style="min-width:200px"></span> <span class="given">${esc(ans)}</span>`));
+    pr.appendChild(el('div',{class:'zh'},'後面是回答，前面要問什麼？用字卡組出問句'));
+    pr.appendChild(speakBtn(ans,'聽回答'));
+    tileBuilder(body, shuffle(['What','time','is','it?',"What's","How's"]), parts=>{
+      const g=parts.join(' ');
+      let note=ASK_T_NOTE;
+      if(parts.includes("What's")) note="問時間是 What time is it?，What 後面沒有 's。";
+      else if(parts.includes("How's")) note="How's 是問天氣用的；問時間要說 What time is it?。";
+      else if(parts.length===4) note='順序是 What → time → is → it?。';
+      answer(q, g===ASK_T, g, `${esc(ASK_T)} <span class="given">${esc(ans)}</span>`, `${ASK_T} ${ans}`, note);
+    }, {cls:'tile word', placeholder:'依序點字卡'});
+  },
   wBe(q, body){
     const it=WBE[q.params.i], pr=mkPrompt(body);
     pr.appendChild(el('div',{class:'sentence'},sentenceHTML(it.s)));
@@ -1025,13 +1046,15 @@ const RENDER = {
 
   /* ===== 紙上聽寫 ===== */
   paper(q, body){
-    const p=q.params, isNum=p.k==='num', isWx=p.k==='wx', isAsk=p.k==='ask';
-    const text = isNum ? numWord(p.n) : isWx ? WPAPER[p.i] : isAsk ? ASK : `It's ${timeWord(p.h,p.m)}.`;
+    const p=q.params, isNum=p.k==='num', isWx=p.k==='wx', isAsk=p.k==='ask', isAskT=p.k==='askT';
+    const timeAns = isAskT ? `It's ${timeWord(p.h,p.m)}.` : '';
+    const text = isNum ? numWord(p.n) : isWx ? WPAPER[p.i] : isAsk ? ASK : isAskT ? ASK_T : `It's ${timeWord(p.h,p.m)}.`;
     const isWord = isNum || (isWx && !/[.?]$/.test(text));
-    const aHTML = isNum ? `${p.n} = ${chunkHTML(p.n)}` : isAsk ? `${esc(ASK)} <span class="given">${esc(WASK[p.i].a)}</span>` : esc(text);
+    const aHTML = isNum ? `${p.n} = ${chunkHTML(p.n)}` : isAsk ? `${esc(ASK)} <span class="given">${esc(WASK[p.i].a)}</span>`
+      : isAskT ? `${esc(ASK_T)} <span class="given">${esc(timeAns)}</span>` : esc(text);
     const note = isNum
       ? `${RULE} ${STRESS}${p.n%10 && p.n>20 ? ' 個位不是 0 的要用 - 連起來，例如 thirty-five。' : ''}`
-      : isAsk ? ASK_NOTE
+      : isAsk ? ASK_NOTE : isAskT ? ASK_T_NOTE
       : isWx ? (isWord ? (WX[text] ? `${WX[text].root}。` : PAPER_NOTE[text]||'') : "檢查：句首大寫、How's 和 isn't 都有一撇、句尾有句點或問號。")
       : "檢查四件事：It's 的 I 大寫、小時和分鐘中間不加 -、整點才寫 o'clock（中間是一撇）、句尾有句點。";
     const pr=mkPrompt(body);
@@ -1041,6 +1064,11 @@ const RENDER = {
       pr.appendChild(el('div',{class:'sentence'},`<span class="blank" style="min-width:200px"></span> <span class="given">${esc(it.a)}</span>`));
       pr.appendChild(el('div',{class:'zh'},'後面是回答。把前面空格的問句寫在紙上（大寫開頭、記得問號）'));
       const row=el('div',{class:'row center'}); row.append(speakBtn(it.a,'聽回答')); pr.appendChild(row);
+    } else if(isAskT){
+      pr.appendChild(clockEl(p.h,p.m));
+      pr.appendChild(el('div',{class:'sentence'},`<span class="blank" style="min-width:200px"></span> <span class="given">${esc(timeAns)}</span>`));
+      pr.appendChild(el('div',{class:'zh'},'後面是回答。把前面空格的問句寫在紙上（大寫開頭、記得問號）'));
+      const row=el('div',{class:'row center'}); row.append(speakBtn(timeAns,'聽回答')); pr.appendChild(row);
     } else {
       pr.appendChild(el('div',{class:'sentence'},isNum ? '聽寫一個數字' : isWord ? '聽寫一個單字' : '聽寫一個句子'));
       pr.appendChild(el('div',{class:'zh'},isWord ? '仔細聽，把英文單字寫在紙上' : '仔細聽，把整個句子寫在紙上（大寫開頭、記得標點）'));
@@ -1060,7 +1088,7 @@ const RENDER = {
       no.onclick=()=>{ no.classList.add('wrong'); finish(q, false, '紙上寫錯', aHTML, text, note); };
       g.append(yes,no); body.appendChild(g);
     };
-    setTimeout(()=>speak(isAsk ? WASK[p.i].a : text),300);
+    setTimeout(()=>speak(isAsk ? WASK[p.i].a : isAskT ? timeAns : text),300);
   },
 
   /* ===== 時間 ===== */
