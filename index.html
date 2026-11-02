@@ -128,6 +128,20 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .cell.filled{border:3px solid var(--accent);background:var(--surface)}
 .cell.word{color:var(--muted);font-family:var(--display);font-weight:500}
 .spacer{width:18px}
+/* weather icons */
+.wx{width:min(150px,40vw);height:auto}
+.chips .wx{width:44px;vertical-align:middle;margin-right:6px}
+.wx .sun{fill:var(--accent)}
+.wx .ray{stroke:var(--accent);stroke-width:6;stroke-linecap:round}
+.wx .cl{fill:var(--line)}
+.wx .cl.dark{fill:var(--muted)}
+.wx .drop{stroke:var(--hint);stroke-width:6;stroke-linecap:round}
+.wx .wind{stroke:var(--tens);stroke-width:7;fill:none;stroke-linecap:round}
+.wx .tube{fill:var(--surface);stroke:var(--ink);stroke-width:4}
+.wx .hotc{fill:var(--ones)}
+.wx .coldc{fill:var(--hint)}
+.wx .flake{stroke:var(--hint);stroke-width:5;stroke-linecap:round}
+.chip{display:inline-flex;align-items:center}
 .paperbox{border-radius:18px;padding:18px;border:3px dashed var(--line);background:var(--surface-2);text-align:center;color:var(--muted)}
 .hintcard{border-radius:18px;padding:14px 18px;background:var(--hint-bg);border:3px solid var(--hint);display:flex;flex-direction:column;gap:8px}
 .hintcard b{color:var(--hint);font-family:var(--display);font-size:22px}
@@ -208,6 +222,14 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
         </div>
         <div class="mode">
           <div class="mode-info">
+            <h3><span class="badge" style="background:var(--tens)">Unit 1</span>天氣</h3>
+            <p class="muted small" id="weather-status"></p>
+            <div class="dots" id="weather-dots"></div>
+          </div>
+          <button class="big teal" id="start-weather">開始</button>
+        </div>
+        <div class="mode">
+          <div class="mode-info">
             <h3>挖空拼字</h3>
             <p class="muted small" id="gap-status"></p>
             <div class="dots" id="gap-dots"></div>
@@ -229,6 +251,9 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
     <h3>teen 和 ty 比一比</h3>
     <p class="small muted" style="margin:4px 0 0">1 開頭（13～19）用 <span class="s">teen</span>，尾巴念得長：thir-TEEN。0 結尾（20、30、40、50）用 <span class="s">ty</span>，短短的：THIR-ty。點一下可以聽。</p>
     <div class="pairs" id="pairs"></div>
+    <h3 style="margin-top:18px">天氣單字</h3>
+    <p class="small muted" style="margin:4px 0 0">rain → rain<span class="s">y</span>、cloud → cloud<span class="s">y</span>、wind → wind<span class="s">y</span>、sun → sun<span class="s">ny</span>（多一個 n）。問天氣：<b>How's</b> the weather? 回答：It's rainy. ・ Is it windy? No, it <b>isn't</b>.</p>
+    <div class="chips" id="wx-words"></div>
     <p class="small muted" style="margin:14px 0 0">時間：It's six o'clock.（整點）・It's six twenty.（小時和分鐘中間不加 -）・It's five thirty-five.（thirty-five 本身才有 -）</p>
   </section>
 
@@ -297,17 +322,20 @@ const MAX_REVIEW = 2;     // 每回最多放幾題舊錯題
 const MODES = {
   tt:    {name:'teen / ty 暖身', groups:[[['ttSort'],1], [['ttPrefix'],1], [['ttListen'],2], [['ttDictate'],1]]},
   daily: {name:'每日練習',       groups:[[['tBlank'],1], [['tFind'],1], [['tWhole','clock'],1], [['spell','listen'],1], [['tBlocks','timeMcq','reorder','ampm','forto'],1]]},
-  gap:   {name:'挖空拼字',       groups:[[['gapNum'],3], [['gapTime'],2]]},
+  weather:{name:'天氣',          groups:[[['wBe'],1], [['wShort'],1], [['wHow'],1], [['wPic','wHow'],1], [['wGap'],1]]},
+  gap:   {name:'挖空拼字',       groups:[[['gapNum'],2], [['wGap'],1], [['gapTime'],2]]},
   paper: {name:'紙上聽寫',       groups:[[['paper'],5]]}
 };
-const BASIC_NUMS = [13,14,15,20,25,30,35,40,45,50];
+const BASIC_NUMS = [11,12,13,14,15,19,20,25,30,35,40,45,50];
 const ADV_NUMS   = [55,60,65,70,75,80,85,90,95];
-const TT_BASIC   = [13,14,15,30,40,50];
-const TT_ADV     = [16,17,18,19,60,70,80,90];
+const TT_BASIC   = [13,14,15,19,30,40,50,90];
+const TT_ADV     = [16,17,18,60,70,80];
 const MINUTES_NZ = [10,15,20,25,30,35,40,45,50,55];
 
 // 字頭變化題：正確 vs 常見錯誤
 const TT_PREFIX = [
+  {n:19, a:'nineteen', b:'ninteen',   base:'nine',  tip:'nine 的 e 要留著：nineteen、ninety。'},
+  {n:90, a:'ninety',   b:'ninty',     base:'nine',  tip:'nine 的 e 要留著：nineteen、ninety。'},
   {n:13, a:'thirteen', b:'threeteen', base:'three', tip:'three 要變成 thir：thirteen、thirty。'},
   {n:30, a:'thirty',   b:'threety',   base:'three', tip:'three 要變成 thir：thirteen、thirty。'},
   {n:14, a:'fourteen', b:'forteen',   base:'four',  tip:'fourteen 保留 u；只有 forty 要拿掉 u。'},
@@ -360,6 +388,9 @@ function spellNote(n,g){
   if(g.startsWith('forteen')) return 'fourteen 要保留 u；只有 forty 拿掉 u。';
   if(g.startsWith('fivet')) return 'five 要變成 fif：fifteen、fifty。';
   if(g.startsWith('threet')) return 'three 要變成 thir：thirteen、thirty。';
+  if(g.startsWith('nint')) return 'nine 的 e 要留著：nineteen、ninety。';
+  if(n===12) return 'twelve 是 t-w-e-l-v-e，結尾是 ve。';
+  if(n===11) return 'eleven 是 e-le-ven，三個 e。';
   if(w.includes('ty') && g.includes('teen')) return `${n} 是 0 結尾，要用 ty。teen 是給 1 開頭的 13～19 用的。`;
   if(w.includes('teen') && g.includes('ty')) return `${n} 是 1 開頭，要用 teen。ty 是給 0 結尾的 20、30、40…… 用的。`;
   return '';
@@ -376,7 +407,7 @@ const store = {
 const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; };
 let settings = Object.assign({advanced:false, slow:true}, store.get('wt3_settings', {}));
 let errors = store.get('wt3_errors', []);
-const newDay = () => ({date:todayKey(), tt:[], daily:[], gap:[], paper:[]});
+const newDay = () => Object.assign({date:todayKey()}, Object.fromEntries(Object.keys(MODES).map(m=>[m,[]])));
 let day = store.get('wt3_day2', null);
 if(!day || day.date!==todayKey()) day = newDay();
 Object.keys(MODES).forEach(m=>{ if(!Array.isArray(day[m])) day[m]=[]; });
@@ -457,6 +488,49 @@ const FORTO = [
   {s:'Time ___ go to school.', zh:'該去上學了。', a:'to'},
   {s:'Time ___ get up.', zh:'該起床了。', a:'to'}
 ];
+/* ===== 天氣（Unit 1）：之後要加題目改這裡 ===== */
+// 天氣單字：gaps = 挖空位置；extra = 干擾字母；root = 怎麼變來的
+const WX = {
+  sunny:  {zh:'晴朗的', gaps:[3,4], extra:['e','i'], root:'sun → sunny，n 要多一個'},
+  rainy:  {zh:'下雨的', gaps:[1,2], extra:['e','o'], root:'rain → rainy，ai 不要漏'},
+  cloudy: {zh:'多雲的', gaps:[2,3], extra:['w','a'], root:'cloud → cloudy，ou 不要漏'},
+  windy:  {zh:'有風的', gaps:[1,4], extra:['e','a'], root:'wind → windy'},
+  cold:   {zh:'冷的',   gaps:[1],   extra:['u','a'], root:'cold 的 o 念長音'},
+  hot:    {zh:'熱的',   gaps:[1],   extra:['a','u'], root:'hot 的 o 念短音'}
+};
+const WX_KEYS = Object.keys(WX);
+const WX_CONFUSE = {sunny:'windy', windy:'sunny', rainy:'cloudy', cloudy:'rainy', cold:'hot', hot:'cold'};
+// be 動詞填空：a = 正解、b = 干擾
+const WBE = [
+  {s:"The weather ___ sunny. Let's go out.", a:'is', b:'am'},
+  {s:'The weather ___ rainy today.',          a:'is', b:'am'},
+  {s:'It ___ cloudy in Taipei.',              a:'is', b:'am'},
+  {s:"It ___ windy. Let's fly a kite.",        a:'is', b:'are'},
+  {s:'I ___ cold.',                            a:'am', b:'is'},
+  {s:'I ___ hot.',                             a:'am', b:'is'}
+];
+const WBE_NOTE = 'I 搭配 am；the weather、it 搭配 is。';
+// 問天氣
+const WHOW = [
+  {s:'___ the weather in Taipei?',       a:"How's", b:"What's", note:"問天氣用 How's the weather?（How's = How is）。"},
+  {s:'___ the weather? It is cold.',     a:"How's", b:'How',    note:"How 後面還要有 is：How's = How is。只寫 How 少了 is。"},
+  {s:'___ the weather today?',           a:"How's", b:'How',    note:"How 後面還要有 is：How's = How is。"},
+  {s:'___ the weather in Tainan?',       a:"How's", b:'What',   note:"問天氣用 How's the weather?。"}
+];
+// 紙上聽寫用的天氣句子與單字
+const WPAPER = ['rainy','cloudy','sunny','windy',"It's rainy.","It's cloudy.","How's the weather?","Is it windy? No, it isn't.","The weather is sunny."];
+function wxIcon(k, cls='wx'){
+  const cloud=(dark,dy=0)=>`<g transform="translate(0 ${dy})"><circle class="cl${dark?' dark':''}" cx="44" cy="62" r="18"/><circle class="cl${dark?' dark':''}" cx="64" cy="52" r="22"/><circle class="cl${dark?' dark':''}" cx="84" cy="64" r="16"/><rect class="cl${dark?' dark':''}" x="40" y="62" width="48" height="18" rx="9"/></g>`;
+  const therm=(hot)=>`<rect class="tube" x="50" y="14" width="20" height="70" rx="10"/><circle class="${hot?'hotc':'coldc'}" cx="60" cy="92" r="16"/><rect class="${hot?'hotc':'coldc'}" x="55" y="${hot?24:68}" width="10" height="${hot?66:22}" rx="5"/>`;
+  let s='';
+  if(k==='sunny'){ s='<circle class="sun" cx="60" cy="60" r="22"/>'; for(let i=0;i<8;i++){ const a=i*Math.PI/4; s+=`<line class="ray" x1="${60+32*Math.cos(a)}" y1="${60+32*Math.sin(a)}" x2="${60+44*Math.cos(a)}" y2="${60+44*Math.sin(a)}"/>`; } }
+  else if(k==='cloudy') s=cloud(false,4);
+  else if(k==='rainy') s=cloud(true,-10)+'<line class="drop" x1="46" y1="86" x2="40" y2="102"/><line class="drop" x1="64" y1="86" x2="58" y2="102"/><line class="drop" x1="82" y1="86" x2="76" y2="102"/>';
+  else if(k==='windy') s='<path class="wind" d="M16 40 H74 a12 12 0 1 0 -12 -12"/><path class="wind" d="M16 62 H96 a12 12 0 1 1 -12 12"/><path class="wind" d="M28 84 H64"/>';
+  else if(k==='hot') s=therm(true);
+  else if(k==='cold') s=therm(false)+'<line class="flake" x1="96" y1="28" x2="96" y2="56"/><line class="flake" x1="84" y1="35" x2="108" y2="49"/><line class="flake" x1="84" y1="49" x2="108" y2="35"/>';
+  return `<svg class="${cls}" viewBox="0 0 120 120" role="img" aria-label="${k}">${s}</svg>`;
+}
 const BAD_SPELL = {forty:'fourty', fifty:'fivety', fifteen:'fiveteen', 'forty-five':'fourty-five', 'fifty-five':'fivety-five'};
 
 const GEN = {
@@ -468,7 +542,16 @@ const GEN = {
   listen:   () => ({n: rand(numberPool())}),
   gapNum:   () => ({n: rand(numberPool())}),
   gapTime:  () => ({h: randInt(1,12), m: randMinute()}),
-  paper:    () => Math.random()<0.6 ? {k:'num', n: rand(ttPool().concat([20,25,35,45]))} : {k:'time', h: randInt(1,12), m: randMinute()},
+  paper:    () => { const r=Math.random();
+    return r<0.45 ? {k:'num', n: rand(ttPool().concat([11,12,20,25,35,45]))}
+         : r<0.7 ? {k:'time', h: randInt(1,12), m: randMinute()}
+         : {k:'wx', i: randInt(0,WPAPER.length-1)}; },
+  wBe:      () => ({i: randInt(0,WBE.length-1)}),
+  wShort:   () => { const w=rand(['sunny','rainy','cloudy','windy','cold','hot']); const yes=Math.random()<0.4;
+    return {w, ask: yes ? w : WX_CONFUSE[w], v: rand(['blank','pick'])}; },
+  wHow:     () => Math.random()<0.65 ? {v:'blank', i: randInt(0,WHOW.length-1)} : {v:'ans', w: rand(WX_KEYS)},
+  wPic:     () => ({w: rand(WX_KEYS)}),
+  wGap:     () => ({w: rand(WX_KEYS.slice(0,4))}),
   timeMcq:  () => ({h: randInt(1,12), m: randMinute()}),
   clock:    () => ({h: randInt(1,12), m: randMinute()}),
   tWhole:   () => ({h: randInt(1,12), m: Math.random()<0.5 ? 0 : randNZ()}),
@@ -486,7 +569,8 @@ const TYPE_LABEL = {
   ttSort:'teen 還是 ty？', ttPrefix:'字頭怎麼變', ttListen:'聽一聽', ttDictate:'聽寫',
   spell:'拼拼看', listen:'聽聽看', gapNum:'挖空拼字', gapTime:'挖空拼時間', paper:'紙上聽寫',
   timeMcq:'選選看', clock:'看時鐘', tWhole:'是整點嗎？', tBlank:'看空格前後', tFind:'找錯', tBlocks:'時間積木',
-  reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？'
+  reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？',
+  wBe:'天氣・am 還是 is', wShort:'天氣・Yes 還是 No', wHow:"天氣・How's", wPic:'天氣・看圖選字', wGap:'天氣・挖空拼字'
 };
 const keyOf = q => q.type+'|'+JSON.stringify(q.params);
 
@@ -554,6 +638,11 @@ function hintFor(q){
     case 'ttPrefix': return TT_PREFIX[p.k].tip;
     case 'ttListen': case 'ttDictate': case 'listen': return `仔細聽尾巴。${STRESS}`;
     case 'spell': case 'gapNum': return `先看數字：${RULE}${p.n%10 && p.n>20 ? '個位不是 0 的（例如 35），要用 - 連起來：thirty-five。' : ''}four 變 fourteen 保留 u，變 forty 要拿掉 u；five 要變成 fif。`;
+    case 'wBe': return `先看前面是誰：${WBE_NOTE}`;
+    case 'wShort': return "先看圖：是不是題目問的天氣？是就說 Yes, it is.；不是就說 No, it isn't.（isn't = is not）。";
+    case 'wHow': return p.v==='ans' ? '先看圖片是什麼天氣，再找意思一樣的句子。' : "問天氣固定這樣說：How's the weather?（How's = How is）。";
+    case 'wPic': return '看圖：雲加雨滴是 rainy；只有雲是 cloudy；太陽是 sunny；風的線條是 windy；溫度計高是 hot、低是 cold。';
+    case 'wGap': return `${p.w} 的提示：${WX[p.w].root}。`;
     case 'gapTime': return p.m===0 ? "o'clock 中間是一撇「'」，不是 -。" : `小時和分鐘中間空一格。${RULE}`;
     case 'tWhole': case 'clock': case 'timeMcq': case 'tBlocks':
       return '先看長針：指著 12 是整點，說 o\'clock；指著別的數字就說分鐘（數字 × 5，例如指著 4 是 twenty）。小時和分鐘中間不加 -。';
@@ -626,7 +715,12 @@ function promptText(q){
     case 'listen': return `聽音選 ${p.n}`;
     case 'gapNum': return `挖空拼出 ${p.n}`;
     case 'gapTime': return `挖空拼時間 ${digital(p.h,p.m)}`;
-    case 'paper': return p.k==='num' ? `紙上聽寫 ${p.n}` : `紙上聽寫 ${digital(p.h,p.m)}`;
+    case 'paper': return p.k==='num' ? `紙上聽寫 ${p.n}` : p.k==='wx' ? `紙上聽寫 ${WPAPER[p.i]}` : `紙上聽寫 ${digital(p.h,p.m)}`;
+    case 'wBe': return WBE[p.i].s;
+    case 'wShort': return `圖是 ${p.w}：Is it ${p.ask}?`;
+    case 'wHow': return p.v==='ans' ? `圖是 ${p.w}：How's the weather?` : WHOW[p.i].s;
+    case 'wPic': return `看圖選字（${p.w}）`;
+    case 'wGap': return `挖空拼出 ${p.w}`;
     case 'timeMcq': return `${digital(p.h,p.m)}  It's ____.`;
     case 'clock': return `時鐘 ${digital(p.h,p.m)}`;
     case 'tWhole': return `時鐘 ${digital(p.h,p.m)}：It's ${HOURS[p.h]} ____.`;
@@ -683,10 +777,12 @@ function tileBuilder(body, tiles, onSubmit, {cls='tile', placeholder='點下面�
 // 挖空位置：挑最容易錯的地方（four 的 u、fif/thir 的 i、teen 的 ee、ty 的 y、連字號）
 function numberGaps(n){
   const word=numWord(n), c=numChunks(n), idx=new Set(), extra=new Set();
-  if(c.length===1){ if(word.length>1) idx.add(randInt(1,word.length-1)); }
+  if(n===11){ idx.add(2); idx.add(4); extra.add('i'); extra.add('a'); }
+  else if(n===12){ idx.add(3); idx.add(4); extra.add('f'); extra.add('u'); }
+  else if(c.length===1){ if(word.length>1) idx.add(randInt(1,word.length-1)); }
   else{
     const pre=c[0], suf=c[1], s0=pre.length;
-    let pi=pre.indexOf('u'); if(pi<1) pi=pre.indexOf('i'); if(pi<1) pi=randInt(1,pre.length-1);
+    let pi = pre==='nine' ? 3 : pre.indexOf('u'); if(pi<1) pi=pre.indexOf('i'); if(pi<1) pi=randInt(1,pre.length-1);
     idx.add(pi);
     if(suf==='teen'){ idx.add(s0+1); idx.add(s0+2); extra.add('y'); }
     else { idx.add(s0+1); extra.add('e'); extra.add('n'); }
@@ -832,17 +928,82 @@ const RENDER = {
     });
   },
 
+  /* ===== 天氣 ===== */
+  wBe(q, body){
+    const it=WBE[q.params.i], pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'sentence'},sentenceHTML(it.s)));
+    pr.appendChild(el('div',{class:'zh'},'看空格前面是誰'));
+    const full=it.s.replace('___',it.a);
+    mcq(body, [{value:it.a,label:it.a},{value:it.b,label:it.b}], it.a,
+      v=>answer(q, v===it.a, v, esc(full), full, WBE_NOTE));
+  },
+  wShort(q, body){
+    const {w,ask,v}=q.params, yes=w===ask, pr=mkPrompt(body);
+    pr.insertAdjacentHTML('beforeend', wxIcon(w));
+    const ans = yes ? 'Yes, it is.' : "No, it isn't.";
+    const note = yes ? `圖是 ${ask}，所以說 Yes, it is.` : `圖是 ${w}，不是 ${ask}，所以說 No, it isn't.（isn't = is not；只寫 not 少了 is）`;
+    if(v==='blank'){
+      const sent = yes ? `Is it ${ask}? Yes, it ___.` : `Is it ${ask}? No, it ___.`;
+      pr.appendChild(el('div',{class:'sentence'},sentenceHTML(sent)));
+      const correct = yes ? 'is' : "isn't", other = yes ? "isn't" : 'not';
+      const full=`Is it ${ask}? ${ans}`;
+      mcq(body, [{value:correct,label:correct},{value:other,label:other}], correct,
+        val=>answer(q, val===correct, val, esc(full), full, note));
+    } else {
+      pr.appendChild(el('div',{class:'sentence'},`Is it ${esc(ask)}?`));
+      pr.appendChild(el('div',{class:'zh'},'看圖回答'));
+      pr.appendChild(speakBtn(`Is it ${ask}?`));
+      const other = yes ? "No, it isn't." : 'Yes, it is.';
+      mcq(body, [{value:ans,label:ans},{value:other,label:other}], ans,
+        val=>answer(q, val===ans, val, esc(`Is it ${ask}? ${ans}`), `Is it ${ask}? ${ans}`, note));
+    }
+  },
+  wHow(q, body){
+    const p=q.params, pr=mkPrompt(body);
+    if(p.v==='blank'){
+      const it=WHOW[p.i], full=it.s.replace('___',it.a);
+      pr.appendChild(el('div',{class:'sentence'},sentenceHTML(it.s)));
+      pr.appendChild(el('div',{class:'zh'},'問天氣要怎麼問？'));
+      mcq(body, [{value:it.a,label:it.a},{value:it.b,label:it.b}], it.a,
+        v=>answer(q, v===it.a, v, esc(full), full, it.note));
+    } else {
+      const w=p.w, other=WX_CONFUSE[w], ans=`It's ${w}.`;
+      pr.insertAdjacentHTML('beforeend', wxIcon(w));
+      pr.appendChild(el('div',{class:'sentence'},"How's the weather?"));
+      pr.appendChild(speakBtn("How's the weather?"));
+      mcq(body, [{value:ans,label:ans},{value:`It's ${other}.`,label:`It's ${other}.`}], ans,
+        v=>answer(q, v===ans, v, `${esc(ans)} <span class="muted small">（${WX[w].zh}）</span>`, ans, `圖是 ${WX[w].zh}，所以說 ${ans}`));
+    }
+  },
+  wPic(q, body){
+    const w=q.params.w, other=WX_CONFUSE[w], pr=mkPrompt(body);
+    pr.insertAdjacentHTML('beforeend', wxIcon(w));
+    pr.appendChild(el('div',{class:'zh'},'這是什麼天氣？'));
+    mcq(body, [{value:w,label:w},{value:other,label:other}], w,
+      v=>answer(q, v===w, v, `${esc(w)} <span class="muted small">（${WX[w].zh}）</span>`, w, `${WX[w].root}。`));
+  },
+  wGap(q, body){
+    const w=q.params.w, W=WX[w], pr=mkPrompt(body);
+    pr.insertAdjacentHTML('beforeend', wxIcon(w));
+    pr.appendChild(el('div',{class:'zh'},`${W.zh}・補上缺的字母`));
+    pr.appendChild(speakBtn(w));
+    gapUI(body, {target:w, blanks:W.gaps, extra:W.extra}, filled=>
+      answer(q, filled===w, filled, esc(w), w, `${W.root}。`));
+  },
+
   /* ===== 紙上聽寫 ===== */
   paper(q, body){
-    const p=q.params, isNum=p.k==='num';
-    const text = isNum ? numWord(p.n) : `It's ${timeWord(p.h,p.m)}.`;
+    const p=q.params, isNum=p.k==='num', isWx=p.k==='wx';
+    const text = isNum ? numWord(p.n) : isWx ? WPAPER[p.i] : `It's ${timeWord(p.h,p.m)}.`;
+    const isWord = isNum || (isWx && !/[.?]$/.test(text));
     const aHTML = isNum ? `${p.n} = ${chunkHTML(p.n)}` : esc(text);
     const note = isNum
       ? `${RULE} ${STRESS}${p.n%10 && p.n>20 ? ' 個位不是 0 的要用 - 連起來，例如 thirty-five。' : ''}`
+      : isWx ? (isWord ? `${WX[text].root}。` : "檢查：句首大寫、How's 和 isn't 都有一撇、句尾有句點或問號。")
       : "檢查四件事：It's 的 I 大寫、小時和分鐘中間不加 -、整點才寫 o'clock（中間是一撇）、句尾有句點。";
     const pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'sentence'},isNum ? '聽寫一個數字' : '聽寫一個句子'));
-    pr.appendChild(el('div',{class:'zh'},isNum ? '仔細聽，把英文單字寫在紙上' : "仔細聽，把整個句子寫在紙上（It's 開頭、句點結尾）"));
+    pr.appendChild(el('div',{class:'sentence'},isNum ? '聽寫一個數字' : isWord ? '聽寫一個單字' : '聽寫一個句子'));
+    pr.appendChild(el('div',{class:'zh'},isWord ? '仔細聽，把英文單字寫在紙上' : '仔細聽，把整個句子寫在紙上（大寫開頭、記得標點）'));
     const row=el('div',{class:'row center'}); row.append(speakBtn(text,'再聽一次'), slowBtn(text)); pr.appendChild(row);
     const box=el('div',{class:'paperbox'},'寫好了再按下面的按鈕');
     body.appendChild(box);
@@ -1000,7 +1161,7 @@ function dots(target, arr){
   target.innerHTML='';
   for(let i=0;i<ROUND;i++){ const r=arr[i]; target.appendChild(el('span',{class:'dot'+(r?' '+r:'')})); }
 }
-const MODE_DESC = {tt:'看數字、聽尾巴、聽寫', daily:'時間句型＋數字', gap:'補上缺的字母', paper:'聽 iPad 念，寫在紙上'};
+const MODE_DESC = {tt:'看數字、聽尾巴、聽寫', daily:'時間句型＋數字', weather:"is、isn't、How's、天氣單字", gap:'補上缺的字母', paper:'聽 iPad 念，寫在紙上'};
 function renderHome(){
   if(day.date!==todayKey()){ day=newDay(); saveDay(); }
   Object.keys(MODES).forEach(m=>{
@@ -1011,8 +1172,10 @@ function renderHome(){
     dots($(m+'-dots'), arr);
   });
   const d=new Date(); $('home-clock').innerHTML=clockSVG(d.getHours()%12||12, Math.floor(d.getMinutes()/5)*5);
+  const wl=$('wx-words'); wl.innerHTML='';
+  WX_KEYS.forEach(w=>{ const c=el('button',{class:'chip',type:'button'},wxIcon(w)+`<b>${w}</b>&nbsp;<span class="muted">${WX[w].zh}</span>`); c.onclick=()=>speak(w); wl.appendChild(c); });
   const pairs=$('pairs'); pairs.innerHTML='';
-  [[13,30],[14,40],[15,50]].concat(settings.advanced?[[16,60],[17,70],[18,80],[19,90]]:[]).forEach(([a,b])=>{
+  [[13,30],[14,40],[15,50],[19,90]].concat(settings.advanced?[[16,60],[17,70],[18,80]]:[]).forEach(([a,b])=>{
     const p=el('div',{class:'pair'});
     [a,b].forEach(n=>{ const btn=el('button',{type:'button'},`<b>${n}</b> ${chunkHTML(n)}`); btn.onclick=()=>speak(numWord(n)); p.appendChild(btn); });
     pairs.appendChild(p);
