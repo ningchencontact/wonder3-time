@@ -3,30 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-title" content="英文練習">
-<title>Wonder 3 時間練習</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-title" content="英文複習">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<title>11月英文複習</title>
 <style>
-/* Layout: one centered "classroom clock" card column; big touch targets for iPad; tens = teal, ones = coral; mistakes use a soft amber, never red */
+/* 版面：單欄卡片、iPad 大按鈕；答錯一律用柔和琥珀色，不用紅色；不載入任何外部資源 */
 :root{
   --bg:#e8f1f7; --surface:#ffffff; --surface-2:#f2f7fb; --ink:#1d2b3a; --muted:#5b6b7c; --line:#cdd9e3;
-  --accent:#f5b62e; --accent-ink:#3a2a00; --tens:#11857a; --ones:#d9573b;
+  --accent:#f5b62e; --accent-ink:#3a2a00; --tens:#11857a; --plum:#7a58b0;
   --good:#1f8a4c; --good-bg:#e1f4e8; --soft:#a8650a; --soft-bg:#fff4dc; --hint:#2f6db3; --hint-bg:#e6f0fb;
   --display:"Arial Rounded MT Bold","Avenir Next","Trebuchet MS",sans-serif;
   --body:"Avenir Next","Helvetica Neue",Arial,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#13202c; --surface:#1c2c3b; --surface-2:#233647; --ink:#eaf2f8; --muted:#a3b4c4; --line:#34495c;
-  --accent:#f5b62e; --accent-ink:#2a1e00; --tens:#4cc7b9; --ones:#ff8a6e;
+  --accent:#f5b62e; --accent-ink:#2a1e00; --tens:#4cc7b9; --plum:#b79bea;
   --good:#5fd08f; --good-bg:#183b29; --soft:#f2b35c; --soft-bg:#3b2e17; --hint:#8cbcf2; --hint-bg:#1d3149; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#13202c; --surface:#1c2c3b; --surface-2:#233647; --ink:#eaf2f8; --muted:#a3b4c4; --line:#34495c;
-  --accent:#f5b62e; --accent-ink:#2a1e00; --tens:#4cc7b9; --ones:#ff8a6e;
-  --good:#5fd08f; --good-bg:#183b29; --soft:#f2b35c; --soft-bg:#3b2e17; --hint:#8cbcf2; --hint-bg:#1d3149; color-scheme:dark}
 
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5;
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5;margin:0;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-block:16px 40px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
@@ -43,15 +38,20 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .muted{color:var(--muted)}
 .small{font-size:15px}
 
-/* home */
-.hero{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start}
-@media (max-width:600px){.hero{grid-template-columns:1fr;justify-items:center}}
-.modes{width:100%;min-width:0}
+/* 單元切換 */
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media (max-width:520px){.tabs{grid-template-columns:1fr}}
+.unitbtn{min-height:64px;padding:8px 12px;border-radius:18px;background:var(--surface-2);border:3px solid var(--line);
+  font-family:var(--display);font-weight:600;font-size:20px;line-height:1.2}
+.unitbtn small{display:block;font-family:var(--body);font-weight:400;font-size:14px;color:var(--muted)}
+.unitbtn[aria-selected="true"]{border-color:var(--ink);background:var(--surface);box-shadow:0 4px 0 var(--ink)}
+
+/* 首頁 */
 .mode{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 0;border-top:1px solid var(--line)}
 .mode:first-child{border-top:0;padding-top:4px}
 .mode-info{min-width:0}
 .mode h3{font-size:22px}
-.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:15px;vertical-align:middle;margin-right:4px;color:var(--surface)}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:15px;vertical-align:middle;margin-right:6px;color:var(--surface)}
 .dots{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 0}
 .dot{width:22px;height:22px;border-radius:50%;border:3px solid var(--line);background:var(--surface-2)}
 .dot.ok{background:var(--good);border-color:var(--good)}
@@ -62,18 +62,22 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .big:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.22)}
 .big[disabled]{opacity:.45;box-shadow:none}
 .big.teal{background:var(--tens);color:var(--surface)}
-.big.coral{background:var(--ones);color:var(--surface)}
+.big.plum{background:var(--plum);color:var(--surface)}
 .big.blue{background:var(--hint);color:var(--surface)}
 .ghost{min-height:56px;padding:0 22px;border-radius:16px;border:2px solid var(--line);background:var(--surface);font-weight:700}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .center{justify-content:center}
-.pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px}
-.pair{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;border-radius:12px;background:var(--surface-2);font-size:17px}
-.pair button{text-align:left}
+.pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:8px}
+.pair{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;border-radius:12px;background:var(--surface-2);font-size:18px;text-align:left}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.chip{padding:6px 12px;border-radius:12px;background:var(--surface-2);font-size:17px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;background:var(--surface-2);font-size:18px;text-align:left}
+.sline{display:block;width:100%;text-align:left;padding:8px 14px;margin-top:6px;border-radius:12px;background:var(--surface-2);font-size:19px}
+.notes h3{margin-top:18px}
+.notes h3:first-child{margin-top:0}
+.notes p{margin:6px 0 0}
+.s{color:var(--accent-ink);background:var(--accent);border-radius:8px;padding:0 6px}
 
-/* quiz */
+/* 題目 */
 .qhead{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .progress{flex:1;height:14px;border-radius:7px;background:var(--surface-2);overflow:hidden;border:2px solid var(--line)}
 .progress>i{display:block;height:100%;background:var(--accent);transition:width .3s}
@@ -81,15 +85,16 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .stars{color:var(--accent);font-size:22px;letter-spacing:2px;min-width:1ch}
 .qbody{display:flex;flex-direction:column;gap:18px;margin-top:16px}
 .prompt{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:8px 0 4px}
-.number{font-family:var(--display);font-size:clamp(80px,18vw,120px);line-height:1;font-weight:700;font-variant-numeric:tabular-nums}
-.digital{font-family:var(--display);font-size:44px;font-weight:600;padding:4px 20px;border-radius:14px;background:var(--surface-2);font-variant-numeric:tabular-nums}
 .sentence{font-family:var(--display);font-size:clamp(26px,5vw,34px);font-weight:500}
+.sentence.sbig{font-size:clamp(34px,7vw,48px)}
 .given{color:var(--muted)}
 .blank{display:inline-block;min-width:110px;border-bottom:4px solid var(--ink);margin:0 6px}
-.zh{font-size:17px;color:var(--muted)}
+.zh{font-size:18px;color:var(--muted)}
+.zhbig{font-family:var(--display);font-size:clamp(34px,8vw,52px);font-weight:600;line-height:1.2}
+.emoji{font-size:72px;line-height:1}
+.cue{display:inline-block;padding:6px 16px;border-radius:999px;background:var(--hint-bg);border:2px solid var(--hint);font-size:18px;font-weight:700}
 .speak{display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 20px;border-radius:999px;background:var(--surface-2);border:2px solid var(--line);font-weight:700}
 .speak svg{width:24px;height:24px}
-.bigword{font-family:var(--display);font-size:clamp(56px,12vw,84px);font-weight:600;line-height:1}
 
 .slots{min-height:72px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:10px;border-radius:18px;border:3px dashed var(--line);background:var(--surface-2)}
 .tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
@@ -100,48 +105,34 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .tile.word{font-size:24px;font-family:var(--display);font-weight:500}
 .slots .tile{box-shadow:none;border-color:var(--accent);background:var(--surface)}
 .placeholder{align-self:center;color:var(--muted);font-size:16px}
-.textin{width:100%;min-height:68px;font-size:32px;text-align:center;border-radius:16px;border:3px solid var(--ink);background:var(--surface);color:var(--ink);font-family:var(--body);font-weight:700}
 
 .options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .options.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.options.one{grid-template-columns:1fr}
 @media (max-width:560px){.options,.options.three{grid-template-columns:1fr}}
 .opt{min-height:72px;padding:10px 16px;border-radius:18px;background:var(--surface);border:3px solid var(--line);font-family:var(--display);font-size:26px;font-weight:500;text-align:center}
-.opt.huge{font-size:48px;font-weight:700;min-height:96px}
 .opt:active{border-color:var(--ink)}
 .opt.right{border-color:var(--good);background:var(--good-bg)}
 .opt.wrong{border-color:var(--soft);background:var(--soft-bg)}
 .opt[disabled]{cursor:default}
 
-/* find-the-mistake sentence */
-.findline{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:2px;font-family:var(--display);font-size:clamp(30px,6vw,40px)}
+/* 找錯 */
+.findline{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:2px;font-family:var(--display);font-size:clamp(26px,5vw,36px)}
 .tok{padding:6px 10px;border-radius:12px;border:3px dashed var(--line);background:var(--surface);min-height:64px}
 .tok.tight{padding:6px 6px;min-width:36px}
-.tok.gap{margin-left:14px}
+.tok.gap{margin-left:12px}
 .tok.right{border:3px solid var(--good);background:var(--good-bg)}
 .tok.wrong{border:3px solid var(--soft);background:var(--soft-bg)}
 
-/* letter-gap spelling */
+/* 挖空拼字 */
 .gapline{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:6px;font-family:var(--body);font-size:32px;font-weight:700}
 .cell{min-width:44px;height:60px;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;padding:0 4px}
-.cell.given{color:var(--ink)}
-.cell.blank{border:3px dashed var(--muted);background:var(--surface-2);cursor:pointer}
+.cell.given{min-width:22px;padding:0 1px;color:var(--ink)}
+.cell.blank{border:3px dashed var(--muted);background:var(--surface-2);cursor:pointer;margin:0}
 .cell.filled{border:3px solid var(--accent);background:var(--surface)}
 .cell.word{color:var(--muted);font-family:var(--display);font-weight:500}
 .spacer{width:18px}
-/* weather icons */
-.wx{width:min(150px,40vw);height:auto}
-.chips .wx{width:44px;vertical-align:middle;margin-right:6px}
-.wx .sun{fill:var(--accent)}
-.wx .ray{stroke:var(--accent);stroke-width:6;stroke-linecap:round}
-.wx .cl{fill:var(--line)}
-.wx .cl.dark{fill:var(--muted)}
-.wx .drop{stroke:var(--hint);stroke-width:6;stroke-linecap:round}
-.wx .wind{stroke:var(--tens);stroke-width:7;fill:none;stroke-linecap:round}
-.wx .tube{fill:var(--surface);stroke:var(--ink);stroke-width:4}
-.wx .hotc{fill:var(--ones)}
-.wx .coldc{fill:var(--hint)}
-.wx .flake{stroke:var(--hint);stroke-width:5;stroke-linecap:round}
-.chip{display:inline-flex;align-items:center}
+
 .paperbox{border-radius:18px;padding:18px;border:3px dashed var(--line);background:var(--surface-2);text-align:center;color:var(--muted)}
 .hintcard{border-radius:18px;padding:14px 18px;background:var(--hint-bg);border:3px solid var(--hint);display:flex;flex-direction:column;gap:8px}
 .hintcard b{color:var(--hint);font-family:var(--display);font-size:22px}
@@ -152,22 +143,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .feedback h3{font-size:26px}
 .fb-answer{font-family:var(--display);font-size:30px;font-weight:600}
 .starline{font-family:var(--display);font-size:22px;color:var(--accent-ink);background:var(--accent);border-radius:12px;padding:6px 12px;align-self:flex-start}
-.t{color:var(--tens)} .o{color:var(--ones)} .h{color:var(--muted)}
-.s{color:var(--accent-ink);background:var(--accent);border-radius:8px;padding:0 4px}
-.sep{color:var(--muted);margin:0 2px}
-.sylbox{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.syl{min-width:72px;height:16px;border-radius:8px;background:var(--surface-2);border:2px solid var(--line)}
 
-/* clock */
-.clock{width:min(240px,60vw);height:auto}
-.clock .face{fill:var(--surface);stroke:var(--ink);stroke-width:6}
-.clock .num{fill:var(--ink);font-family:var(--display);font-size:22px;font-weight:600}
-.clock .tick{stroke:var(--muted);stroke-width:2}
-.clock .hour{stroke:var(--ink);stroke-width:9;stroke-linecap:round}
-.clock .min{stroke:var(--ones);stroke-width:6;stroke-linecap:round}
-.clock .pin{fill:var(--ink)}
-
-/* errors */
+/* 錯題 */
 table{width:100%;border-collapse:collapse;font-size:16px}
 th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:14px;color:var(--muted);letter-spacing:.04em}
@@ -191,7 +168,7 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
 
 <div class="wrap">
   <header class="top">
-    <h1>Wonder 3 時間練習</h1>
+    <h1>11月英文複習</h1>
     <nav class="nav">
       <button class="navbtn" id="nav-home" aria-current="true">練習</button>
       <button class="navbtn" id="nav-errors">錯題</button>
@@ -201,61 +178,10 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
 
   <!-- HOME -->
   <section id="home" class="card">
-    <div class="hero">
-      <svg class="clock" id="home-clock" viewBox="0 0 240 240" aria-hidden="true"></svg>
-      <div class="modes">
-        <div class="mode">
-          <div class="mode-info">
-            <h3><span class="badge" style="background:var(--hint)">先做</span>teen / ty 暖身</h3>
-            <p class="muted small" id="tt-status"></p>
-            <div class="dots" id="tt-dots"></div>
-          </div>
-          <button class="big blue" id="start-tt">開始</button>
-        </div>
-        <div class="mode">
-          <div class="mode-info">
-            <h3>每日練習</h3>
-            <p class="muted small" id="daily-status"></p>
-            <div class="dots" id="daily-dots"></div>
-          </div>
-          <button class="big" id="start-daily">開始</button>
-        </div>
-        <div class="mode">
-          <div class="mode-info">
-            <h3><span class="badge" style="background:var(--tens)">Unit 1</span>天氣</h3>
-            <p class="muted small" id="weather-status"></p>
-            <div class="dots" id="weather-dots"></div>
-          </div>
-          <button class="big teal" id="start-weather">開始</button>
-        </div>
-        <div class="mode">
-          <div class="mode-info">
-            <h3>挖空拼字</h3>
-            <p class="muted small" id="gap-status"></p>
-            <div class="dots" id="gap-dots"></div>
-          </div>
-          <button class="big teal" id="start-gap">開始</button>
-        </div>
-        <div class="mode">
-          <div class="mode-info">
-            <h3><span class="badge" style="background:var(--ones)">像考試</span>紙上聽寫</h3>
-            <p class="muted small" id="paper-status"></p>
-            <div class="dots" id="paper-dots"></div>
-          </div>
-          <button class="big coral" id="start-paper">開始</button>
-        </div>
-      </div>
-    </div>
+    <div class="tabs" id="unit-tabs" role="tablist" aria-label="選擇進度"></div>
+    <div id="modes"></div>
   </section>
-  <section id="home-words" class="card">
-    <h3>teen 和 ty 比一比</h3>
-    <p class="small muted" style="margin:4px 0 0">1 開頭（13～19）用 <span class="s">teen</span>，尾巴念得長：thir-TEEN。0 結尾（20、30、40、50）用 <span class="s">ty</span>，短短的：THIR-ty。點一下可以聽。</p>
-    <div class="pairs" id="pairs"></div>
-    <h3 style="margin-top:18px">天氣單字</h3>
-    <p class="small muted" style="margin:4px 0 0">rain → rain<span class="s">y</span>、cloud → cloud<span class="s">y</span>、wind → wind<span class="s">y</span>、sun → sun<span class="s">ny</span>（多一個 n）。問天氣：<b>How's</b> the weather? 回答：It's rainy. ・ Is it windy? No, it <b>isn't</b>.</p>
-    <div class="chips" id="wx-words"></div>
-    <p class="small muted" style="margin:14px 0 0">時間：It's six o'clock.（整點）・It's six twenty.（小時和分鐘中間不加 -）・It's five thirty-five.（thirty-five 本身才有 -）</p>
-  </section>
+  <section id="home-notes" class="card notes"></section>
 
   <!-- QUIZ -->
   <section id="quiz" class="card" hidden>
@@ -286,7 +212,7 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
     <div class="stats" id="e-stats"></div>
     <div class="tablewrap" style="margin-top:16px">
       <table>
-        <thead><tr><th>題目</th><th>孩子第一次的答案</th><th>正確答案</th><th>錯幾次</th><th>狀態</th></tr></thead>
+        <thead><tr><th>進度</th><th>題目</th><th>孩子第一次的答案</th><th>正確答案</th><th>錯幾次</th><th>狀態</th></tr></thead>
         <tbody id="e-body"></tbody>
       </table>
     </div>
@@ -297,10 +223,6 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
   <!-- SETTINGS -->
   <section id="settings" class="card" hidden>
     <h2>家長設定</h2>
-    <label class="toggle" for="s-advanced">
-      <span><b>進階數字</b><br><span class="small muted">加入 16～19、60～90 的 teen / ty，以及 55～95 的拼字</span></span>
-      <input type="checkbox" id="s-advanced">
-    </label>
     <label class="toggle" for="s-rate">
       <span><b>放慢朗讀速度</b><br><span class="small muted">英文發音講慢一點</span></span>
       <input type="checkbox" id="s-rate" checked>
@@ -313,91 +235,365 @@ th{font-size:14px;color:var(--muted);letter-spacing:.04em}
 </div>
 
 <script>
-/* ===================== 設定（之後要擴充改這裡） ===================== */
+/* ===================== 設定（之後要調整改這裡） ===================== */
 const ROUND = 5;          // 每回題數
-const TOO_FAST = 1000;    // 少於這個毫秒數就按，視為亂按
+const TOO_FAST = 2000;    // 少於這個毫秒數就按，視為亂按、不算分
 const MAX_REVIEW = 2;     // 每回最多放幾題舊錯題
-
-// 每種練習的題型：[可抽的題型, 題數]
-const MODES = {
-  tt:    {name:'teen / ty 暖身', groups:[[['ttSort'],1], [['ttPrefix'],1], [['ttListen'],2], [['ttDictate'],1]]},
-  daily: {name:'每日練習',       groups:[[['tBlank'],1], [['tFind'],1], [['tWhole','clock'],1], [['spell','listen'],1], [['tAsk','tAsk','tBlocks','timeMcq','reorder','ampm','forto'],1]]},
-  weather:{name:'天氣',          groups:[[['wBe'],1], [['wShort'],1], [['wAsk'],1], [['wHow','wPic'],1], [['wGap'],1]]},
-  gap:   {name:'挖空拼字',       groups:[[['gapNum'],2], [['wGap'],1], [['gapTime'],2]]},
-  paper: {name:'紙上聽寫',       groups:[[['paper'],5]]}
+const KEY = {settings:'kid2_nov_settings', errors:'kid2_nov_errors', day:'kid2_nov_day', unit:'kid2_nov_unit'};
+const MODE_KEYS = ['words','grammar','contr','paper'];
+const MODE_INFO = {
+  words:  {name:'單字',     badge:'先做', color:'--hint'},
+  grammar:{name:'句型',     badge:'',     color:''},
+  contr:  {name:'縮寫',     badge:'重點', color:'--plum'},
+  paper:  {name:'紙上聽寫', badge:'像考試', color:'--tens'}
 };
-const BASIC_NUMS = [11,12,13,14,15,19,20,25,30,35,40,45,50];
-const ADV_NUMS   = [55,60,65,70,75,80,85,90,95];
-const TT_BASIC   = [13,14,15,19,30,40,50,90];
-const TT_ADV     = [16,17,18,60,70,80];
-const MINUTES_NZ = [10,15,20,25,30,35,40,45,50,55];
 
-// 字頭變化題：正確 vs 常見錯誤
-const TT_PREFIX = [
-  {n:19, a:'nineteen', b:'ninteen',   base:'nine',  tip:'nine 的 e 要留著：nineteen、ninety。'},
-  {n:90, a:'ninety',   b:'ninty',     base:'nine',  tip:'nine 的 e 要留著：nineteen、ninety。'},
-  {n:13, a:'thirteen', b:'threeteen', base:'three', tip:'three 要變成 thir：thirteen、thirty。'},
-  {n:30, a:'thirty',   b:'threety',   base:'three', tip:'three 要變成 thir：thirteen、thirty。'},
-  {n:14, a:'fourteen', b:'forteen',   base:'four',  tip:'fourteen 保留 u；只有 forty 要拿掉 u。'},
-  {n:40, a:'forty',    b:'fourty',    base:'four',  tip:'forty 要拿掉 u：four → forty。fourteen 才保留 u。'},
-  {n:15, a:'fifteen',  b:'fiveteen',  base:'five',  tip:'five 要變成 fif：fifteen、fifty。'},
-  {n:50, a:'fifty',    b:'fivety',    base:'five',  tip:'five 要變成 fif：fifteen、fifty。'}
+/* ===================== 題庫小工具 ===================== */
+const art = w => /^[aeiou]/i.test(w) ? 'an' : 'a';
+const G = (target, blanks, extra, o={}) => Object.assign({kind:'gap', target, blanks, extra}, o);
+const apoGap = (target, o={}) => G(target, [target.indexOf("'")], [',','.','-'], Object.assign({zh:"補上缺的撇「'」", say:target}, o));
+const paperItems = (words, sents, tipW) => words.map(x=>({kind:'paper', text:x.w, tip:x.tip}))
+  .concat(sents.map(t=>({kind:'paper', text:t, tip:sentTip(t)})));
+function sentTip(t){
+  let s = "檢查：句首大寫、縮寫的撇「'」有沒有寫、句尾有標點（. 或 ?）。";
+  if(/your|you're/i.test(t)) s += ' your = 你的，不是 you\'re。';
+  if(/\bhis\b/i.test(t)) s += ' his = 他的，不是 he\'s。';
+  if(/They're/.test(t)) s += " They're = They are，不是 Their。";
+  if(/doesn't|don't/.test(t)) s += " doesn't / don't 後面用 have。";
+  return s;
+}
+function wordBanks(list){
+  const pool = list.map(x=>x.w);
+  return {
+    wZh:     list.map(x=>({kind:'zhword', zh:x.zh, e:x.e, a:x.w, pool, tip:x.tip})),
+    wListen: list.map(x=>({kind:'listenword', a:x.w, pool, tip:x.tip})),
+    wGap:    list.map(x=>G(x.w, x.gaps, x.extra, {zh:x.zh, e:x.e, say:x.w, tip:x.tip}))
+  };
+}
+function contrBanks(entries, gaps, finds, fills){
+  return {
+    cShort: entries.map(e=>({kind:'fill', big:true, s:`${e.long} → ___`, a:e.short, bad:e.bs, say:e.short, tip:e.tip, pt:`縮短 ${e.long}`})),
+    cLong:  entries.map(e=>({kind:'fill', big:true, s:`${e.short} = ___`, a:e.long, bad:e.bl, say:`${e.short}. ${e.long}.`, tip:e.tip, pt:`還原 ${e.short}`})),
+    cGap:   gaps,
+    cFind:  finds.map(f=>Object.assign({kind:'find'}, f)),
+    cFill:  fills.map(f=>Object.assign({kind:'fill'}, f))
+  };
+}
+
+/* ===================== 學校 Unit 3 ===================== */
+const SCH_W = [
+  {w:'pen',    zh:'原子筆',  e:'🖊️', gaps:[1],   extra:['a','i','o'], tip:'pen：p-e-n，中間是 e。'},
+  {w:'pencil', zh:'鉛筆',    e:'✏️', gaps:[1,4], extra:['a','s','o'], tip:'pencil：p-e-n-c-i-l，c 念 s 的音，但要寫 c。'},
+  {w:'marker', zh:'彩色筆',  gaps:[1,4], extra:['e','c','o'], tip:'marker：mark + er，k 後面接 er。'},
+  {w:'eraser', zh:'橡皮擦',  gaps:[2,3], extra:['c','z','i'], tip:'eraser：e-r-a-s-e-r，中間是 s 不是 c。'},
+  {w:'book',   zh:'書',      e:'📖', gaps:[1,2], extra:['u','a','c'], tip:'book：b-oo-k，中間兩個 o。'},
+  {w:'ruler',  zh:'尺',      e:'📏', gaps:[1,3], extra:['o','a','i'], tip:'ruler：r-u-l-e-r，u 在 l 的前面。'}
 ];
+const SCH_POSS = [
+  {s:'I',    p:'my',    zh:'我 → 我的',     who:'I',           bad:['me','mine']},
+  {s:'you',  p:'your',  zh:'你 → 你的',     who:'You',         bad:["you're",'you']},
+  {s:'he',   p:'his',   zh:'他 → 他的',     who:'Tom',         bad:["he's",'him']},
+  {s:'she',  p:'her',   zh:'她 → 她的',     who:'Amy',         bad:["she's",'she']},
+  {s:'we',   p:'our',   zh:'我們 → 我們的', who:'We',          bad:["we're",'us']},
+  {s:'they', p:'their', zh:'他們 → 他們的', who:'Tom and Amy', bad:["they're",'there']}
+];
+const SCH_ORDER = [
+  ["Is this your pencil?","這是你的鉛筆嗎？",["you're"]],
+  ["Is that his book?","那是他的書嗎？",["he's"]],
+  ["Is this her ruler?","這是她的尺嗎？",["she's"]],
+  ["Is that your pen?","那是你的原子筆嗎？",["you're"]],
+  ["Is this my eraser?","這是我的橡皮擦嗎？",["me"]],
+  ["Is that her marker?","那是她的彩色筆嗎？",["she's"]],
+  ["Yes, it is.","是的，它是。",[]],
+  ["No, it's not.","不，它不是。",["its"]],
+  ["It's my pencil.","這是我的鉛筆。",["me"]],
+  ["It's his book.","這是他的書。",["he's"]],
+  ["It's her ruler.","這是她的尺。",["she"]],
+  ["It's your pen.","這是你的原子筆。",["you're"]]
+];
+const schOrderTip = s => /^Is /.test(s) ? '問句順序：Is → this / that → 誰的 → 東西 → ?'
+  : /^It's/.test(s) ? "回答順序：It's → 誰的 → 東西。It's = It is，要有撇。"
+  : "回答：Yes, it is. 或 No, it's not.（it's = it is）。";
+const SCH = {
+  name:'學校 Unit 3', sub:'文具・this / that', cls:'teal',
+  desc:{words:'pen、pencil、marker、eraser、book、ruler', grammar:'Is this your pencil? ・ 所有格', contr:"it's、isn't、their / they're", paper:'聽 iPad 念，寫在紙上'},
+  groups:{
+    words:[[['wZh'],1],[['wListen'],1],[['wGap'],3]],
+    grammar:[[['gThis'],1],[['gReply'],1],[['gPoss','gMy'],2],[['gOrder'],1]],
+    contr:[[['cShort','cLong'],2],[['cGap'],1],[['cFind'],1],[['cFill'],1]],
+    paper:[[['paper'],5]]
+  },
+  vocab:SCH_W,
+  sentences:["Is this your pencil?","Is that his book?","Yes, it is.","No, it's not.","It's my pencil."],
+  pairsTitle:'主詞 → 所有格（誰的）',
+  pairs:SCH_POSS.map(x=>[x.s, x.p]),
+  notes:[
+    {h:'this 和 that', html:"<span class=\"s\">this</span> = 這個（東西在身邊）；<span class=\"s\">that</span> = 那個（東西在遠遠的地方）。Is <b>this</b> your pencil? ・ Is <b>that</b> his book?"},
+    {h:'回答', html:"Yes, it is. ・ No, <b>it's</b> not.（it's = it is，撇不能漏）・ It's my pencil."},
+    {h:'聽起來一樣，意思不同', html:"<b>their</b> = 他們的 ・ <b>they're</b> = they are ・ <b>there</b> = 那裡。<b>your</b> = 你的 ・ <b>you're</b> = you are。<b>his</b> = 他的 ・ <b>he's</b> = he is。"}
+  ],
+  banks:Object.assign(wordBanks(SCH_W), {
+    gThis: SCH_W.flatMap((n,i)=>[true,false].map((near,k)=>{
+      const poss = ['your','his','her'][(i+k)%3];
+      return {kind:'fill', s:`Is ___ ${poss} ${n.w}?`, a:near?'this':'that', bad:[near?'that':'this'],
+        cue:near?'東西就在你手邊（近）':'東西在教室的另一頭（遠）', say:`Is ${near?'this':'that'} ${poss} ${n.w}?`,
+        tip:'this = 這個（近的）；that = 那個（遠的）。'};
+    })),
+    gReply: [["this","your","pencil",1],["that","his","book",0],["this","her","ruler",0],["that","your","pen",1],["this","his","marker",1],["that","her","eraser",0]].map(([d,p,n,yes])=>({
+      kind:'fill', s:`Is ${d} ${p} ${n}? ___`, cue:yes?'答案是：對':'答案是：不對',
+      a:yes?'Yes, it is.':"No, it's not.", bad:yes?["No, it's not.","Yes, it's not."]:['Yes, it is.','No, it is.'],
+      tip:"對 → Yes, it is.；不對 → No, it's not.（it's = it is）。"})),
+    gPoss: SCH_POSS.map(x=>({kind:'fill', big:true, s:`${x.s} → ___`, zh:x.zh, a:x.p, bad:x.bad, say:x.p,
+      tip:'I → my ・ you → your ・ he → his ・ she → her ・ we → our ・ they → their。', pt:`所有格 ${x.s}`})),
+    gMy: SCH_POSS.flatMap((x,k)=>[SCH_W[k%6], SCH_W[(k+3)%6]].map(n=>({
+      kind:'fill', s:`${x.who} ${(x.s==='he'||x.s==='she')?'has':'have'} ${art(n.w)} ${n.w}. It's ___ ${n.w}.`,
+      a:x.p, bad:x.bad, tip:`${x.s} → ${x.p}（${x.zh.split(' → ')[1]}）。${x.bad[0]} 不是「的」。`}))),
+    gOrder: SCH_ORDER.map(([s,zh,extra])=>({kind:'order', s, zh, extra, tip:schOrderTip(s)})),
+    paper: paperItems(SCH_W, ["Is this your pencil?","Is that his book?","Yes, it is.","No, it's not.","It's my pencil.","It's her ruler."])
+  }, contrBanks(
+    [
+      {long:'It is', short:"It's", bs:['Its',"It'is"], bl:['It are','It am'], tip:"It is → It's：i 不見了，用撇「'」代替。"},
+      {long:'That is', short:"That's", bs:['Thats',"That'is"], bl:['That are','That am'], tip:"That is → That's：i 不見了，用撇代替。"},
+      {long:'is not', short:"isn't", bs:['isnt',"is'nt"], bl:['are not','am not'], tip:"isn't：o 不見了，撇放在 n 和 t 中間。"},
+      {long:'It is not', short:"It's not", bs:['Its not',"It'snot"], bl:['It are not','It not'], tip:"It's not = It is not。It's 的撇不能漏。"}
+    ],
+    [
+      apoGap("It's",{zh:"It is 縮短",tip:"It is → It's：i 不見了，用撇「'」代替。"}),
+      G("That's",[3,4],[',','d','s'],{zh:"That is 縮短",say:"That's",tip:"That's：撇放在 t 和 s 中間。"}),
+      G("isn't",[1,3],[',','z','.'],{zh:"is not 縮短",say:"isn't",tip:"isn't：撇放在 n 和 t 中間。"}),
+      apoGap("No, it's not.",{tip:"it's = it is，撇放在 t 和 s 中間。"}),
+      apoGap("It's my pencil.",{tip:"It's = It is，撇放在 t 和 s 中間。"}),
+      apoGap("It's his book.",{tip:"It's = It is，撇放在 t 和 s 中間。"})
+    ],
+    [
+      {toks:["Its","my","pencil","."], wrong:0, fixed:"It's my pencil.", tip:"It is → It's，要有撇。"},
+      {toks:["No",",","its","not","."], wrong:2, fixed:"No, it's not.", tip:"it is not → it's not，it's 要有撇。"},
+      {toks:["Is","that","he's","book","?"], wrong:2, fixed:"Is that his book?", tip:"he's = he is；「他的」要用 his。"},
+      {toks:["Is","this","you're","pencil","?"], wrong:2, fixed:"Is this your pencil?", tip:"you're = you are；「你的」要用 your。"},
+      {toks:["No",",","it","isnt","."], wrong:3, fixed:"No, it isn't.", tip:"isn't 中間要有撇。"},
+      {toks:["It's","she","ruler","."], wrong:1, fixed:"It's her ruler.", tip:"she 的所有格是 her。"},
+      {toks:["That's","they","book","."], wrong:1, fixed:"That's their book.", tip:"they 的所有格是 their。"}
+    ],
+    [
+      {s:'___ my pencil.', a:"It's", bad:['Its','It'], tip:"It's = It is：It is my pencil."},
+      {s:'___ not my book.', a:"It's", bad:['Its','Is'], tip:"It's not = It is not。"},
+      {s:'Is that ___ book? (he)', a:'his', bad:["he's",'him'], tip:"he's = he is；「他的」是 his。"},
+      {s:'This is ___ pencil. (you)', a:'your', bad:["you're",'you'], tip:"you're = you are；「你的」是 your。"},
+      {s:'That is ___ book. (Tom and Amy)', a:'their', bad:["they're",'there'], tip:"their = 他們的；they're = they are；there = 那裡。"},
+      {s:"___ my friends. (They are)", a:"They're", bad:['Their','There'], tip:"They are → They're；Their 是「他們的」。"},
+      {s:'Is this ___ ruler? (she)', a:'her', bad:["she's",'she'], tip:"she's = she is；「她的」是 her。"}
+    ]
+  ))
+};
 
-/* ===================== 數字與時間的英文 ===================== */
-const ONES = ['','one','two','three','four','five','six','seven','eight','nine'];
-const TEENS = ['ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
-const TENS = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
-const HOURS = ['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'];
-function numWord(n){
-  if(n<10) return ONES[n];
-  if(n<20) return TEENS[n-10];
-  const t=Math.floor(n/10), o=n%10;
-  return o ? TENS[t]+'-'+ONES[o] : TENS[t];
-}
-const TEN_PRE = {2:'twen',3:'thir',4:'for',5:'fif',6:'six',7:'seven',8:'eigh',9:'nine'};
-const TEEN_PRE = {13:'thir',14:'four',15:'fif',16:'six',17:'seven',18:'eigh',19:'nine'};
-const CONFUSE = {fif:'five',five:'fif',for:'four',four:'for',thir:'three',three:'thir',twen:'two',eigh:'eight'};
-function numChunks(n){
-  if(n>=13 && n<20) return [TEEN_PRE[n],'teen'];
-  if(n<13) return [numWord(n)];
-  const t=Math.floor(n/10), o=n%10, c=[TEN_PRE[t],'ty'];
-  if(o) c.push('-',ONES[o]);
-  return c;
-}
-function chunkHTML(n){
-  return numChunks(n).map((c,i)=> c==='-' ? '<span class="h">-</span>'
-    : (c==='ty'||c==='teen') ? `<span class="s">${c}</span>`
-    : i===0 ? `<span class="t">${c}</span>` : `<span class="o">${c}</span>`).join('<span class="sep">·</span>');
-}
-function pairOf(n){
-  if(n>=13 && n<=19) return [n,(n-10)*10];
-  if(n%10===0 && n>=30 && n<=90) return [n/10+10, n];
-  return null;
-}
-const isTeen = n => n>=13 && n<=19;
-const STRESS = 'teen 的尾巴念得長，重音在後面：thir-<b>TEEN</b>；ty 短短的，重音在前面：<b>THIR</b>-ty。';
-const RULE = '1 開頭（13～19）用 <span class="s">teen</span>；0 結尾（20、30、40、50）用 <span class="s">ty</span>。';
-function spellNote(n,g){
-  const w=numWord(n);
-  if(g===w) return '';
-  if(w.includes('-') && g===w.replace('-','')) return '少了連字號「-」：十位和個位中間要加 -，例如 thirty-five。';
-  if(w.includes('-') && g===w.replace('-',' ')) return '中間要用連字號「-」，不是空格。';
-  if(!w.includes('-') && g.includes('-')) return `${w} 是一個字，不用加連字號。`;
-  if(g.startsWith('fourty')) return 'forty 要拿掉 u：four → forty。';
-  if(g.startsWith('forteen')) return 'fourteen 要保留 u；只有 forty 拿掉 u。';
-  if(g.startsWith('fivet')) return 'five 要變成 fif：fifteen、fifty。';
-  if(g.startsWith('threet')) return 'three 要變成 thir：thirteen、thirty。';
-  if(g.startsWith('nint')) return 'nine 的 e 要留著：nineteen、ninety。';
-  if(n===12) return 'twelve 是 t-w-e-l-v-e，結尾是 ve。';
-  if(n===11) return 'eleven 是 e-le-ven，三個 e。';
-  if(w.includes('ty') && g.includes('teen')) return `${n} 是 0 結尾，要用 ty。teen 是給 1 開頭的 13～19 用的。`;
-  if(w.includes('teen') && g.includes('ty')) return `${n} 是 1 開頭，要用 teen。ty 是給 0 結尾的 20、30、40…… 用的。`;
-  return '';
-}
-const normalize = s => s.toLowerCase().replace(/[’‘`´]/g,"'").replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
-const timeWord = (h,m) => m===0 ? `${HOURS[h]} o'clock` : `${HOURS[h]} ${numWord(m)}`;
-const digital = (h,m) => `${h}:${String(m).padStart(2,'0')}`;
+/* ===================== 安親班 Unit 3 ===================== */
+const C3_P = [
+  {w:'watch a movie',     zh:'看電影',   e:'🎬', ing:'watching a movie',     gaps:[3,10],  extra:['k','w','s'], tip:'watch：w-a-t-c-h，有 tc；movie：m-o-v-i-e。'},
+  {w:'listen to music',   zh:'聽音樂',   e:'🎵', ing:'listening to music',   gaps:[3,14],  extra:['k','s','z'], tip:'listen 的 t 不發音但要寫；music 結尾是 c。'},
+  {w:'talk on the phone', zh:'講電話',   e:'📞', ing:'talking on the phone', gaps:[2,13],  extra:['f','w','c'], tip:'talk 有 l 不發音；phone 是 ph 開頭。'},
+  {w:'take a rest',       zh:'休息一下', e:'😌', ing:'taking a rest',        gaps:[3,8],   extra:['a','i','o'], tip:'take：t-a-k-e；rest：r-e-s-t。'}
+];
+const C3_ZH = ['看電影','聽音樂','講電話','休息'];
+const C3_S = [];
+C3_P.forEach((p,i)=>{
+  const v=p.ing, z=C3_ZH[i];
+  C3_S.push({zh:`他正在${z}。`,     en:`He's ${v}.`,        bad:[`He isn't ${v}.`,`He're ${v}.`],        extra:["They're"], neg:0, pl:0, v:i});
+  C3_S.push({zh:`他沒有在${z}。`,   en:`He isn't ${v}.`,    bad:[`He's ${v}.`,`He aren't ${v}.`],       extra:["aren't"],  neg:1, pl:0, v:i});
+  C3_S.push({zh:`他們正在${z}。`,   en:`They're ${v}.`,     bad:[`They aren't ${v}.`,`They's ${v}.`],   extra:['Their'],   neg:0, pl:1, v:i});
+  C3_S.push({zh:`他們沒有在${z}。`, en:`They aren't ${v}.`, bad:[`They're ${v}.`,`They isn't ${v}.`],   extra:["isn't"],   neg:1, pl:1, v:i});
+});
+const c3Tip = s => s.pl ? (s.neg ? "他們（很多人）用 They aren't（They are not）。" : "他們（很多人）用 They're（They are）。")
+                        : (s.neg ? "他（一個人）用 He isn't（He is not）。" : "他（一個人）用 He's（He is）。");
+const C3 = {
+  name:'安親班 Unit 3', sub:'He\'s / They\'re', cls:'blue',
+  desc:{words:'看電影、聽音樂、講電話、休息', grammar:"He's / He isn't / They're / They aren't", contr:"He's、isn't、They're、aren't", paper:'聽 iPad 念，寫在紙上'},
+  groups:{
+    words:[[['wZh'],1],[['wListen'],1],[['wGap'],1],[['wBuild'],1],[['wIng'],1]],
+    grammar:[[['gZh'],2],[['gBe'],1],[['gOrder'],2]],
+    contr:[[['cShort','cLong'],2],[['cGap'],1],[['cFind'],1],[['cFill'],1]],
+    paper:[[['paper'],5]]
+  },
+  vocab:C3_P,
+  sentences:["He's watching a movie.","He isn't watching a movie.","They're watching a movie.","They aren't watching a movie."],
+  pairsTitle:'縮寫：長的 → 短的',
+  pairs:[['He is',"He's"],['He is not',"He isn't"],['They are',"They're"],['They are not',"They aren't"]],
+  notes:[
+    {h:'一個人還是很多人？', html:"<b>He</b>（一個人）→ He's / He isn't。<b>They</b>（很多人）→ They're / They aren't。"},
+    {h:'-ing 的拼法', html:"watch → watch<b>ing</b> ・ listen → listen<b>ing</b> ・ talk → talk<b>ing</b> ・ take → tak<b>ing</b>（take 的 e 要拿掉）"},
+    {h:'聽起來一樣，意思不同', html:"<b>They're</b> = They are ・ <b>Their</b> = 他們的 ・ <b>There</b> = 那裡。<b>He's</b> = He is ・ <b>His</b> = 他的。"}
+  ],
+  banks:Object.assign(wordBanks(C3_P), {
+    wBuild: C3_P.map(p=>({kind:'order', s:p.w, zh:p.zh, extra:[], tip:p.tip, pt:`排出 ${p.w}`})),
+    wIng: [
+      {s:'Tom is ___ a movie.', a:'watching', bad:['watchs','watch'], tip:'is 後面的動作要加 ing：watching。'},
+      {s:'Amy is ___ to music.', a:'listening', bad:['listen','listenning'], tip:'listen 直接加 ing：listening。'},
+      {s:'He is ___ on the phone.', a:'talking', bad:['talk','talkking'], tip:'talk 直接加 ing：talking。'},
+      {s:'She is ___ a rest.', a:'taking', bad:['take','takeing'], tip:'take 要拿掉 e 再加 ing：taking。'},
+      {s:'They are ___ a movie.', a:'watching', bad:['watchs','watch'], tip:'are 後面的動作要加 ing：watching。'},
+      {s:'They are ___ to music.', a:'listening', bad:['listen','listenning'], tip:'listen 直接加 ing：listening。'},
+      {s:'They are ___ on the phone.', a:'talking', bad:['talk','talkking'], tip:'talk 直接加 ing：talking。'},
+      {s:'They are ___ a rest.', a:'taking', bad:['take','takeing'], tip:'take 要拿掉 e 再加 ing：taking。'}
+    ].map(x=>Object.assign({kind:'fill'},x)),
+    gZh: C3_S.map(s=>({kind:'zhsent', zh:s.zh, a:s.en, bad:s.bad, tip:c3Tip(s)})),
+    gOrder: C3_S.map(s=>({kind:'order', s:s.en, zh:s.zh, extra:s.extra, tip:c3Tip(s)})),
+    gBe: C3_S.map(s=>{
+      const subj = s.pl ? 'They' : 'He', v = C3_P[s.v].ing;
+      const a = s.pl ? (s.neg?"aren't":'are') : (s.neg?"isn't":'is');
+      const bad = s.pl ? (s.neg?["isn't",'are']:['is',"aren't"]) : (s.neg?["aren't",'is']:['are',"isn't"]);
+      return {kind:'fill', s:`${subj} ___ ${v}.`, cue:s.neg?'沒有在做':'正在做', a, bad, say:`${subj} ${a} ${v}.`, tip:c3Tip(s)};
+    }),
+    paper: paperItems(C3_P, ["He's watching a movie.","He isn't watching a movie.","They're watching a movie.","They aren't watching a movie.","He's listening to music.","They aren't taking a rest."])
+  }, contrBanks(
+    [
+      {long:'He is', short:"He's", bs:['Hes',"He'is"], bl:['He are','He am'], tip:"He is → He's：i 不見了，用撇「'」代替。"},
+      {long:'He is not', short:"He isn't", bs:['He isnt',"He is'nt"], bl:['He are not','He am not'], tip:"isn't：o 不見了，撇放在 n 和 t 中間。"},
+      {long:'They are', short:"They're", bs:['Theyre','Their'], bl:['They is','They am'], tip:"They are → They're：a 不見了，撇放在 y 和 r 中間。Their 是「他們的」，不一樣。"},
+      {long:'They are not', short:"They aren't", bs:['They arent',"They are'nt"], bl:['They is not','They am not'], tip:"aren't：o 不見了，撇放在 n 和 t 中間。"}
+    ],
+    [
+      apoGap("He's",{zh:"He is 縮短",tip:"He is → He's：撇放在 e 和 s 中間。"}),
+      G("He isn't",[4,6],[',','z','.'],{zh:"He is not 縮短",say:"He isn't",tip:"isn't：撇放在 n 和 t 中間。"}),
+      G("They're",[4,6],[',','a','r'],{zh:"They are 縮短",say:"They're",tip:"They're：撇放在 y 和 r 中間。"}),
+      G("They aren't",[7,9],[',','a','o'],{zh:"They are not 縮短",say:"They aren't",tip:"aren't：撇放在 n 和 t 中間。"}),
+      apoGap("He's watching a movie.",{tip:"He's = He is，撇放在 e 和 s 中間。"}),
+      apoGap("They're listening to music.",{tip:"They're = They are，撇放在 y 和 r 中間。"}),
+      apoGap("He isn't talking on the phone.",{tip:"isn't：撇放在 n 和 t 中間。"}),
+      apoGap("They aren't taking a rest.",{tip:"aren't：撇放在 n 和 t 中間。"})
+    ],
+    [
+      {toks:["Their","watching","a","movie","."], wrong:0, fixed:"They're watching a movie.", tip:"Their 是「他們的」；They are 縮短是 They're。"},
+      {toks:["He","isnt","watching","a","movie","."], wrong:1, fixed:"He isn't watching a movie.", tip:"isn't 中間要有撇「'」。"},
+      {toks:["They","arent","listening","to","music","."], wrong:1, fixed:"They aren't listening to music.", tip:"aren't 中間要有撇「'」。"},
+      {toks:["They","isn't","talking","on","the","phone","."], wrong:1, fixed:"They aren't talking on the phone.", tip:"They 是很多人，要用 aren't，不是 isn't。"},
+      {toks:["He","aren't","taking","a","rest","."], wrong:1, fixed:"He isn't taking a rest.", tip:"He 是一個人，要用 isn't，不是 aren't。"},
+      {toks:["Theyre","listening","to","music","."], wrong:0, fixed:"They're listening to music.", tip:"They're 中間要有撇「'」。"},
+      {toks:["He's","watch","a","movie","."], wrong:1, fixed:"He's watching a movie.", tip:"正在做的事要加 ing：watching。"},
+      {toks:["They're","take","a","rest","."], wrong:1, fixed:"They're taking a rest.", tip:"take 拿掉 e 再加 ing：taking。"}
+    ],
+    [
+      {s:'___ watching a movie. (Tom)', a:"He's", bad:['His','Hes'], tip:"He's = He is；His = 他的。"},
+      {s:'___ watching a movie. (Tom and Amy)', a:"They're", bad:['Their','There'], tip:"They're = They are；Their = 他們的。"},
+      {s:'___ listening to music. (They are)', a:"They're", bad:['Their','There'], tip:"They are → They're。"},
+      {s:'___ book is here. (Tom and Amy)', a:'Their', bad:["They're",'There'], tip:"Their book = 他們的書。"},
+      {s:'___ taking a rest. (He is)', a:"He's", bad:['His','Hes'], tip:"He is → He's。"},
+      {s:'They ___ talking on the phone. (not)', a:"aren't", bad:["isn't",'arent'], tip:"They are not → They aren't。"}
+    ]
+  ))
+};
+
+/* ===================== 安親班 Unit 4 ===================== */
+const C4_F = [
+  {w:'sandwich', zh:'三明治', e:'🥪', gaps:[3,4], extra:['t','m','v'], tip:'sandwich：sand + wich，結尾是 wich。', pl:'sandwiches', plbad:['sandwichs','sandwichies'], pltip:'sandwich 結尾是 ch，複數加 es：sandwiches。'},
+  {w:'hot dog',  zh:'熱狗',   e:'🌭', gaps:[2,5], extra:['d','u','a'], tip:'hot dog 是兩個字：hot + dog。', pl:'hot dogs', plbad:['hot dogies','hot dog'], pltip:'hot dog 直接加 s：hot dogs。'},
+  {w:'soup',     zh:'湯',     e:'🍲', gaps:[1,2], extra:['e','a','b'], tip:'soup：s-ou-p，中間 ou。'},
+  {w:'pancake',  zh:'鬆餅',   e:'🥞', gaps:[3,6], extra:['k','s','i'], tip:'pancake：pan + cake，結尾 cake 有 e。', pl:'pancakes', plbad:['pancakees','pancake'], pltip:'pancake 直接加 s：pancakes。'},
+  {w:'juice',    zh:'果汁',   e:'🧃', gaps:[2,3], extra:['s','y','u'], tip:'juice：j-u-i-c-e，中間 ic。'}
+];
+const C4_DAYS = [
+  ['Monday','星期一',['Munday','Mondey'],'Monday：Mon + day。'],
+  ['Tuesday','星期二',['Tuseday','Tuesdey'],'Tuesday：T-u-e-s + day。'],
+  ['Wednesday','星期三',['Wensday','Wedensday'],'Wednesday：念 Wenz-day，但要拼 W-e-d-n-e-s-day。'],
+  ['Thursday','星期四',['Thirsday','Thursdey'],'Thursday：T-h-u-r-s + day。'],
+  ['Friday','星期五',['Firday','Fryday'],'Friday：F-r-i + day，r 在 i 前面。'],
+  ['Saturday','星期六',['Saterday','Satarday'],'Saturday：S-a-t-u-r + day。'],
+  ['Sunday','星期日',['Sundey','Sonday'],'Sunday：Sun + day。']
+];
+const C4_FOODS = ['sandwiches','hot dogs','pancakes','hamburgers'];
+const C4_ORDER = [
+  ["What day is it today?","今天星期幾？",[]],
+  ["It's Friday.","今天是星期五。",["Its"]],
+  ["It's Monday.","今天是星期一。",["Its"]],
+  ["He has some sandwiches.","他有一些三明治。",['have']],
+  ["She has some hot dogs.","她有一些熱狗。",['any']],
+  ["They have some pancakes.","他們有一些鬆餅。",['has']],
+  ["She doesn't have any sandwiches.","她沒有三明治。",["don't"]],
+  ["They don't have any hamburgers.","他們沒有漢堡。",["doesn't"]],
+  ["He doesn't have any juice.","他沒有果汁。",['has']],
+  ["They don't have any pancakes.","他們沒有鬆餅。",['some']]
+];
+const c4OrderTip = s => /^What/.test(s) ? "問今天星期幾：What day is it today?" : /^It's/.test(s) ? "回答：It's ＋ 星期幾（星期要大寫開頭）。"
+  : /doesn't|don't/.test(s) ? "He / She → doesn't；They → don't。後面用 have + any。" : "He / She → has；They → have。肯定句用 some。";
+const C4 = {
+  name:'安親班 Unit 4', sub:'have / any / some', cls:'plum',
+  desc:{words:'sandwich、hot dog、soup、pancake、juice', grammar:"What day…? ・ has / have ・ doesn't / don't", contr:"doesn't、don't、It's", paper:'聽 iPad 念，寫在紙上'},
+  groups:{
+    words:[[['wZh'],1],[['wListen'],1],[['wGap'],2],[['wPlural'],1]],
+    grammar:[[['gDay'],1],[['gHas','gSome'],1],[['gNeg','gHave'],1],[['gZh'],1],[['gOrder'],1]],
+    contr:[[['cShort','cLong'],2],[['cGap'],1],[['cFind'],1],[['cFill'],1]],
+    paper:[[['paper'],5]]
+  },
+  vocab:C4_F,
+  sentences:["What day is it today?","It's Friday.","He has some sandwiches.","She doesn't have any sandwiches.","They have some pancakes.","They don't have any hamburgers."],
+  pairsTitle:'縮寫：長的 → 短的',
+  pairs:[['does not',"doesn't"],['do not',"don't"],['It is',"It's"]],
+  notes:[
+    {h:'has 還是 have？', html:"<b>He / She</b> → <span class=\"s\">has</span>。<b>They</b> → <span class=\"s\">have</span>。"},
+    {h:"doesn't 還是 don't？", html:"<b>He / She</b> → <span class=\"s\">doesn't</span>。<b>They</b> → <span class=\"s\">don't</span>。後面都用 <b>have</b>（不用 has）。"},
+    {h:'some 還是 any？', html:"有 → <b>some</b>：He has <b>some</b> sandwiches. ・ 沒有 → <b>any</b>：She doesn't have <b>any</b> sandwiches."},
+    {h:'複數', html:"sandwich → sandwich<b>es</b> ・ hot dog → hot dog<b>s</b> ・ pancake → pancake<b>s</b> ・ hamburger → hamburger<b>s</b>"},
+    {h:'星期', html:"Monday ・ Tuesday ・ Wednesday ・ Thursday ・ Friday ・ Saturday ・ Sunday（開頭要大寫）"}
+  ],
+  banks:Object.assign(wordBanks(C4_F), {
+    wPlural: [].concat(
+      C4_F.filter(f=>f.pl).map(f=>({kind:'fill', s:`one ${f.w} → two ___`, a:f.pl, bad:f.plbad, tip:f.pltip, say:f.pl, big:true, pt:`複數 ${f.w}`})),
+      [{kind:'fill', s:'one hamburger → two ___', a:'hamburgers', bad:['hamburgeres','hamburger'], tip:'hamburger 直接加 s：hamburgers。', say:'hamburgers', big:true, pt:'複數 hamburger'}]),
+    gDay: C4_DAYS.map(([a,zh,bad,tip])=>({kind:'fill', s:"What day is it today? It's ___.", cue:`今天是${zh}`, a, bad, tip, say:`What day is it today? It's ${a}.`, pt:`今天是${zh}`})),
+    gHas: [['He','has','sandwiches'],['She','has','hot dogs'],['They','have','pancakes'],['He','has','hamburgers'],['She','has','pancakes'],['They','have','sandwiches'],['They','have','hot dogs'],['He','has','pancakes']]
+      .map(([S,v,f])=>({kind:'fill', s:`${S} ___ some ${f}.`, a:v, bad:[v==='has'?'have':'has'], tip:'He / She → has；They → have。'})),
+    gSome: [['He has ___ sandwiches.','some'],["She doesn't have ___ sandwiches.",'any'],['They have ___ pancakes.','some'],["They don't have ___ hamburgers.",'any'],
+            ['She has ___ hot dogs.','some'],["He doesn't have ___ pancakes.",'any'],['They have ___ sandwiches.','some'],["They don't have ___ hot dogs.",'any']]
+      .map(([s,a])=>({kind:'fill', s, a, bad:[a==='some'?'any':'some'], tip:"有（肯定句）→ some；沒有（doesn't / don't）→ any。"})),
+    gNeg: [['She','doesn\'t','don\'t','sandwiches'],['They','don\'t','doesn\'t','hamburgers'],['He','doesn\'t','don\'t','soup'],['They','don\'t','doesn\'t','juice'],
+           ['She','doesn\'t','don\'t','pancakes'],['They','don\'t','doesn\'t','hot dogs'],['He','doesn\'t','don\'t','hamburgers'],['They','don\'t','doesn\'t','sandwiches']]
+      .map(([S,a,b,f])=>({kind:'fill', s:`${S} ___ have any ${f}.`, a, bad:[b,'not'], tip:"He / She → doesn't；They → don't。"})),
+    gHave: [["She doesn't ___ any sandwiches.",'have',['has','haves']],["He doesn't ___ any juice.",'have',['has','haves']],["They don't ___ any pancakes.",'have',['has','haves']],["She doesn't ___ any soup.",'have',['has','haves']]]
+      .map(([s,a,bad])=>({kind:'fill', s, a, bad, tip:"doesn't / don't 後面都用 have，不用 has。"})),
+    gZh: [
+      ['他有一些三明治。','He has some sandwiches.',['He have some sandwiches.','He has any sandwiches.']],
+      ['她沒有三明治。',"She doesn't have any sandwiches.",["She don't have any sandwiches.","She doesn't have some sandwiches."]],
+      ['他們有一些鬆餅。','They have some pancakes.',['They has some pancakes.','They have any pancakes.']],
+      ['他們沒有漢堡。',"They don't have any hamburgers.",["They doesn't have any hamburgers.","They don't have some hamburgers."]],
+      ['她有一些熱狗。','She has some hot dogs.',['She have some hot dogs.','She has any hot dogs.']],
+      ['他沒有鬆餅。',"He doesn't have any pancakes.",["He don't have any pancakes.","He doesn't has any pancakes."]]
+    ].map(([zh,a,bad])=>({kind:'zhsent', zh, a, bad, tip:c4OrderTip(a)})),
+    gOrder: C4_ORDER.map(([s,zh,extra])=>({kind:'order', s, zh, extra, tip:c4OrderTip(s)})),
+    paper: paperItems(C4_F, ["What day is it today?","It's Friday.","He has some sandwiches.","She doesn't have any sandwiches.","They have some pancakes.","They don't have any hamburgers."])
+  }, contrBanks(
+    [
+      {long:'does not', short:"doesn't", bs:['doesnt',"does'nt"], bl:['do not','does is'], tip:"doesn't：o 不見了，撇放在 n 和 t 中間。He / She 用 doesn't。"},
+      {long:'do not', short:"don't", bs:['dont',"do'nt"], bl:['does not','do is'], tip:"don't：o 不見了，撇放在 n 和 t 中間。They 用 don't。"},
+      {long:'It is', short:"It's", bs:['Its',"It'is"], bl:['It are','It am'], tip:"It is → It's：i 不見了，用撇「'」代替。"},
+      {long:'She does not', short:"She doesn't", bs:['She doesnt',"She does'nt"], bl:['She do not','She does is'], tip:"She does not → She doesn't。"},
+      {long:'They do not', short:"They don't", bs:['They dont',"They do'nt"], bl:['They does not','They do is'], tip:"They do not → They don't。"}
+    ],
+    [
+      G("doesn't",[3,5],[',','z','.'],{zh:"does not 縮短",say:"doesn't",tip:"doesn't：撇放在 n 和 t 中間。"}),
+      G("don't",[1,3],[',','u','a'],{zh:"do not 縮短",say:"don't",tip:"don't：撇放在 n 和 t 中間。"}),
+      apoGap("It's Friday.",{tip:"It's = It is，撇放在 t 和 s 中間。"}),
+      apoGap("She doesn't have any sandwiches.",{tip:"doesn't：撇放在 n 和 t 中間。"}),
+      apoGap("They don't have any hamburgers.",{tip:"don't：撇放在 n 和 t 中間。"}),
+      apoGap("He doesn't have any juice.",{tip:"doesn't：撇放在 n 和 t 中間。"})
+    ],
+    [
+      {toks:["She","doesnt","have","any","sandwiches","."], wrong:1, fixed:"She doesn't have any sandwiches.", tip:"doesn't 中間要有撇「'」。"},
+      {toks:["They","dont","have","any","pancakes","."], wrong:1, fixed:"They don't have any pancakes.", tip:"don't 中間要有撇「'」。"},
+      {toks:["She","don't","have","any","soup","."], wrong:1, fixed:"She doesn't have any soup.", tip:"She 是一個人，用 doesn't。"},
+      {toks:["They","doesn't","have","any","hamburgers","."], wrong:1, fixed:"They don't have any hamburgers.", tip:"They 是很多人，用 don't。"},
+      {toks:["Its","Friday","."], wrong:0, fixed:"It's Friday.", tip:"It is → It's，要有撇。"},
+      {toks:["She","doesn't","has","any","sandwiches","."], wrong:2, fixed:"She doesn't have any sandwiches.", tip:"doesn't 後面用 have，不用 has。"},
+      {toks:["He","doesn't","have","some","juice","."], wrong:3, fixed:"He doesn't have any juice.", tip:"沒有（doesn't）要用 any，不用 some。"}
+    ],
+    [
+      {s:"She ___ have any soup.", a:"doesn't", bad:["don't",'doesnt'], tip:"She → doesn't。"},
+      {s:"They ___ have any juice.", a:"don't", bad:["doesn't",'dont'], tip:"They → don't。"},
+      {s:"___ Friday. (It is)", a:"It's", bad:['Its','Is'], tip:"It is → It's。"},
+      {s:"He ___ have any pancakes. (does not)", a:"doesn't", bad:["don't",'dosen\'t'], tip:"does not → doesn't。"},
+      {s:"I ___ have any soup. (do not)", a:"don't", bad:["doesn't",'dont'], tip:"do not → don't。"}
+    ]
+  ))
+};
+
+const UNITS = {school3:SCH, care3:C3, care4:C4};
 
 /* ===================== 儲存 ===================== */
 const store = {
@@ -405,14 +601,15 @@ const store = {
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
 const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; };
-let settings = Object.assign({advanced:false, slow:true}, store.get('wt3_settings', {}));
-let errors = store.get('wt3_errors', []);
-const newDay = () => Object.assign({date:todayKey()}, Object.fromEntries(Object.keys(MODES).map(m=>[m,[]])));
-let day = store.get('wt3_day2', null);
-if(!day || day.date!==todayKey()) day = newDay();
-Object.keys(MODES).forEach(m=>{ if(!Array.isArray(day[m])) day[m]=[]; });
-const saveDay = () => store.set('wt3_day2', day);
-const saveErrors = () => store.set('wt3_errors', errors);
+let settings = Object.assign({slow:true}, store.get(KEY.settings, {}));
+let errors = store.get(KEY.errors, []);
+let cu = store.get(KEY.unit, 'school3'); if(!UNITS[cu]) cu='school3';
+const newDay = () => ({date:todayKey(), prog:Object.fromEntries(Object.keys(UNITS).map(u=>[u, Object.fromEntries(MODE_KEYS.map(m=>[m,[]]))]))});
+let day = store.get(KEY.day, null);
+if(!day || day.date!==todayKey() || !day.prog) day = newDay();
+Object.keys(UNITS).forEach(u=>{ day.prog[u]=day.prog[u]||{}; MODE_KEYS.forEach(m=>{ if(!Array.isArray(day.prog[u][m])) day.prog[u][m]=[]; }); });
+const saveDay = () => store.set(KEY.day, day);
+const saveErrors = () => store.set(KEY.errors, errors);
 
 /* ===================== 發音 ===================== */
 let voice=null;
@@ -443,240 +640,75 @@ const randInt = (a,b) => a+Math.floor(Math.random()*(b-a+1));
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function el(tag, attrs={}, html=''){ const e=document.createElement(tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(html) e.innerHTML=html; return e; }
-const numberPool = () => settings.advanced ? BASIC_NUMS.concat(ADV_NUMS) : BASIC_NUMS;
-const ttPool = () => settings.advanced ? TT_BASIC.concat(TT_ADV) : TT_BASIC;
-const randNZ = () => rand(MINUTES_NZ);
-const randMinute = () => Math.random()<0.3 ? 0 : randNZ();
 const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 function speakBtn(text,label='聽發音'){ const b=el('button',{class:'speak',type:'button'},SPEAKER+label); b.onclick=()=>speak(text); return b; }
 function slowBtn(text){ const b=el('button',{class:'speak',type:'button'},SPEAKER+'慢慢念'); b.onclick=()=>speak(text,0.45); return b; }
-function compareBtn(n){
-  const p=pairOf(n); if(!p) return null;
-  const b=el('button',{class:'speak',type:'button'},SPEAKER+`比一比 ${p[0]} 和 ${p[1]}`);
-  b.onclick=()=>speakSeq([numWord(p[0]), numWord(p[1])]); return b;
-}
-function clockSVG(h,m){
-  let s='<circle class="face" cx="120" cy="120" r="110"/>';
-  for(let i=0;i<60;i++){ if(i%5===0) continue; const a=i*6*Math.PI/180; s+=`<line class="tick" x1="${120+100*Math.sin(a)}" y1="${120-100*Math.cos(a)}" x2="${120+95*Math.sin(a)}" y2="${120-95*Math.cos(a)}"/>`; }
-  for(let i=1;i<=12;i++){ const a=i*30*Math.PI/180; s+=`<text class="num" x="${120+82*Math.sin(a)}" y="${120-82*Math.cos(a)+8}" text-anchor="middle">${i}</text>`; }
-  const ha=((h%12)+m/60)*30*Math.PI/180, ma=m*6*Math.PI/180;
-  s+=`<line class="hour" x1="120" y1="120" x2="${120+50*Math.sin(ha)}" y2="${120-50*Math.cos(ha)}"/>`;
-  s+=`<line class="min" x1="120" y1="120" x2="${120+76*Math.sin(ma)}" y2="${120-76*Math.cos(ma)}"/>`;
-  s+='<circle class="pin" cx="120" cy="120" r="8"/>';
-  return s;
-}
-function clockEl(h,m){
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('viewBox','0 0 240 240'); svg.setAttribute('class','clock'); svg.setAttribute('role','img'); svg.setAttribute('aria-label','時鐘');
-  svg.innerHTML=clockSVG(h,m); return svg;
-}
 
-/* ===================== 題庫 ===================== */
-const AMPM = [
-  {s:'I get up at 6:30 ___.', zh:'我早上 6:30 起床。', a:'a.m.'},
-  {s:'I eat breakfast at 7:00 ___.', zh:'我 7:00 吃早餐。', a:'a.m.'},
-  {s:'I go to school at 7:20 ___.', zh:'我 7:20 去上學。', a:'a.m.'},
-  {s:'I do my homework at 4:30 ___.', zh:'我下午 4:30 寫功課。', a:'p.m.'},
-  {s:'I eat dinner at 6:30 ___.', zh:'我 6:30 吃晚餐。', a:'p.m.'},
-  {s:'I go to bed at 9:00 ___.', zh:'我 9:00 上床睡覺。', a:'p.m.'}
-];
-const FORTO = [
-  {s:'Time ___ lunch.', zh:'吃午餐的時間到了。', a:'for'},
-  {s:'Time ___ dinner.', zh:'吃晚餐的時間到了。', a:'for'},
-  {s:'Time ___ bed.', zh:'睡覺的時間到了。', a:'for'},
-  {s:'Time ___ go to bed.', zh:'該去睡覺了。', a:'to'},
-  {s:'Time ___ go to school.', zh:'該去上學了。', a:'to'},
-  {s:'Time ___ get up.', zh:'該起床了。', a:'to'}
-];
-/* ===== 天氣（Unit 1）：之後要加題目改這裡 ===== */
-// 天氣單字：gaps = 挖空位置；extra = 干擾字母；root = 怎麼變來的
-const WX = {
-  sunny:  {zh:'晴朗的', gaps:[3,4], extra:['e','i'], root:'sun → sunny，n 要多一個'},
-  rainy:  {zh:'下雨的', gaps:[1,2], extra:['e','o'], root:'rain → rainy，ai 不要漏'},
-  cloudy: {zh:'多雲的', gaps:[2,3], extra:['w','a'], root:'cloud → cloudy，ou 不要漏'},
-  windy:  {zh:'有風的', gaps:[1,4], extra:['e','a'], root:'wind → windy'},
-  cold:   {zh:'冷的',   gaps:[1],   extra:['u','a'], root:'cold 的 o 念長音'},
-  hot:    {zh:'熱的',   gaps:[1],   extra:['a','u'], root:'hot 的 o 念短音'}
-};
-const WX_KEYS = Object.keys(WX);
-const WX_CONFUSE = {sunny:'windy', windy:'sunny', rainy:'cloudy', cloudy:'rainy', cold:'hot', hot:'cold'};
-// be 動詞填空：a = 正解、b = 干擾
-const WBE = [
-  {s:"The weather ___ sunny. Let's go out.", a:'is', b:'am'},
-  {s:'The weather ___ rainy today.',          a:'is', b:'am'},
-  {s:'It ___ cloudy in Taipei.',              a:'is', b:'am'},
-  {s:"It ___ windy. Let's fly a kite.",        a:'is', b:'are'},
-  {s:'I ___ cold.',                            a:'am', b:'is'},
-  {s:'I ___ hot.',                             a:'am', b:'is'}
-];
-const WBE_NOTE = 'I 搭配 am；the weather、it 搭配 is。';
-// 問天氣
-const WHOW = [
-  {s:'___ the weather in Taipei?',       a:"How's", b:"What's", note:"問天氣用 How's the weather?（How's = How is）。"},
-  {s:'___ the weather? It is cold.',     a:"How's", b:'How',    note:"How 後面還要有 is：How's = How is。只寫 How 少了 is。"},
-  {s:'___ the weather today?',           a:"How's", b:'How',    note:"How 後面還要有 is：How's = How is。"},
-  {s:'___ the weather in Tainan?',       a:"How's", b:'What',   note:"問天氣用 How's the weather?。"}
-];
-// 看答句寫問句：____. It is cold. → How's the weather?
-const WASK = [
-  {a:'It is cold.',   w:'cold'},
-  {a:"It's rainy.",   w:'rainy'},
-  {a:'It is sunny.',  w:'sunny'},
-  {a:"It's windy.",   w:'windy'},
-  {a:'It is hot.',    w:'hot'},
-  {a:"It's cloudy.",  w:'cloudy'}
-];
-const ASK = "How's the weather?";
-const ASK_NOTE = "問天氣固定寫成 How's the weather?：H 大寫、How's 有一撇（How is）、句尾是問號。";
-const ASK_T = 'What time is it?';
-const ASK_T_NOTE = "問時間固定寫成 What time is it?：W 大寫、What 後面沒有 's、句尾是問號。（問天氣才用 How's）";
-// 紙上聽寫用的天氣句子與單字
-const WPAPER = ['rainy','cloudy','sunny','windy',"o'clock","It's rainy.","It's cloudy.","How's the weather?","Is it windy? No, it isn't.","The weather is sunny."];
-const PAPER_NOTE = {"o'clock":"o'clock 中間是一撇「'」，不是 -；全部小寫，c-l-o-c-k。"};
-function wxIcon(k, cls='wx'){
-  const cloud=(dark,dy=0)=>`<g transform="translate(0 ${dy})"><circle class="cl${dark?' dark':''}" cx="44" cy="62" r="18"/><circle class="cl${dark?' dark':''}" cx="64" cy="52" r="22"/><circle class="cl${dark?' dark':''}" cx="84" cy="64" r="16"/><rect class="cl${dark?' dark':''}" x="40" y="62" width="48" height="18" rx="9"/></g>`;
-  const therm=(hot)=>`<rect class="tube" x="50" y="14" width="20" height="70" rx="10"/><circle class="${hot?'hotc':'coldc'}" cx="60" cy="92" r="16"/><rect class="${hot?'hotc':'coldc'}" x="55" y="${hot?24:68}" width="10" height="${hot?66:22}" rx="5"/>`;
-  let s='';
-  if(k==='sunny'){ s='<circle class="sun" cx="60" cy="60" r="22"/>'; for(let i=0;i<8;i++){ const a=i*Math.PI/4; s+=`<line class="ray" x1="${60+32*Math.cos(a)}" y1="${60+32*Math.sin(a)}" x2="${60+44*Math.cos(a)}" y2="${60+44*Math.sin(a)}"/>`; } }
-  else if(k==='cloudy') s=cloud(false,4);
-  else if(k==='rainy') s=cloud(true,-10)+'<line class="drop" x1="46" y1="86" x2="40" y2="102"/><line class="drop" x1="64" y1="86" x2="58" y2="102"/><line class="drop" x1="82" y1="86" x2="76" y2="102"/>';
-  else if(k==='windy') s='<path class="wind" d="M16 40 H74 a12 12 0 1 0 -12 -12"/><path class="wind" d="M16 62 H96 a12 12 0 1 1 -12 12"/><path class="wind" d="M28 84 H64"/>';
-  else if(k==='hot') s=therm(true);
-  else if(k==='cold') s=therm(false)+'<line class="flake" x1="96" y1="28" x2="96" y2="56"/><line class="flake" x1="84" y1="35" x2="108" y2="49"/><line class="flake" x1="84" y1="49" x2="108" y2="35"/>';
-  return `<svg class="${cls}" viewBox="0 0 120 120" role="img" aria-label="${k}">${s}</svg>`;
+/* ===================== 出題 ===================== */
+const itemOf = q => UNITS[q.u].banks[q.b][q.i];
+const keyOf = q => `${q.u}|${q.b}|${q.i}`;
+const TYPE_LABEL = {zhword:'中翻英', listenword:'聽一聽', gap:'挖空拼字', fill:'選選看', zhsent:'選出正確的句子', order:'排句子', find:'找錯', paper:'紙上聽寫'};
+
+function pickItem(u, bankNames, used){
+  const U=UNITS[u];
+  for(let t=0;t<20;t++){
+    const b=rand(bankNames), arr=U.banks[b], i=randInt(0,arr.length-1), key=`${u}|${b}|${i}`;
+    if(!used.has(key)){ used.add(key); return {u,b,i}; }
+  }
+  const b=rand(bankNames); return {u,b,i:randInt(0,U.banks[b].length-1)};
 }
-const BAD_SPELL = {forty:'fourty', fifty:'fivety', fifteen:'fiveteen', 'forty-five':'fourty-five', 'fifty-five':'fivety-five'};
-
-const GEN = {
-  ttSort:   () => ({n: rand(ttPool())}),
-  ttPrefix: () => ({k: randInt(0,TT_PREFIX.length-1)}),
-  ttListen: () => ({n: rand(ttPool())}),
-  ttDictate:() => ({n: rand(ttPool())}),
-  spell:    () => ({n: rand(numberPool())}),
-  listen:   () => ({n: rand(numberPool())}),
-  gapNum:   () => ({n: rand(numberPool())}),
-  gapTime:  () => ({h: randInt(1,12), m: randMinute()}),
-  paper:    () => { const r=Math.random();
-    return r<0.34 ? {k:'num', n: rand(ttPool().concat([11,12,20,25,35,45]))}
-         : r<0.50 ? {k:'time', h: randInt(1,12), m: randMinute()}
-         : r<0.63 ? {k:'ask', i: randInt(0,WASK.length-1)}
-         : r<0.76 ? {k:'askT', h: randInt(1,12), m: randMinute()}
-         : r<0.84 ? {k:'wx', i: WPAPER.indexOf("o'clock")}
-         : {k:'wx', i: randInt(0,WPAPER.length-1)}; },
-  wAsk:     () => ({i: randInt(0,WASK.length-1)}),
-  tAsk:     () => ({h: randInt(1,12), m: randMinute()}),
-  wBe:      () => ({i: randInt(0,WBE.length-1)}),
-  wShort:   () => { const w=rand(['sunny','rainy','cloudy','windy','cold','hot']); const yes=Math.random()<0.4;
-    return {w, ask: yes ? w : WX_CONFUSE[w], v: rand(['blank','pick'])}; },
-  wHow:     () => Math.random()<0.65 ? {v:'blank', i: randInt(0,WHOW.length-1)} : {v:'ans', w: rand(WX_KEYS)},
-  wPic:     () => ({w: rand(WX_KEYS)}),
-  wGap:     () => ({w: rand(WX_KEYS.slice(0,4))}),
-  timeMcq:  () => ({h: randInt(1,12), m: randMinute()}),
-  clock:    () => ({h: randInt(1,12), m: randMinute()}),
-  tWhole:   () => ({h: randInt(1,12), m: Math.random()<0.5 ? 0 : randNZ()}),
-  tBlank:   () => { const v=rand(['oclock','hyphen','full']); return {h: randInt(1,12), m: v==='oclock'?0:randNZ(), v, dm: randNZ()}; },
-  tFind:    () => { const v=rand(['hyphen','oclock','spell']); return {h: randInt(1,12), m: v==='spell'?rand([15,40,45,50,55]):randNZ(), v}; },
-  tBlocks:  () => ({h: randInt(1,12), m: randNZ()}),
-  reorder:  () => {
-    const h=randInt(1,12), m=randMinute();
-    return {s: rand(['What time is it?', `It's ${timeWord(h,m)}.`, `It's ${timeWord(h,m)} in Taipei.`, `It's ${timeWord(h,m)} in Taipei.`, 'Time for lunch.', 'Time to go to bed.'])};
-  },
-  ampm:     () => ({i: randInt(0,AMPM.length-1)}),
-  forto:    () => ({i: randInt(0,FORTO.length-1)})
-};
-const TYPE_LABEL = {
-  ttSort:'teen 還是 ty？', ttPrefix:'字頭怎麼變', ttListen:'聽一聽', ttDictate:'聽寫',
-  spell:'拼拼看', listen:'聽聽看', gapNum:'挖空拼字', gapTime:'挖空拼時間', paper:'紙上聽寫',
-  timeMcq:'選選看', clock:'看時鐘', tWhole:'是整點嗎？', tBlank:'看空格前後', tFind:'找錯', tBlocks:'時間積木',
-  reorder:'排句子', ampm:'a.m. 還是 p.m.？', forto:'for 還是 to？',
-  tAsk:'組出問句', wAsk:'天氣・寫出問句', wBe:'天氣・am 還是 is', wShort:'天氣・Yes 還是 No', wHow:"天氣・How's", wPic:'天氣・看圖選字', wGap:'天氣・挖空拼字'
-};
-const keyOf = q => q.type+'|'+JSON.stringify(q.params);
-
-function buildRound(mode, n){
-  const groups=MODES[mode].groups, list=[], keys=new Set();
-  groups.forEach(([types,c])=>{
-    for(let k=0;k<c;k++){
-      let q; for(let t=0;t<12;t++){ const ty=rand(types); q={type:ty, params:GEN[ty]()}; if(!keys.has(keyOf(q))) break; }
-      keys.add(keyOf(q)); list.push(q);
-    }
+function buildRound(u, mode, n){
+  const U=UNITS[u], groups=U.groups[mode], used=new Set(), list=[];
+  groups.forEach(([banks,c])=>{
+    for(let k=0;k<c;k++){ const p=pickItem(u,banks,used); list.push({u:p.u, b:p.b, i:p.i, kind:U.banks[p.b][p.i].kind, banks}); }
   });
-  const allTypes=groups.flatMap(g=>g[0]);
-  errors.filter(e=>!e.fixed && allTypes.includes(e.type) && GEN[e.type])
+  const allBanks=new Set(groups.flatMap(g=>g[0]));
+  errors.filter(e=>!e.fixed && e.u===u && allBanks.has(e.b) && U.banks[e.b] && U.banks[e.b][e.i])
     .sort((a,b)=>b.count-a.count).slice(0,MAX_REVIEW)
-    .forEach(r=>{
-      if(keys.has(r.key)) return;
-      const g=groups.findIndex(g=>g[0].includes(r.type));
-      const idx=list.findIndex(q=>!q.review && groups[g][0].includes(q.type));
-      if(idx>=0){ list[idx]={type:r.type, params:r.params, review:true}; keys.add(r.key); }
+    .forEach(e=>{
+      if(list.some(q=>keyOf(q)===e.key)) return;
+      const idx=list.findIndex(q=>!q.review && q.banks.includes(e.b));
+      if(idx>=0) list[idx]={u, b:e.b, i:e.i, kind:U.banks[e.b][e.i].kind, banks:list[idx].banks, review:true};
     });
   return shuffle(list).slice(0,n);
 }
 
 /* ===================== 答題流程 ===================== */
 let session=null, qStart=0;
-const R = () => day[session ? session.mode : 'daily'];
+const R = () => day.prog[session.u][session.mode];
 const cur = () => session.qs[session.i];
 
 function startSession(mode){
-  if(day.date!==todayKey()){ day=newDay(); }
-  if(day[mode].length>=ROUND){ day[mode]=[]; }
+  if(day.date!==todayKey()) day=newDay();
+  if(day.prog[cu][mode].length>=ROUND) day.prog[cu][mode]=[];
   saveDay();
-  session={mode, qs: buildRound(mode, ROUND - day[mode].length), i:0, streak:0, stars:0};
+  session={u:cu, mode, qs:buildRound(cu, mode, ROUND - day.prog[cu][mode].length), i:0, streak:0, stars:0};
   show('quiz'); renderQ();
 }
 
 function renderQ(){
-  const q=cur();
-  $('q-type').textContent = TYPE_LABEL[q.type] + (q.review?'・複習':'');
+  const q=cur(), it=itemOf(q);
+  $('q-type').textContent = `${UNITS[q.u].name}・${TYPE_LABEL[q.kind]}` + (q.review?'・複習':'');
   $('q-count').textContent = `${R().length+1} / ${ROUND}`;
   $('q-bar').style.width = (R().length/ROUND*100)+'%';
   $('q-stars').textContent = '★'.repeat(session.stars);
   const body=$('q-body'); body.innerHTML=''; body.classList.remove('pop'); void body.offsetWidth; body.classList.add('pop');
-  if(q.tries===1) body.appendChild(hintCard(q));
-  RENDER[q.type](q, body);
+  if(q.tries===1) body.appendChild(hintCard(q,it));
+  RENDER[q.kind](q, body, it);
   qStart=Date.now();
 }
 
-function hintCard(q){
-  const card=el('div',{class:'hintcard',role:'status'},`<b>再試一次</b><div>${hintFor(q)}</div>`);
-  const n=q.params && q.params.n;
-  if(n && ['ttListen','ttDictate','listen'].includes(q.type)){
-    const row=el('div',{class:'row'});
-    row.appendChild(speakBtn(numWord(n),'再聽一次'));
-    const c=compareBtn(n); if(c) row.appendChild(c);
-    card.appendChild(row);
+function hintFor(it){
+  if(it.kind==='zhword') return '再看一次中文，想想看它的英文怎麼念、怎麼拼。';
+  if(it.kind==='listenword') return '仔細聽，再聽一次。';
+  return it.tip || '慢慢來，再看一次題目。';
+}
+function hintCard(q, it){
+  const card=el('div',{class:'hintcard',role:'status'},`<b>再試一次</b><div>${hintFor(it)}</div>`);
+  if(it.kind==='listenword' || it.kind==='gap'){
+    const row=el('div',{class:'row'}); row.appendChild(speakBtn(it.say||it.target||it.a,'再聽一次')); card.appendChild(row);
   }
   return card;
-}
-
-function hintFor(q){
-  const p=q.params||{};
-  switch(q.type){
-    case 'ttSort': return `先看數字：${RULE}`;
-    case 'ttPrefix': return TT_PREFIX[p.k].tip;
-    case 'ttListen': case 'ttDictate': case 'listen': return `仔細聽尾巴。${STRESS}`;
-    case 'spell': case 'gapNum': return `先看數字：${RULE}${p.n%10 && p.n>20 ? '個位不是 0 的（例如 35），要用 - 連起來：thirty-five。' : ''}four 變 fourteen 保留 u，變 forty 要拿掉 u；five 要變成 fif。`;
-    case 'wAsk': return "後面在回答天氣，所以前面是問天氣的句子：How's ＋ the ＋ weather?";
-    case 'tAsk': return '後面在回答幾點，所以前面是問時間的句子：What ＋ time ＋ is ＋ it?（What 後面沒有 \'s）';
-    case 'wBe': return `先看前面是誰：${WBE_NOTE}`;
-    case 'wShort': return "先看圖：是不是題目問的天氣？是就說 Yes, it is.；不是就說 No, it isn't.（isn't = is not）。";
-    case 'wHow': return p.v==='ans' ? '先看圖片是什麼天氣，再找意思一樣的句子。' : "問天氣固定這樣說：How's the weather?（How's = How is）。";
-    case 'wPic': return '看圖：雲加雨滴是 rainy；只有雲是 cloudy；太陽是 sunny；風的線條是 windy；溫度計高是 hot、低是 cold。';
-    case 'wGap': return `${p.w} 的提示：${WX[p.w].root}。`;
-    case 'gapTime': return p.m===0 ? "o'clock 中間是一撇「'」，不是 -。" : `小時和分鐘中間空一格。${RULE}`;
-    case 'tWhole': case 'clock': case 'timeMcq': case 'tBlocks':
-      return '先看長針：指著 12 是整點，說 o\'clock；指著別的數字就說分鐘（數字 × 5，例如指著 4 是 twenty）。小時和分鐘中間不加 -。';
-    case 'tBlank':
-      return p.v==='oclock' ? '空格後面已經有 o\'clock 了，空格裡只要填小時。'
-           : p.v==='hyphen' ? '小時和分鐘是兩個字，中間空一格，不加 -。'
-           : '題目問 What time is it?，要用完整的句子回答：It\'s ＋ 時間 ＋ 句點。';
-    case 'tFind': return '一塊一塊檢查：小時和分鐘中間有沒有 -？o\'clock 是不是只用在整點？數字拼對了嗎？';
-    case 'reorder': return '大寫開頭的字放第一個，有句點或問號的放最後。';
-    case 'ampm': return 'a.m. 是早上（中午以前），p.m. 是下午和晚上。';
-    case 'forto': return '後面接東西（lunch、bed）用 for；接動作（go to bed、get up）用 to。';
-  }
-  return '慢慢來，再看一次題目。';
 }
 
 // 所有題型作答都經過這裡：太快→提醒；第一次錯→提示再試；其他→結束這題
@@ -685,7 +717,7 @@ function answer(q, ok, given, aHTML, aText, note, opts={}){
     const body=$('q-body');
     body.querySelectorAll('button, input').forEach(b=>b.disabled=true);
     body.prepend(el('div',{class:'nudge',role:'status'},'先看清楚再按喔，這題不算分。'));
-    setTimeout(renderQ, 1400);
+    setTimeout(()=>{ if(session && cur() && !$('quiz').hidden) renderQ(); }, 1400);
     return 'fast';
   }
   if(!ok && !q.tries){ q.tries=1; q.firstGiven=given; renderQ(); return 'retry'; }
@@ -714,56 +746,40 @@ function finish(q, ok, given, aHTML, aText, note){
   fb.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
+function promptText(q){
+  const it=itemOf(q);
+  if(it.pt) return it.pt;
+  switch(it.kind){
+    case 'zhword': return `中翻英：${it.zh}`;
+    case 'listenword': return `聽音選字`;
+    case 'gap': return `拼字：${it.target}`;
+    case 'fill': return it.s + (it.cue ? `（${it.cue}）` : '');
+    case 'zhsent': return `中翻英：${it.zh}`;
+    case 'order': return `排句子：${it.s}`;
+    case 'find': return `找錯：${it.toks.join(' ')}`;
+    case 'paper': return `紙上聽寫：${it.text}`;
+  }
+  return q.kind;
+}
 function logResult(q, res, given, aText){
   const key=keyOf(q);
   let e=errors.find(x=>x.key===key);
   if(q.tries || res==='no'){
-    if(!e){ e={key,type:q.type,params:q.params,prompt:promptText(q),answer:aText,given:'',count:0,fixed:false}; errors.unshift(e); }
+    if(!e){ e={key,u:q.u,b:q.b,i:q.i,prompt:promptText(q),answer:aText,given:'',count:0,fixed:false}; errors.unshift(e); }
     e.count++; e.given=(q.firstGiven ?? given) || '（沒有作答）'; e.fixed = res==='fix'; e.last=todayKey();
   } else if(e){ e.fixed=true; e.last=todayKey(); }
   if(errors.length>200) errors.length=200;
   saveErrors();
 }
 
-function promptText(q){
-  const p=q.params;
-  switch(q.type){
-    case 'ttSort': return `${p.n} 是 teen 還是 ty`;
-    case 'ttPrefix': return `${TT_PREFIX[p.k].n} 的拼法`;
-    case 'ttListen': return `聽音分辨 ${pairOf(p.n).join(' / ')}`;
-    case 'ttDictate': return `聽寫 ${p.n}`;
-    case 'spell': return `拼出 ${p.n}`;
-    case 'listen': return `聽音選 ${p.n}`;
-    case 'gapNum': return `挖空拼出 ${p.n}`;
-    case 'gapTime': return `挖空拼時間 ${digital(p.h,p.m)}`;
-    case 'paper': return p.k==='num' ? `紙上聽寫 ${p.n}` : p.k==='wx' ? `紙上聽寫 ${WPAPER[p.i]}` : p.k==='ask' ? `紙上寫問句：____. ${WASK[p.i].a}` : p.k==='askT' ? `紙上寫問句：____ It's ${timeWord(p.h,p.m)}.` : `紙上聽寫 ${digital(p.h,p.m)}`;
-    case 'wAsk': return `組出問句：____. ${WASK[p.i].a}`;
-    case 'tAsk': return `組出問句：____ It's ${timeWord(p.h,p.m)}.`;
-    case 'wBe': return WBE[p.i].s;
-    case 'wShort': return `圖是 ${p.w}：Is it ${p.ask}?`;
-    case 'wHow': return p.v==='ans' ? `圖是 ${p.w}：How's the weather?` : WHOW[p.i].s;
-    case 'wPic': return `看圖選字（${p.w}）`;
-    case 'wGap': return `挖空拼出 ${p.w}`;
-    case 'timeMcq': return `${digital(p.h,p.m)}  It's ____.`;
-    case 'clock': return `時鐘 ${digital(p.h,p.m)}`;
-    case 'tWhole': return `時鐘 ${digital(p.h,p.m)}：It's ${HOURS[p.h]} ____.`;
-    case 'tBlank': return p.v==='oclock' ? `${digital(p.h,0)}：It's ____ o'clock.` : p.v==='hyphen' ? `${digital(p.h,p.m)}：It's ____.` : `${digital(p.h,p.m)}：What time is it?`;
-    case 'tFind': return `找錯：${digital(p.h,p.m)}`;
-    case 'tBlocks': return `時間積木 ${digital(p.h,p.m)}`;
-    case 'reorder': return `排句子：${p.s}`;
-    case 'ampm': return AMPM[p.i].s;
-    case 'forto': return FORTO[p.i].s;
-  }
-  return q.type;
-}
-
 /* ---------- 共用元件 ---------- */
 function mkPrompt(body){ const p=el('div',{class:'prompt'}); body.appendChild(p); return p; }
-// 選擇題：opts = [{label, value, html?}]；onPick(value) 回傳 answer() 的結果
-function mcq(body, opts, correctVal, onPick, cls=''){
-  const grid=el('div',{class:'options'+(opts.length===3?' three':'')});
+// 選擇題：opts = [{label, value}]；onPick(value) 回傳 answer() 的結果
+function mcq(body, opts, correctVal, onPick){
+  const long = opts.some(o=>String(o.label).length>16);
+  const grid=el('div',{class:'options'+(long?' one':(opts.length===3?' three':''))});
   shuffle(opts).forEach(o=>{
-    const b=el('button',{class:'opt '+cls,type:'button'}, o.html || esc(o.label));
+    const b=el('button',{class:'opt',type:'button'}, esc(o.label));
     b.dataset.v=o.value;
     b.onclick=()=>{
       const r=onPick(o.value);
@@ -797,30 +813,7 @@ function tileBuilder(body, tiles, onSubmit, {cls='tile', placeholder='點下面�
   row.append(clr,ok); body.appendChild(row);
   draw();
 }
-// 挖空位置：挑最容易錯的地方（four 的 u、fif/thir 的 i、teen 的 ee、ty 的 y、連字號）
-function numberGaps(n){
-  const word=numWord(n), c=numChunks(n), idx=new Set(), extra=new Set();
-  if(n===11){ idx.add(2); idx.add(4); extra.add('i'); extra.add('a'); }
-  else if(n===12){ idx.add(3); idx.add(4); extra.add('f'); extra.add('u'); }
-  else if(c.length===1){ if(word.length>1) idx.add(randInt(1,word.length-1)); }
-  else{
-    const pre=c[0], suf=c[1], s0=pre.length;
-    let pi = pre==='nine' ? 3 : pre.indexOf('u'); if(pi<1) pi=pre.indexOf('i'); if(pi<1) pi=randInt(1,pre.length-1);
-    idx.add(pi);
-    if(suf==='teen'){ idx.add(s0+1); idx.add(s0+2); extra.add('y'); }
-    else { idx.add(s0+1); extra.add('e'); extra.add('n'); }
-    if(pre==='fif') extra.add('v');
-    if(pre==='for') extra.add('u');
-    if(pre==='thir') extra.add('e');
-    if(c.includes('-') && Math.random()<0.5) idx.add(s0+suf.length);
-  }
-  const miss=new Set([...idx].map(i=>word[i]));
-  miss.forEach(ch=>extra.delete(ch));
-  const pool=['u','v','y','e','n','r','i','o'].filter(ch=>!miss.has(ch));
-  while(extra.size<3) extra.add(rand(pool));
-  return {idx:[...idx].sort((a,b)=>a-b), extra:[...extra].slice(0,3)};
-}
-// 挖空作答：點字母卡依序填入空格；點已填的空格可以拿回來
+// 挖空作答：點字卡依序填入空格；點已填的空格可以拿回來
 function gapUI(body, {pre='', target, post='', blanks, extra}, onDone){
   const line=el('div',{class:'gapline'});
   if(pre) line.appendChild(el('span',{class:'cell word'},esc(pre)));
@@ -850,375 +843,121 @@ function gapUI(body, {pre='', target, post='', blanks, extra}, onDone){
   };
   row.append(clr,ok); body.appendChild(row);
 }
-function sentenceHTML(parts){ // parts: string with ___ ；已給的字用灰色
+function sentenceHTML(parts){ // ___ 變成空格；已給的字用灰色
   return parts.split('___').map(s=>`<span class="given">${esc(s)}</span>`).join('<span class="blank"></span>');
 }
 
 /* ---------- 各題型 ---------- */
 const RENDER = {
-  /* ===== teen / ty 暖身 ===== */
-  ttSort(q, body){
-    const n=q.params.n, pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'number'},String(n)));
-    pr.appendChild(el('div',{class:'zh'},'這個數字是 teen 還是 ty？'));
-    const correct = isTeen(n) ? 'teen' : 'ty';
-    mcq(body, [{value:'teen',html:'<span class="s">teen</span>'},{value:'ty',html:'<span class="s">ty</span>'}], correct,
-      v=>answer(q, v===correct, v, `${n} = ${chunkHTML(n)}`, numWord(n), RULE), 'huge');
-  },
-  ttPrefix(q, body){
-    const it=TT_PREFIX[q.params.k], pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'number'},String(it.n)));
-    pr.appendChild(el('div',{class:'zh'},`從 ${it.base} 變過來，哪一個拼對了？`));
-    pr.appendChild(speakBtn(it.a));
-    mcq(body, [{value:it.a,label:it.a},{value:it.b,label:it.b}], it.a,
-      v=>answer(q, v===it.a, v, `${it.n} = ${chunkHTML(it.n)}`, it.a, it.tip));
-  },
-  ttListen(q, body){
-    const n=q.params.n, p=pairOf(n), pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'zh'},'聽一聽，是哪一個數字？'));
-    const row=el('div',{class:'row center'}); row.append(speakBtn(numWord(n),'再聽一次'), slowBtn(numWord(n))); pr.appendChild(row);
-    mcq(body, p.map(x=>({value:String(x),label:String(x)})), String(n),
-      v=>answer(q, v===String(n), v, `${n} = ${chunkHTML(n)}`, numWord(n), STRESS), 'huge');
-    setTimeout(()=>speak(numWord(n)),300);
-  },
-  ttDictate(q, body){
-    const n=q.params.n, word=numWord(n), pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'zh'},'聽寫：把聽到的數字拼出來'));
-    const row=el('div',{class:'row center'}); row.append(speakBtn(word,'再聽一次'), slowBtn(word)); pr.appendChild(row);
-    const c=numChunks(n), set=new Set([...c, 'teen','ty']);
-    if(CONFUSE[c[0]]) set.add(CONFUSE[c[0]]);
-    const tiles=shuffle([...set]);
-    tileBuilder(body, tiles, parts=>{
-      const g=parts.join('');
-      answer(q, g===word, g, `${n} = ${chunkHTML(n)}`, word, spellNote(n,g) || STRESS);
-    }, {cls:'tile', placeholder:'點下面的方塊，組成單字'});
-    setTimeout(()=>speak(word),300);
-  },
-
-  /* ===== 數字拼字 ===== */
-  spell(q, body){
-    const n=q.params.n, word=numWord(n), pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'number'},String(n)));
-    pr.appendChild(el('div',{class:'zh'},'用方塊拼出這個數字的英文'));
-    pr.appendChild(speakBtn(word));
-    const c=numChunks(n), set=new Set([...c,'ty','teen','-']);
-    c.forEach(x=>{ if(CONFUSE[x]) set.add(CONFUSE[x]); });
-    tileBuilder(body, shuffle([...set]), parts=>{
-      const g=parts.join('');
-      answer(q, g===word, g, chunkHTML(n), word, spellNote(n,g));
-    }, {placeholder:'點下面的方塊，組成單字'});
-  },
-  listen(q, body){
-    const n=q.params.n, word=numWord(n), pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'zh'},'聽發音，選出正確的單字'));
-    pr.appendChild(speakBtn(word,'再聽一次'));
-    const p=pairOf(n), pool=numberPool().filter(x=>x!==n);
-    const ds=new Set(); if(p) ds.add(p[0]===n?p[1]:p[0]);
-    while(ds.size<2){ ds.add(rand(pool)); }
-    mcq(body, [n,...ds].map(x=>({value:String(x),label:numWord(x)})), String(n),
-      v=>answer(q, v===String(n), numWord(+v), `${chunkHTML(n)} <span class="muted">(${n})</span>`, word, isTeen(n)||n%10===0 ? STRESS : ''));
-    setTimeout(()=>speak(word),300);
-  },
-  /* ===== 挖空拼字 ===== */
-  gapNum(q, body){
-    const n=q.params.n, word=numWord(n), pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'number'},String(n)));
-    pr.appendChild(el('div',{class:'zh'},'補上缺的字母'));
-    pr.appendChild(speakBtn(word));
-    const g=numberGaps(n);
-    gapUI(body, {target:word, blanks:g.idx, extra:g.extra}, filled=>
-      answer(q, filled===word, filled, chunkHTML(n), word, spellNote(n,filled)));
-  },
-  gapTime(q, body){
-    const {h,m}=q.params, H=HOURS[h], target=timeWord(h,m), pr=mkPrompt(body);
-    const row=el('div',{class:'row center'}); row.append(clockEl(h,m), el('div',{class:'digital'},digital(h,m))); pr.appendChild(row);
-    pr.appendChild(el('div',{class:'zh'},'補上缺的字母或符號'));
-    pr.appendChild(speakBtn(`It's ${target}.`));
-    let idx, extra;
-    if(m===0){
-      idx=[target.indexOf("'")]; if(H.length>2) idx.unshift(randInt(1,H.length-1));
-      extra=['-', rand(['e','o','u']), rand(['k','c','l'])];
-    } else {
-      const g=numberGaps(m); idx=g.idx.map(i=>i+H.length+1); extra=g.extra;
-    }
-    gapUI(body, {pre:"It's", target, post:'.', blanks:idx, extra}, filled=>{
-      let note='';
-      if(filled!==target){
-        if(m===0 && !filled.includes("'")) note="o'clock 中間是一撇「'」，不是 -。";
-        else if(m!==0) note=spellNote(m, filled.slice(H.length+1)) || `${m} 分要拼成 ${numWord(m)}。`;
-      }
-      answer(q, filled===target, filled, `It's ${esc(target)}.`, `It's ${target}.`, note);
-    });
-  },
-
-  /* ===== 天氣 ===== */
-  wAsk(q, body){
-    const it=WASK[q.params.i], pr=mkPrompt(body);
-    pr.insertAdjacentHTML('beforeend', wxIcon(it.w));
-    pr.appendChild(el('div',{class:'sentence'},`<span class="blank" style="min-width:200px"></span> <span class="given">${esc(it.a)}</span>`));
-    pr.appendChild(el('div',{class:'zh'},'後面是回答，前面要問什麼？用字卡組出問句'));
-    pr.appendChild(speakBtn(it.a,'聽回答'));
-    tileBuilder(body, shuffle(["How's",'the','weather?','How',"What's"]), parts=>{
-      const g=parts.join(' ');
-      let note=ASK_NOTE;
-      if(parts.includes('How')) note="How 後面要有 is，寫成 How's（How is）。"+ASK_NOTE;
-      else if(parts.includes("What's")) note="問天氣用 How's，不用 What's。"+ASK_NOTE;
-      else if(parts.length===3) note="順序是 How's → the → weather?。";
-      answer(q, g===ASK, g, `${esc(ASK)} <span class="given">${esc(it.a)}</span>`, `${ASK} ${it.a}`, note);
-    }, {cls:'tile word', placeholder:'依序點字卡'});
-  },
-  tAsk(q, body){
-    const {h,m}=q.params, ans=`It's ${timeWord(h,m)}.`, pr=mkPrompt(body);
-    pr.appendChild(clockEl(h,m));
-    pr.appendChild(el('div',{class:'sentence'},`<span class="blank" style="min-width:200px"></span> <span class="given">${esc(ans)}</span>`));
-    pr.appendChild(el('div',{class:'zh'},'後面是回答，前面要問什麼？用字卡組出問句'));
-    pr.appendChild(speakBtn(ans,'聽回答'));
-    tileBuilder(body, shuffle(['What','time','is','it?',"What's","How's"]), parts=>{
-      const g=parts.join(' ');
-      let note=ASK_T_NOTE;
-      if(parts.includes("What's")) note="問時間是 What time is it?，What 後面沒有 's。";
-      else if(parts.includes("How's")) note="How's 是問天氣用的；問時間要說 What time is it?。";
-      else if(parts.length===4) note='順序是 What → time → is → it?。';
-      answer(q, g===ASK_T, g, `${esc(ASK_T)} <span class="given">${esc(ans)}</span>`, `${ASK_T} ${ans}`, note);
-    }, {cls:'tile word', placeholder:'依序點字卡'});
-  },
-  wBe(q, body){
-    const it=WBE[q.params.i], pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'sentence'},sentenceHTML(it.s)));
-    pr.appendChild(el('div',{class:'zh'},'看空格前面是誰'));
-    const full=it.s.replace('___',it.a);
-    mcq(body, [{value:it.a,label:it.a},{value:it.b,label:it.b}], it.a,
-      v=>answer(q, v===it.a, v, esc(full), full, WBE_NOTE));
-  },
-  wShort(q, body){
-    const {w,ask,v}=q.params, yes=w===ask, pr=mkPrompt(body);
-    pr.insertAdjacentHTML('beforeend', wxIcon(w));
-    const ans = yes ? 'Yes, it is.' : "No, it isn't.";
-    const note = yes ? `圖是 ${ask}，所以說 Yes, it is.` : `圖是 ${w}，不是 ${ask}，所以說 No, it isn't.（isn't = is not；只寫 not 少了 is）`;
-    if(v==='blank'){
-      const sent = yes ? `Is it ${ask}? Yes, it ___.` : `Is it ${ask}? No, it ___.`;
-      pr.appendChild(el('div',{class:'sentence'},sentenceHTML(sent)));
-      const correct = yes ? 'is' : "isn't", other = yes ? "isn't" : 'not';
-      const full=`Is it ${ask}? ${ans}`;
-      mcq(body, [{value:correct,label:correct},{value:other,label:other}], correct,
-        val=>answer(q, val===correct, val, esc(full), full, note));
-    } else {
-      pr.appendChild(el('div',{class:'sentence'},`Is it ${esc(ask)}?`));
-      pr.appendChild(el('div',{class:'zh'},'看圖回答'));
-      pr.appendChild(speakBtn(`Is it ${ask}?`));
-      const other = yes ? "No, it isn't." : 'Yes, it is.';
-      mcq(body, [{value:ans,label:ans},{value:other,label:other}], ans,
-        val=>answer(q, val===ans, val, esc(`Is it ${ask}? ${ans}`), `Is it ${ask}? ${ans}`, note));
-    }
-  },
-  wHow(q, body){
-    const p=q.params, pr=mkPrompt(body);
-    if(p.v==='blank'){
-      const it=WHOW[p.i], full=it.s.replace('___',it.a);
-      pr.appendChild(el('div',{class:'sentence'},sentenceHTML(it.s)));
-      pr.appendChild(el('div',{class:'zh'},'問天氣要怎麼問？'));
-      mcq(body, [{value:it.a,label:it.a},{value:it.b,label:it.b}], it.a,
-        v=>answer(q, v===it.a, v, esc(full), full, it.note));
-    } else {
-      const w=p.w, other=WX_CONFUSE[w], ans=`It's ${w}.`;
-      pr.insertAdjacentHTML('beforeend', wxIcon(w));
-      pr.appendChild(el('div',{class:'sentence'},"How's the weather?"));
-      pr.appendChild(speakBtn("How's the weather?"));
-      mcq(body, [{value:ans,label:ans},{value:`It's ${other}.`,label:`It's ${other}.`}], ans,
-        v=>answer(q, v===ans, v, `${esc(ans)} <span class="muted small">（${WX[w].zh}）</span>`, ans, `圖是 ${WX[w].zh}，所以說 ${ans}`));
-    }
-  },
-  wPic(q, body){
-    const w=q.params.w, other=WX_CONFUSE[w], pr=mkPrompt(body);
-    pr.insertAdjacentHTML('beforeend', wxIcon(w));
-    pr.appendChild(el('div',{class:'zh'},'這是什麼天氣？'));
-    mcq(body, [{value:w,label:w},{value:other,label:other}], w,
-      v=>answer(q, v===w, v, `${esc(w)} <span class="muted small">（${WX[w].zh}）</span>`, w, `${WX[w].root}。`));
-  },
-  wGap(q, body){
-    const w=q.params.w, W=WX[w], pr=mkPrompt(body);
-    pr.insertAdjacentHTML('beforeend', wxIcon(w));
-    pr.appendChild(el('div',{class:'zh'},`${W.zh}・補上缺的字母`));
-    pr.appendChild(speakBtn(w));
-    gapUI(body, {target:w, blanks:W.gaps, extra:W.extra}, filled=>
-      answer(q, filled===w, filled, esc(w), w, `${W.root}。`));
-  },
-
-  /* ===== 紙上聽寫 ===== */
-  paper(q, body){
-    const p=q.params, isNum=p.k==='num', isWx=p.k==='wx', isAsk=p.k==='ask', isAskT=p.k==='askT';
-    const timeAns = isAskT ? `It's ${timeWord(p.h,p.m)}.` : '';
-    const text = isNum ? numWord(p.n) : isWx ? WPAPER[p.i] : isAsk ? ASK : isAskT ? ASK_T : `It's ${timeWord(p.h,p.m)}.`;
-    const isWord = isNum || (isWx && !/[.?]$/.test(text));
-    const aHTML = isNum ? `${p.n} = ${chunkHTML(p.n)}` : isAsk ? `${esc(ASK)} <span class="given">${esc(WASK[p.i].a)}</span>`
-      : isAskT ? `${esc(ASK_T)} <span class="given">${esc(timeAns)}</span>` : esc(text);
-    const note = isNum
-      ? `${RULE} ${STRESS}${p.n%10 && p.n>20 ? ' 個位不是 0 的要用 - 連起來，例如 thirty-five。' : ''}`
-      : isAsk ? ASK_NOTE : isAskT ? ASK_T_NOTE
-      : isWx ? (isWord ? (WX[text] ? `${WX[text].root}。` : PAPER_NOTE[text]||'') : "檢查：句首大寫、How's 和 isn't 都有一撇、句尾有句點或問號。")
-      : "檢查四件事：It's 的 I 大寫、小時和分鐘中間不加 -、整點才寫 o'clock（中間是一撇）、句尾有句點。";
+  // 看中文，選英文單字 / 片語
+  zhword(q, body, it){
     const pr=mkPrompt(body);
-    if(isAsk){
-      const it=WASK[p.i];
-      pr.insertAdjacentHTML('beforeend', wxIcon(it.w));
-      pr.appendChild(el('div',{class:'sentence'},`<span class="blank" style="min-width:200px"></span> <span class="given">${esc(it.a)}</span>`));
-      pr.appendChild(el('div',{class:'zh'},'後面是回答。把前面空格的問句寫在紙上（大寫開頭、記得問號）'));
-      const row=el('div',{class:'row center'}); row.append(speakBtn(it.a,'聽回答')); pr.appendChild(row);
-    } else if(isAskT){
-      pr.appendChild(clockEl(p.h,p.m));
-      pr.appendChild(el('div',{class:'sentence'},`<span class="blank" style="min-width:200px"></span> <span class="given">${esc(timeAns)}</span>`));
-      pr.appendChild(el('div',{class:'zh'},'後面是回答。把前面空格的問句寫在紙上（大寫開頭、記得問號）'));
-      const row=el('div',{class:'row center'}); row.append(speakBtn(timeAns,'聽回答')); pr.appendChild(row);
-    } else {
-      pr.appendChild(el('div',{class:'sentence'},isNum ? '聽寫一個數字' : isWord ? '聽寫一個單字' : '聽寫一個句子'));
-      pr.appendChild(el('div',{class:'zh'},isWord ? '仔細聽，把英文單字寫在紙上' : '仔細聽，把整個句子寫在紙上（大寫開頭、記得標點）'));
-      const row=el('div',{class:'row center'}); row.append(speakBtn(text,'再聽一次'), slowBtn(text)); pr.appendChild(row);
-    }
+    if(it.e) pr.appendChild(el('div',{class:'emoji'},it.e));
+    pr.appendChild(el('div',{class:'zhbig'},esc(it.zh)));
+    pr.appendChild(el('div',{class:'zh'},'選出正確的英文'));
+    const opts=[it.a].concat(shuffle(it.pool.filter(x=>x!==it.a)).slice(0,2));
+    mcq(body, opts.map(x=>({value:x,label:x})), it.a,
+      v=>answer(q, v===it.a, v, `${esc(it.a)} <span class="muted small">（${esc(it.zh)}）</span>`, it.a, it.tip));
+  },
+  // 聽發音，選單字
+  listenword(q, body, it){
+    const pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'zh'},'聽發音，選出正確的單字'));
+    const row=el('div',{class:'row center'}); row.append(speakBtn(it.a,'再聽一次'), slowBtn(it.a)); pr.appendChild(row);
+    const opts=[it.a].concat(shuffle(it.pool.filter(x=>x!==it.a)).slice(0,2));
+    mcq(body, opts.map(x=>({value:x,label:x})), it.a,
+      v=>answer(q, v===it.a, v, esc(it.a), it.a, it.tip));
+    setTimeout(()=>speak(it.a),300);
+  },
+  // 挖空拼字 / 補撇
+  gap(q, body, it){
+    const pr=mkPrompt(body);
+    if(it.e) pr.appendChild(el('div',{class:'emoji'},it.e));
+    pr.appendChild(el('div',{class:'zh'},`${it.zh ? it.zh+'・' : ''}補上缺的字母或符號`));
+    pr.appendChild(speakBtn(it.say||it.target));
+    gapUI(body, {target:it.target, blanks:it.blanks, extra:it.extra, pre:it.pre||'', post:it.post||''}, filled=>
+      answer(q, filled===it.target, filled, esc(it.target), it.say||it.target, it.tip));
+  },
+  // 句子填空（選擇）
+  fill(q, body, it){
+    const pr=mkPrompt(body);
+    if(it.cue) pr.appendChild(el('div',{class:'cue'},esc(it.cue)));
+    pr.appendChild(el('div',{class:'sentence'+(it.big?' sbig':'')}, sentenceHTML(it.s)));
+    if(it.zh) pr.appendChild(el('div',{class:'zh'},esc(it.zh)));
+    const full=it.s.replace('___',it.a);
+    mcq(body, [it.a].concat(it.bad).map(x=>({value:x,label:x})), it.a,
+      v=>answer(q, v===it.a, v, esc(full), it.say||full, it.tip));
+  },
+  // 看中文，選正確的英文句子
+  zhsent(q, body, it){
+    const pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'sentence'},esc(it.zh)));
+    pr.appendChild(el('div',{class:'zh'},'選出正確的英文句子'));
+    mcq(body, [it.a].concat(it.bad).map(x=>({value:x,label:x})), it.a,
+      v=>answer(q, v===it.a, v, esc(it.a), it.a, it.tip));
+  },
+  // 排字卡
+  order(q, body, it){
+    const pr=mkPrompt(body);
+    if(it.zh) pr.appendChild(el('div',{class:'sentence'},esc(it.zh)));
+    pr.appendChild(el('div',{class:'zh'},'把字卡排成英文（句首大寫、句尾有標點）。有的字卡用不到。'));
+    const words=it.s.split(' '), extra=it.extra||[];
+    let tiles=shuffle(words.concat(extra)), guard=0;
+    while(tiles.filter(t=>!extra.includes(t)).join(' ')===it.s && guard++<10) tiles=shuffle(tiles);
+    tileBuilder(body, tiles, parts=>{
+      const g=parts.join(' ');
+      let note=it.tip||'';
+      if(g!==it.s && parts.some(p=>extra.includes(p))) note='有一塊字卡不是這句話要用的。'+note;
+      else if(g!==it.s && parts.length<words.length) note='還有字卡沒有排進去。'+note;
+      answer(q, g===it.s, g, esc(it.s), it.s, note);
+    }, {cls:'tile word', placeholder:'依序點下面的字卡'});
+  },
+  // 找出句子裡錯的地方
+  find(q, body, it){
+    const pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'zh'},'這句話有一個地方錯了，點出來'));
+    const line=el('div',{class:'findline'});
+    it.toks.forEach((t,i)=>{
+      const punct=/^[.,?!]$/.test(t);
+      const b=el('button',{class:'tok'+(t.length<=1?' tight':'')+((!punct&&i>0)?' gap':''),type:'button'},esc(t));
+      b.onclick=()=>{
+        const r=answer(q, i===it.wrong, t, esc(it.fixed), it.fixed, it.tip);
+        if(r==='done'){ b.classList.add(i===it.wrong?'right':'wrong'); if(i!==it.wrong) line.children[it.wrong].classList.add('right'); }
+      };
+      line.appendChild(b);
+    });
+    body.appendChild(line);
+  },
+  // 紙上聽寫
+  paper(q, body, it){
+    const text=it.text, isWord=!/[.?!]$/.test(text);
+    const pr=mkPrompt(body);
+    pr.appendChild(el('div',{class:'sentence'}, isWord ? '聽寫一個單字' : '聽寫一個句子'));
+    pr.appendChild(el('div',{class:'zh'}, isWord ? '仔細聽，把英文寫在紙上' : '仔細聽，把整個句子寫在紙上（大寫開頭、記得縮寫的撇和標點）'));
+    const row=el('div',{class:'row center'}); row.append(speakBtn(text,'再聽一次'), slowBtn(text)); pr.appendChild(row);
     const box=el('div',{class:'paperbox'},'寫好了再按下面的按鈕');
     body.appendChild(box);
     const reveal=el('button',{class:'big',type:'button'},'寫好了，看答案');
     const rrow=el('div',{class:'row center'}); rrow.appendChild(reveal); body.appendChild(rrow);
     reveal.onclick=()=>{
       rrow.remove();
-      box.innerHTML=`<div class="small">正確答案</div><div class="fb-answer" style="color:var(--ink)">${aHTML}</div><div class="small" style="margin-top:6px">跟紙上的比一比，一個字母一個字母看</div>`;
+      box.innerHTML=`<div class="small">正確答案</div><div class="fb-answer" style="color:var(--ink)">${esc(text)}</div><div class="small" style="margin-top:6px">跟紙上的比一比，一個字母、一個撇一個撇看</div>`;
       const g=el('div',{class:'options'});
       const yes=el('button',{class:'opt',type:'button'},'寫對了');
       const no=el('button',{class:'opt',type:'button'},'寫錯了');
-      yes.onclick=()=>{ yes.classList.add('right'); finish(q, true, '紙上寫對', aHTML, text, ''); };
-      no.onclick=()=>{ no.classList.add('wrong'); finish(q, false, '紙上寫錯', aHTML, text, note); };
+      yes.onclick=()=>{ yes.classList.add('right'); finish(q, true, '紙上寫對', esc(text), text, ''); };
+      no.onclick=()=>{ no.classList.add('wrong'); finish(q, false, '紙上寫錯', esc(text), text, it.tip); };
       g.append(yes,no); body.appendChild(g);
     };
-    setTimeout(()=>speak(isAsk ? WASK[p.i].a : isAskT ? timeAns : text),300);
-  },
-
-  /* ===== 時間 ===== */
-  tWhole(q, body){
-    const {h,m}=q.params, pr=mkPrompt(body);
-    pr.appendChild(clockEl(h,m));
-    pr.appendChild(el('div',{class:'sentence'},sentenceHTML(`It's ${HOURS[h]} ___.`)));
-    pr.appendChild(el('div',{class:'zh'},'看長針：是整點嗎？'));
-    const mw = m===0 ? numWord(randNZ()) : numWord(m);
-    const correct = m===0 ? "o'clock" : numWord(m);
-    mcq(body, [{value:"o'clock",label:"o'clock"},{value:mw,label:mw}], correct,
-      v=>answer(q, v===correct, v, `It's ${esc(timeWord(h,m))}.`, `It's ${timeWord(h,m)}.`,
-        m===0 ? '長針指著 12，是整點，要說 o\'clock。' : `長針指著 ${m/5}，是 ${m} 分（${numWord(m)}）。不是整點，就不說 o'clock。`));
-  },
-  tBlank(q, body){
-    const {h,m,v,dm}=q.params, H=HOURS[h], pr=mkPrompt(body);
-    pr.appendChild(clockEl(h,m));
-    let opts, correct, sent, note, aText;
-    if(v==='oclock'){
-      sent=`It's ___ o'clock.`; correct=H; opts=[H, `${H} ${numWord(dm)}`];
-      note="空格後面已經有 o'clock，空格裡只填小時。"; aText=`It's ${H} o'clock.`;
-    } else if(v==='hyphen'){
-      const M=numWord(m); sent=`It's ___.`; correct=`${H} ${M}`; opts=[correct, `${H}-${M}`];
-      note='小時和分鐘中間空一格，不加 -。'+(M.includes('-')?` ${M} 本身才有 -。`:''); aText=`It's ${correct}.`;
-    } else {
-      const M=numWord(m); sent=''; correct=`It's ${H} ${M}.`; opts=[correct, `${H}-${M}`];
-      pr.appendChild(el('div',{class:'sentence'},'What time is it?'));
-      note='要用完整的句子回答：It\'s ＋ 時間 ＋ 句點；小時和分鐘中間不加 -。'; aText=correct;
-    }
-    if(sent){ pr.appendChild(el('div',{class:'sentence'},sentenceHTML(sent))); pr.appendChild(el('div',{class:'zh'},'灰色的字已經寫好了，空格裡還缺什麼？')); }
-    else pr.appendChild(el('div',{class:'zh'},'選出正確的回答'));
-    mcq(body, opts.map(o=>({value:o,label:o})), correct,
-      val=>answer(q, val===correct, val, esc(aText), aText, note));
-  },
-  tFind(q, body){
-    const {h,m,v}=q.params, H=HOURS[h], M=numWord(m), pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'digital'},digital(h,m)));
-    pr.appendChild(el('div',{class:'zh'},'這句話有一個地方錯了，點出來'));
-    // tokens: [text, spaceBefore]
-    let toks, wrong, fixed, note;
-    if(v==='hyphen'){ toks=[["It's",0],[H,1],['-',0],[M,0],['.',0]]; wrong=2; fixed=`It's ${H} ${M}.`; note='小時和分鐘中間不加 -。'+(M.includes('-')?` ${M} 本身的 - 是對的。`:''); }
-    else if(v==='oclock'){ toks=[["It's",0],[H,1],[M,1],["o'clock",1],['.',0]]; wrong=3; fixed=`It's ${H} ${M}.`; note=`o'clock 只用在整點；${H} ${M} 不是整點，不加 o'clock。`; }
-    else { toks=[["It's",0],[H,1],[BAD_SPELL[M]||M,1],['.',0]]; wrong=2; fixed=`It's ${H} ${M}.`; note=spellNote(m, BAD_SPELL[M]||M) || `${m} 要拼成 ${M}。`; }
-    const line=el('div',{class:'findline'});
-    toks.forEach(([t,sp],i)=>{
-      const b=el('button',{class:'tok'+(t.length<=1?' tight':'')+(sp?' gap':''),type:'button'},esc(t));
-      b.onclick=()=>{
-        const r=answer(q, i===wrong, t, esc(fixed), fixed, note);
-        if(r==='done'){ b.classList.add(i===wrong?'right':'wrong'); if(i!==wrong) line.children[wrong].classList.add('right'); }
-      };
-      line.appendChild(b);
-    });
-    body.appendChild(line);
-  },
-  tBlocks(q, body){
-    const {h,m}=q.params, H=HOURS[h], M=numWord(m), pr=mkPrompt(body);
-    const row=el('div',{class:'row center'}); row.append(clockEl(h,m), el('div',{class:'digital'},digital(h,m))); pr.appendChild(row);
-    pr.appendChild(el('div',{class:'sentence'},sentenceHTML("It's ___.")));
-    pr.appendChild(el('div',{class:'zh'},'用積木組出時間：小時一塊、分鐘一塊'));
-    const tiles=shuffle([H, M, '-', "o'clock", numWord(m/5)].filter((x,i,a)=>a.indexOf(x)===i));
-    tileBuilder(body, tiles, parts=>{
-      const ok = parts.length===2 && parts[0]===H && parts[1]===M;
-      let note='';
-      if(parts.includes('-')) note='小時和分鐘中間不加 -。';
-      else if(parts.includes("o'clock")) note='o\'clock 只用在整點。';
-      else if(parts.includes(numWord(m/5)) && m/5!==m) note=`長針指著 ${m/5}，是 ${m} 分，要說 ${M}。`;
-      else if(parts[0]!==H) note='先說小時，再說分鐘。';
-      answer(q, ok, parts.join(' '), `It's ${esc(H)} ${esc(M)}.`, `It's ${H} ${M}.`, note);
-    }, {cls:'tile word', placeholder:'依序點積木'});
-  },
-  timeMcq(q, body){
-    const {h,m}=q.params, H=HOURS[h], pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'digital'},digital(h,m)));
-    pr.appendChild(el('div',{class:'sentence'},sentenceHTML("It's ___.")));
-    const correct=timeWord(h,m);
-    const opts = m===0
-      ? [[correct,''],[`${H} o'clocks`,"o'clock 後面不加 s。"],[`o'clock ${H}`,"o'clock 要放在數字後面。"]]
-      : [[correct,''],[`${H}-${numWord(m)}`,'小時和分鐘中間不加 -。'],[`${H} ${numWord(m)} o'clock`,"o'clock 只用在整點。"]];
-    const notes=Object.fromEntries(opts);
-    mcq(body, opts.map(([t])=>({value:t,label:t})), correct,
-      v=>answer(q, v===correct, v, `It's ${esc(correct)}.`, `It's ${correct}.`, notes[v]||''));
-  },
-  clock(q, body){
-    const {h,m}=q.params, H=HOURS[h], pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'sentence'},'What time is it?'));
-    pr.appendChild(clockEl(h,m));
-    const correct=`It's ${timeWord(h,m)}.`;
-    const opts = m===0
-      ? [[correct,''],[`It's ${HOURS[h%12+1]} o'clock.`,'短針才是「幾點」，看短針指的數字。'],[`It's ${H} thirty.`,"長針指著 12，是整點，要說 o'clock。"]]
-      : [[correct,''],[`It's ${H} ${numWord(m/5)}.`,`長針指著 ${m/5}，要乘 5，是 ${m} 分（${numWord(m)}）。`],[`It's ${H}-${numWord(m)}.`,'小時和分鐘中間不加 -。']];
-    const uniq=opts.filter((o,i)=>opts.findIndex(x=>x[0]===o[0])===i);
-    const notes=Object.fromEntries(uniq);
-    mcq(body, uniq.map(([t])=>({value:t,label:t})), correct,
-      v=>answer(q, v===correct, v, `${esc(correct)} <span class="muted">(${digital(h,m)})</span>`, correct, notes[v]||''));
-  },
-  reorder(q, body){
-    const s=q.params.s, words=s.split(' ');
-    let order=shuffle(words.map((w,i)=>i)); let guard=0;
-    while(order.map(i=>words[i]).join(' ')===s && guard++<10) order=shuffle(order);
-    const pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'zh'},'把字卡排成正確的句子（句首大寫、句尾有標點）'));
-    tileBuilder(body, order.map(i=>words[i]), parts=>{
-      const g=parts.join(' ');
-      answer(q, g===s, g, esc(s), s, parts.length<words.length ? '還有字卡沒有排進去。' : '');
-    }, {cls:'tile word', placeholder:'依序點下面的字卡'});
-  },
-  ampm(q, body){
-    const it=AMPM[q.params.i], pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'sentence'},sentenceHTML(it.s)));
-    pr.appendChild(el('div',{class:'zh'},it.zh));
-    const full=it.s.replace('___',it.a);
-    mcq(body, [{value:'a.m.',label:'a.m.'},{value:'p.m.',label:'p.m.'}], it.a,
-      v=>answer(q, v===it.a, v, esc(full), full, 'a.m. 是早上（中午以前）；p.m. 是下午和晚上。'));
-  },
-  forto(q, body){
-    const it=FORTO[q.params.i], pr=mkPrompt(body);
-    pr.appendChild(el('div',{class:'sentence'},sentenceHTML(it.s)));
-    pr.appendChild(el('div',{class:'zh'},it.zh));
-    const full=it.s.replace('___',it.a);
-    mcq(body, [{value:'for',label:'for'},{value:'to',label:'to'}], it.a,
-      v=>answer(q, v===it.a, v, esc(full), full, 'Time for ＋ 東西（lunch、dinner、bed）；Time to ＋ 動作（go to bed、get up）。'));
+    setTimeout(()=>speak(text),300);
   }
-
 };
 
 /* ===================== 畫面 ===================== */
-const SCREENS=['home','home-words','quiz','result','errors','settings'];
+const SCREENS=['home','home-notes','quiz','result','errors','settings'];
 function show(name){
   SCREENS.forEach(s=>$(s).hidden=true);
-  if(name==='home'){ $('home').hidden=false; $('home-words').hidden=false; renderHome(); }
+  if(name==='home'){ $('home').hidden=false; $('home-notes').hidden=false; renderHome(); }
   else $(name).hidden=false;
   $('nav-home').setAttribute('aria-current', String(['home','quiz','result'].includes(name)));
   $('nav-errors').setAttribute('aria-current', String(name==='errors'));
@@ -1230,25 +969,43 @@ function dots(target, arr){
   target.innerHTML='';
   for(let i=0;i<ROUND;i++){ const r=arr[i]; target.appendChild(el('span',{class:'dot'+(r?' '+r:'')})); }
 }
-const MODE_DESC = {tt:'看數字、聽尾巴、聽寫', daily:'時間句型＋數字', weather:"is、isn't、How's、天氣單字", gap:'補上缺的字母', paper:'聽 iPad 念，寫在紙上'};
 function renderHome(){
   if(day.date!==todayKey()){ day=newDay(); saveDay(); }
-  Object.keys(MODES).forEach(m=>{
-    const arr=day[m], done=arr.length, right=arr.filter(x=>x!=='no').length;
-    $(m+'-status').textContent = done===0 ? `${MODE_DESC[m]}，${ROUND} 題` :
-      done<ROUND ? `做了 ${done} 題，還有 ${ROUND-done} 題` : `完成了！${right} / ${ROUND} 題答對或訂正`;
-    $('start-'+m).textContent = done===0 ? '開始' : done<ROUND ? '繼續' : '再一回';
-    dots($(m+'-dots'), arr);
+  const U=UNITS[cu];
+  const tabs=$('unit-tabs'); tabs.innerHTML='';
+  Object.keys(UNITS).forEach(u=>{
+    const b=el('button',{class:'unitbtn',type:'button',role:'tab','aria-selected':String(u===cu)},`${esc(UNITS[u].name)}<small>${esc(UNITS[u].sub)}</small>`);
+    b.onclick=()=>{ cu=u; store.set(KEY.unit,u); renderHome(); };
+    tabs.appendChild(b);
   });
-  const d=new Date(); $('home-clock').innerHTML=clockSVG(d.getHours()%12||12, Math.floor(d.getMinutes()/5)*5);
-  const wl=$('wx-words'); wl.innerHTML='';
-  WX_KEYS.forEach(w=>{ const c=el('button',{class:'chip',type:'button'},wxIcon(w)+`<b>${w}</b>&nbsp;<span class="muted">${WX[w].zh}</span>`); c.onclick=()=>speak(w); wl.appendChild(c); });
-  const pairs=$('pairs'); pairs.innerHTML='';
-  [[13,30],[14,40],[15,50],[19,90]].concat(settings.advanced?[[16,60],[17,70],[18,80]]:[]).forEach(([a,b])=>{
-    const p=el('div',{class:'pair'});
-    [a,b].forEach(n=>{ const btn=el('button',{type:'button'},`<b>${n}</b> ${chunkHTML(n)}`); btn.onclick=()=>speak(numWord(n)); p.appendChild(btn); });
-    pairs.appendChild(p);
+  const box=$('modes'); box.innerHTML='';
+  MODE_KEYS.forEach(m=>{
+    const arr=day.prog[cu][m], done=arr.length, right=arr.filter(x=>x!=='no').length, info=MODE_INFO[m];
+    const status = done===0 ? `${U.desc[m]}，${ROUND} 題` : done<ROUND ? `做了 ${done} 題，還有 ${ROUND-done} 題` : `完成了！${right} / ${ROUND} 題答對或訂正`;
+    const row=el('div',{class:'mode'});
+    const left=el('div',{class:'mode-info'},
+      `<h3>${info.badge?`<span class="badge" style="background:var(${info.color})">${info.badge}</span>`:''}${info.name}</h3><p class="muted small">${esc(status)}</p>`);
+    const d=el('div',{class:'dots'}); dots(d,arr); left.appendChild(d);
+    const btn=el('button',{class:'big '+U.cls,type:'button'}, done===0?'開始':done<ROUND?'繼續':'再一回');
+    btn.onclick=()=>startSession(m);
+    row.append(left,btn); box.appendChild(row);
   });
+  renderNotes(U);
+}
+function renderNotes(U){
+  const n=$('home-notes'); n.innerHTML='';
+  n.appendChild(el('h3',{},`${esc(U.name)}　重點整理`));
+  n.appendChild(el('p',{class:'small muted'},'點一下可以聽發音。'));
+  const chips=el('div',{class:'chips'});
+  U.vocab.forEach(v=>{ const c=el('button',{class:'chip',type:'button'},`${v.e?v.e+' ':''}<b>${esc(v.w)}</b><span class="muted">${esc(v.zh)}</span>`); c.onclick=()=>speak(v.w); chips.appendChild(c); });
+  n.appendChild(chips);
+  n.appendChild(el('h3',{},'句型'));
+  U.sentences.forEach(s=>{ const b=el('button',{class:'sline',type:'button'},esc(s)); b.onclick=()=>speak(s); n.appendChild(b); });
+  n.appendChild(el('h3',{},esc(U.pairsTitle)));
+  const pairs=el('div',{class:'pairs'});
+  U.pairs.forEach(([a,b])=>{ const p=el('button',{class:'pair',type:'button'},`<span>${esc(a)}</span><span>→ <b>${esc(b)}</b></span>`); p.onclick=()=>speakSeq([a,b]); pairs.appendChild(p); });
+  n.appendChild(pairs);
+  U.notes.forEach(x=>{ n.appendChild(el('h3',{},esc(x.h))); n.appendChild(el('p',{},x.html)); });
 }
 function showResult(){
   const arr=R(), ok=arr.filter(x=>x==='ok').length, fix=arr.filter(x=>x==='fix').length, no=arr.filter(x=>x==='no').length;
@@ -1262,13 +1019,12 @@ function renderErrors(){
   $('e-empty').hidden = errors.length>0;
   const stats=$('e-stats'); stats.innerHTML='';
   const open=errors.filter(e=>!e.fixed);
-  const byType={}; open.forEach(e=>byType[e.type]=(byType[e.type]||0)+1);
   stats.appendChild(el('div',{class:'stat'},`待訂正<b>${open.length}</b>`));
   stats.appendChild(el('div',{class:'stat'},`已訂正<b>${errors.length-open.length}</b>`));
-  Object.keys(byType).forEach(t=>stats.appendChild(el('div',{class:'stat'},`${TYPE_LABEL[t]||t}<b>${byType[t]}</b>`)));
+  Object.keys(UNITS).forEach(u=>{ const c=open.filter(e=>e.u===u).length; if(c) stats.appendChild(el('div',{class:'stat'},`${esc(UNITS[u].name)}<b>${c}</b>`)); });
   errors.slice().sort((a,b)=>(a.fixed-b.fixed)||(b.count-a.count)).forEach(e=>{
     const tr=el('tr');
-    tr.innerHTML=`<td>${esc(e.prompt)}</td><td>${esc(e.given)}</td><td><b>${esc(e.answer)}</b></td><td>${e.count}</td><td><span class="pill ${e.fixed?'fixed':'open'}">${e.fixed?'已訂正':'待訂正'}</span></td>`;
+    tr.innerHTML=`<td>${esc(UNITS[e.u] ? UNITS[e.u].name : e.u)}</td><td>${esc(e.prompt)}</td><td>${esc(e.given)}</td><td><b>${esc(e.answer)}</b></td><td>${e.count}</td><td><span class="pill ${e.fixed?'fixed':'open'}">${e.fixed?'已訂正':'待訂正'}</span></td>`;
     tb.appendChild(tr);
   });
   resetClearZone();
@@ -1289,19 +1045,16 @@ function resetClearZone(){
 }
 
 /* ===================== 啟動 ===================== */
-// 已經拿掉的練習（鍵盤打字、10/18 特殊練習）不再留在錯題紀錄
-errors = errors.filter(e=>GEN[e.type]); saveErrors();
+// 只留下題庫裡還存在的錯題
+errors = errors.filter(e=>UNITS[e.u] && UNITS[e.u].banks[e.b] && UNITS[e.u].banks[e.b][e.i]); saveErrors();
 $('nav-home').onclick=()=>show('home');
 $('nav-errors').onclick=()=>show('errors');
 $('nav-settings').onclick=()=>show('settings');
-Object.keys(MODES).forEach(m=>{ $('start-'+m).onclick=()=>startSession(m); });
 $('r-home').onclick=()=>show('home');
 $('r-again').onclick=()=>startSession(session.mode);
-$('s-advanced').checked=settings.advanced;
 $('s-rate').checked=settings.slow;
-$('s-advanced').onchange=e=>{settings.advanced=e.target.checked;store.set('wt3_settings',settings);};
-$('s-rate').onchange=e=>{settings.slow=e.target.checked;store.set('wt3_settings',settings);};
-$('s-test').onclick=()=>speakSeq(['thirteen','thirty',"It's two twenty."]);
+$('s-rate').onchange=e=>{settings.slow=e.target.checked;store.set(KEY.settings,settings);};
+$('s-test').onclick=()=>speakSeq(["He's watching a movie.","They aren't watching a movie."]);
 $('s-reset-day').onclick=()=>{ day=newDay(); saveDay(); show('home'); };
 show('home');
 </script>
