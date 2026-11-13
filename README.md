@@ -1,10 +1,10 @@
 # 11月英文複習
 
-給小孩在 iPad 上用的英文練習頁。單一檔案 `index.html`，不載入外部資源，iPad 白名單只需 `ningchencontact.github.io`。
+給小孩在 iPad 上用的英文練習頁。單一檔案 `index.html`，無外部資源，iPad 白名單只需 `ningchencontact.github.io`。
 
 ## 內容
 
-頁面上方分頁切換三組進度：
+分頁切換三組進度：
 
 - **學校 Unit 3**：pen、pencil、marker、eraser、book、ruler；Is this your pencil?；主詞與所有格
 - **安親班 Unit 3**：watch a movie 等四個片語；He's / He isn't / They're / They aren't
@@ -12,7 +12,7 @@
 
 每組四種練習：單字、句型、縮寫、紙上聽寫。縮寫是重點（補撇、長短式互換、找錯、They're / Their / There）。
 
-規則：每回 5 題；少於 2 秒就按不算分；第一次答錯先給提示再試一次；不用紅色。進度存在該台 iPad，localStorage 前綴 `kid2_nov_`。
+規則：每回 5 題；少於 2 秒就按不算分；第一次答錯先給提示再試一次，**重試時選項、字卡位置不變**；不用紅色。進度存在該台 iPad，localStorage 前綴 `kid2_nov_`。
 
 ## 如何更新
 
